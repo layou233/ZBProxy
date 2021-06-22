@@ -31,15 +31,13 @@ func toDial(fromConn net.Conn) {
 }
 
 func transfer(f, t net.Conn, n int) {
-	firstConn := true
+	firstConn, secondConn := true, false
 	onlinePlayers++
 	defer func() { onlinePlayers-- }()
 	defer f.Close()
 	defer t.Close()
-	log.Printf("[Closed] %s to %s", f.RemoteAddr().String(), t.RemoteAddr().String())
 
 	var buf = make([]byte, n)
-
 	for {
 		count, err := f.Read(buf)
 		if err != nil {
@@ -48,6 +46,12 @@ func transfer(f, t net.Conn, n int) {
 		if firstConn {
 			log.Println(buf)
 			firstConn = false
+			secondConn = true
+		} else if secondConn {
+			log.Printf("[ATTENTION] A new player has joined the game.")
+			log.Println(buf)
+			defer func() { log.Printf("[Closed] %s to %s", f.RemoteAddr().String(), t.RemoteAddr().String()) }()
+			secondConn = false
 		}
 		count, err = t.Write(buf[:count])
 		if err != nil {
