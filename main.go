@@ -28,10 +28,10 @@ func main() {
 	fmt.Printf("localPort=%d\n", localPort)
 
 	log.Printf("Starting listening on local port %d...", localPort)
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", localPort))
-	if err != nil {
+	listen, err1 := net.Listen("tcp", fmt.Sprintf(":%d", localPort))
+	if err1 != nil {
 		log.Printf("Unable to listen on port %d.\n", localPort)
-		log.Printf("Caution: %d\n", err.Error())
+		log.Printf("Caution: %d\n", err1.Error())
 		log.Printf("The program will exit in 5 seconds.")
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
@@ -41,12 +41,12 @@ func main() {
 		time.Sleep(time.Second)
 		windows.SetTitle(
 			fmt.Sprintf("ZBProxy %v | Online Connections: %v", version, onlinePlayers/2))
-		fromConn, err := listen.Accept()
-		if err != nil {
+		fromConn, err2 := listen.Accept()
+		if err2 != nil {
 			continue
 		}
-		serverIp, err := net.ResolveIPAddr("ip4", serverAddr)
-		if err != nil {
+		serverIp, err3 := net.ResolveIPAddr("ip4", serverAddr)
+		if err3 != nil {
 			log.Printf("Can't resolve hostname: %v", serverAddr)
 			continue
 		}
