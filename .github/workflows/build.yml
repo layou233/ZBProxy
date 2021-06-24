@@ -90,5 +90,5 @@ jobs:
       uses: actions/upload-artifact@v2.2.4
       if: ${{ env.GOOS == 'windows' }}
       with:
-        name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goarm }}.exe
-        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goarm }}
+        name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
+        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
