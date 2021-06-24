@@ -32,8 +32,8 @@ func EncodeVarint(x int) []byte {
 
 // DecodeVarint decodes the Varint and returns a int typed value.
 // This will read bytes from the given index and read most at 5 bytes.
-func DecodeVarint(buf []byte, index int) int {
-	numRead, result := 0, 0
+func DecodeVarint(buf []byte, index int) (result int, numRead int) {
+	numRead, result = 0, 0
 	var read byte
 	_tk := true // Simulate do-while
 	for ((read & 0b10000000) != 0) || _tk {
@@ -47,7 +47,7 @@ func DecodeVarint(buf []byte, index int) int {
 			break
 		}
 	}
-	return result
+	return
 }
 
 /*
