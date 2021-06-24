@@ -48,7 +48,7 @@ func main() {
 	}
 	defer listen.Close()
 	for {
-		//time.Sleep(time.Second)
+		time.Sleep(time.Second)
 		windows.SetTitle(
 			fmt.Sprintf("ZBProxy %v | Online Players: %v", Version, onlineConnections/2))
 		fromConn, err2 := listen.Accept()
