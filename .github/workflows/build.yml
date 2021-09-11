@@ -9,7 +9,7 @@ jobs:
     strategy:
         matrix:
           # Include amd64 on all platforms.
-          goos: [windows, freebsd, openbsd, linux, dragonfly, darwin]
+          goos: [console, freebsd, openbsd, linux, dragonfly, darwin]
           goarch: [amd64, 386]
           exclude:
             # Exclude i386 on darwin and dragonfly.
@@ -30,7 +30,7 @@ jobs:
               goarm: 5
             # END Linux ARM 5 6 7
             # Windows ARM 7
-            - goos: windows
+            - goos: console
               goarch: arm
               goarm: 7
             # BEGIN Other architectures
@@ -71,13 +71,10 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ^1.16.4
-      
-    - name: Handle for Non-Windows Build
-      if: ${{ env.GOOS != 'windows' }}
-      run: yes | cp ./windows/kernel32.go.nonwindows ./windows/kernel32.go
-      
-    - name: Build
-      run: go build -v -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+
+    - name: Handle for Windows Build
+      if: ${{ env.GOOS == 'windows' }}
+      run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }} ZBLite-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
 
     - name: Upload a Non-Windows Build Artifact
       uses: actions/upload-artifact@v2.2.4
@@ -85,10 +82,10 @@ jobs:
       with:
         name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
         path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
-        
+
     - name: Upload a Windows Build Artifact
       uses: actions/upload-artifact@v2.2.4
       if: ${{ env.GOOS == 'windows' }}
       with:
         name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
-        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe

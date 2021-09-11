@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ZBProxy/windows"
+	"ZBProxy/console"
 	"fmt"
 	"log"
 	"net"
@@ -23,7 +23,7 @@ var IsChangeDescription = MotdDescription != ""
 var IsChangeFavicon = (len(MotdFavicon) > 22) && (MotdFavicon[:22] == "data:image/png;base64,")
 
 func main() {
-	windows.SetTitle(fmt.Sprintf("ZBProxy %v | Loading...", Version))
+	console.SetTitle(fmt.Sprintf("ZBProxy %v | Loading...", Version))
 	fmt.Println(` ______  _____   _____   _____    _____  __    __ __    __
 |___  / |  _  \ |  _  \ |  _  \  /  _  \ \ \  / / \ \  / /
    / /  | |_| | | |_| | | |_| |  | | | |  \ \/ /   \ \/ /
@@ -49,7 +49,7 @@ func main() {
 	defer listen.Close()
 	for {
 		time.Sleep(time.Second)
-		windows.SetTitle(
+		console.SetTitle(
 			fmt.Sprintf("ZBProxy %v | Online Players: %v", Version, onlineConnections/2))
 		fromConn, err2 := listen.Accept()
 		if err2 != nil {

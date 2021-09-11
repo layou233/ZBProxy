@@ -1,6 +1,0 @@
-package windows
-
-func SetTitle(title string) {
-	 if title == "" {
-   }
-}
