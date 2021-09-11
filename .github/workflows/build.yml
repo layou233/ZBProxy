@@ -77,7 +77,7 @@ jobs:
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
-      run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }} ZBLite-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
+      run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }} ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
 
     - name: Upload a Non-Windows Build Artifact
       uses: actions/upload-artifact@v2.2.4
