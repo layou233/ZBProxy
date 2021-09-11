@@ -9,7 +9,7 @@ jobs:
     strategy:
         matrix:
           # Include amd64 on all platforms.
-          goos: [console, freebsd, openbsd, linux, dragonfly, darwin]
+          goos: [windows, freebsd, openbsd, linux, dragonfly, darwin]
           goarch: [amd64, 386]
           exclude:
             # Exclude i386 on darwin and dragonfly.
@@ -30,7 +30,7 @@ jobs:
               goarm: 5
             # END Linux ARM 5 6 7
             # Windows ARM 7
-            - goos: console
+            - goos: windows
               goarch: arm
               goarm: 7
             # BEGIN Other architectures
