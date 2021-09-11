@@ -73,7 +73,7 @@ jobs:
         go-version: ^1.16.4
 
     - name: Build
-        run: go build -v -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+      run: go build -v -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
