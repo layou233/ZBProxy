@@ -9,9 +9,11 @@ import (
 	"github.com/fatih/color"
 	"log"
 	"net"
+	"sync"
 )
 
-func StartNewService(s *config.ConfigProxyService) {
+func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
+	defer wg.Done()
 	var isMinecraftHandleNeeded = s.EnableHostnameRewrite ||
 		s.EnableAnyDest ||
 		s.EnableWhiteList ||
@@ -31,13 +33,16 @@ func StartNewService(s *config.ConfigProxyService) {
 	for {
 		conn, err := listen.Accept()
 		if err == nil {
-			remote, err := mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
-			if err != nil {
-				log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
-				continue
-			}
+			var remote *mcnet.Conn = nil
 			if isMinecraftHandleNeeded {
-				minecraft.NewConnHandler(s, &conn)
+				remote, err = minecraft.NewConnHandler(s, &conn)
+			}
+			if remote == nil {
+				remote, err = mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+				if err != nil {
+					log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
+					continue
+				}
 			}
 			transfer.SimpleTransfer(conn, remote.Socket, flowType)
 		}

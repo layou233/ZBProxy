@@ -1,4 +1,4 @@
-package main
+package version
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "2.0"
+const Version = "3.0-SNAPSHOT"
 
 func printErr(err error) {
 	log.Printf("Error to check for update, caution: %v.", err.Error())
@@ -16,7 +16,7 @@ func printErr(err error) {
 }
 
 func CheckUpdate() {
-	resp, err := http.Get(`https://raw.githubusercontent.com/layou233/ZBProxy/master/version.go`)
+	resp, err := http.Get(`https://raw.githubusercontent.com/layou233/ZBProxy/master/version/version.go`)
 	if err != nil {
 		printErr(err)
 		return
