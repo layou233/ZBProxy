@@ -3,6 +3,7 @@ package minecraft
 import (
 	"ZBProxy/config"
 	"fmt"
+	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"net"
@@ -91,6 +92,11 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 			packet.VarInt(2),
 		))
 	}
-	remote.WritePacket(p)
+
+	// Server bound : Login Start
+	remote.WritePacket(packet.Marshal(
+		packetid.LoginStart,
+		playerName,
+	))
 	return remote, nil
 }

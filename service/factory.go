@@ -37,6 +37,9 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 			if isMinecraftHandleNeeded {
 				remote, err = minecraft.NewConnHandler(s, &conn)
 			}
+			if err != nil {
+				continue
+			}
 			if remote == nil {
 				remote, err = mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 				if err != nil {
