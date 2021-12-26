@@ -82,14 +82,14 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 			0x0, // Server bound : Handshake
 			packet.String(s.RewrittenHostname),
 			packet.UnsignedShort(s.TargetPort),
-			packet.VarInt(2),
+			packet.Byte(2),
 		))
 	} else {
 		remote.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			hostname,
 			port,
-			packet.VarInt(2),
+			packet.Byte(2),
 		))
 	}
 
