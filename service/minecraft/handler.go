@@ -6,10 +6,22 @@ import (
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
+	"github.com/fatih/color"
+	"log"
 	"net"
 )
 
+func badPacketPanicRecover(s *config.ConfigProxyService) {
+	// Non-Minecraft packet which uses `go-mc` packet scan method may cause panic.
+	// So a panic handler is needed.
+	if err := recover(); err != nil {
+		log.Printf(color.HiRedString("Service %s: Bad Minecraft packet was received: %v", s.Name, err))
+	}
+}
+
 func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, error) {
+	defer badPacketPanicRecover(s)
+
 	conn := mcnet.WrapConn(*c)
 	var p packet.Packet
 	err := conn.ReadPacket(&p)
