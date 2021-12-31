@@ -3,7 +3,6 @@ package minecraft
 import (
 	"ZBProxy/config"
 	"fmt"
-	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
@@ -78,10 +77,13 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 		playerName packet.String
 	)
 	p.Scan(&playerName)
+	log.Printf("Service %s:A new Minecraft player requested a login: %s", s.Name, playerName)
 	// TODO PlayerName handle
 
 	remote, err := mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	if err != nil {
+		log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
+		conn.Close()
 		return nil, err
 	}
 
@@ -92,6 +94,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 		}
 		remote.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
+			protocol,
 			packet.String(s.RewrittenHostname),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
@@ -99,6 +102,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 	} else {
 		remote.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
+			protocol,
 			hostname,
 			port,
 			packet.Byte(2),
@@ -106,9 +110,6 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 	}
 
 	// Server bound : Login Start
-	remote.WritePacket(packet.Marshal(
-		packetid.LoginStart,
-		playerName,
-	))
+	remote.WritePacket(p)
 	return remote, nil
 }
