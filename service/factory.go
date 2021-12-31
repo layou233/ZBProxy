@@ -4,16 +4,21 @@ import (
 	"ZBProxy/config"
 	"ZBProxy/service/minecraft"
 	"ZBProxy/service/transfer"
+	"ZBProxy/version"
 	"fmt"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/fatih/color"
 	"log"
 	"net"
+	"strconv"
+	"strings"
 	"sync"
 )
 
 func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 	defer wg.Done()
+
+	// Check Settings
 	var isMinecraftHandleNeeded = s.EnableHostnameRewrite ||
 		s.EnableAnyDest ||
 		s.EnableWhiteList ||
@@ -24,6 +29,15 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
 	}
+	if s.MotdFavicon == "{DEFAULT_MOTD}" {
+		s.MotdFavicon = minecraft.DefaultMotd
+	}
+	s.MotdDescription = strings.NewReplacer(
+		"{INFO}", "ZBProxy "+version.Version,
+		"{NAME}", s.Name,
+		"{HOST}", s.TargetAddress,
+		"{PORT}", strconv.Itoa(int(s.TargetPort)),
+	).Replace(s.MotdDescription)
 
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%v", s.Listen))
 	if err != nil {
@@ -44,6 +58,7 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 				remote, err = mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 				if err != nil {
 					log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
+					conn.Close()
 					continue
 				}
 			}
