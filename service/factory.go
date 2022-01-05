@@ -6,7 +6,6 @@ import (
 	"ZBProxy/service/transfer"
 	"ZBProxy/version"
 	"fmt"
-	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/fatih/color"
 	"log"
 	"net"
@@ -38,6 +37,9 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 		"{HOST}", s.TargetAddress,
 		"{PORT}", strconv.Itoa(int(s.TargetPort)),
 	).Replace(s.MotdDescription)
+	if s.EnableHostnameRewrite && s.RewrittenHostname == "" {
+		s.RewrittenHostname = s.TargetAddress
+	}
 
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%v", s.Listen))
 	if err != nil {
@@ -47,22 +49,7 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 	for {
 		conn, err := listen.Accept()
 		if err == nil {
-			var remote *mcnet.Conn = nil
-			if isMinecraftHandleNeeded {
-				remote, err = minecraft.NewConnHandler(s, &conn)
-			}
-			if err != nil {
-				continue
-			}
-			if remote == nil {
-				remote, err = mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
-				if err != nil {
-					log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
-					conn.Close()
-					continue
-				}
-			}
-			transfer.SimpleTransfer(conn, remote.Socket, flowType)
+			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType)
 		}
 	}
 }

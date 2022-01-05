@@ -39,8 +39,17 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 		return nil, err
 	}
 	if nextState == 1 { // status
-		if s.MotdDescription != "" ||
-			s.MotdFavicon != "" {
+		if s.MotdDescription == "" && s.MotdFavicon == "" {
+			// directly proxy MOTD from server
+			remote, err := mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+			if err != nil {
+				return nil, err
+			}
+
+			remote.WritePacket(p)      // Server bound : Handshake
+			remote.Write([]byte{1, 0}) // Server bound : Status Request
+			return remote, nil
+		} else {
 			// Server bound : Status Request
 			// Must read, but not used (and also nothing included in it)
 			conn.ReadPacket(&p)
@@ -56,16 +65,6 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 
 			conn.Close()
 			return conn, nil
-		} else {
-			// directly proxy MOTD from server
-			remote, err := mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
-			if err != nil {
-				return nil, err
-			}
-
-			remote.WritePacket(p)      // Server bound : Handshake
-			remote.Write([]byte{1, 0}) // Server bound : Status Request
-			return remote, nil
 		}
 	}
 	// else: login
@@ -76,8 +75,11 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 	var (
 		playerName packet.String
 	)
-	p.Scan(&playerName)
-	log.Printf("Service %s:A new Minecraft player requested a login: %s", s.Name, playerName)
+	err = p.Scan(&playerName)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Service %s: A new Minecraft player requested a login: %s", s.Name, playerName)
 	// TODO PlayerName handle
 
 	remote, err := mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
@@ -89,10 +91,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 
 	// Hostname rewritten
 	if s.EnableHostnameRewrite {
-		if s.RewrittenHostname == "" {
-			s.RewrittenHostname = s.TargetAddress
-		}
-		remote.WritePacket(packet.Marshal(
+		err = remote.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
 			packet.String(s.RewrittenHostname),
@@ -100,7 +99,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 			packet.Byte(2),
 		))
 	} else {
-		remote.WritePacket(packet.Marshal(
+		err = remote.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
 			hostname,
@@ -108,8 +107,14 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 			packet.Byte(2),
 		))
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	// Server bound : Login Start
-	remote.WritePacket(p)
+	err := remote.WritePacket(p)
+	if err != nil {
+		return nil, err
+	}
 	return remote, nil
 }
