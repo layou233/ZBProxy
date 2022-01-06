@@ -9,8 +9,8 @@ jobs:
     strategy:
         matrix:
           # Include amd64 on all platforms.
-          goos: [windows, freebsd, openbsd, linux, dragonfly, darwin]
-          goarch: [amd64, 386]
+          goos: [ windows, freebsd, openbsd, linux, dragonfly, darwin ]
+          goarch: [ amd64, 386 ]
           exclude:
             # Exclude i386 on darwin and dragonfly.
             - goarch: 386
@@ -18,6 +18,10 @@ jobs:
             - goarch: 386
               goos: darwin
           include:
+            # BEIGIN MacOS ARM64
+            - goos: darwin
+              goarch: arm64
+            # END MacOS ARM64
             # BEGIN Linux ARM 5 6 7
             - goos: linux
               goarch: arm
@@ -29,17 +33,23 @@ jobs:
               goarch: arm
               goarm: 5
             # END Linux ARM 5 6 7
-            # Windows ARM 7
+            # BEGIN Android ARM 8
+            - goos: android
+              goarch: arm64
+            # END Android ARM 8
+            # Windows ARM
+            - goos: windows
+              goarch: arm64
             - goos: windows
               goarch: arm
               goarm: 7
             # BEGIN Other architectures
-            - goos: darwin
-              goarch: arm64
+            # BEGIN riscv64 & ARM64
             - goos: linux
               goarch: arm64
             - goos: linux
               goarch: riscv64
+            # END riscv64 & ARM64
             # BEGIN MIPS
             - goos: linux
               goarch: mips64
@@ -50,12 +60,31 @@ jobs:
             - goos: linux
               goarch: mips
             # END MIPS
-            # BEGIN Android
-            - goos: android
+            # BEGIN PPC
+            - goos: linux
+              goarch: ppc64
+            - goos: linux
+              goarch: ppc64le
+            # END PPC
+            # BEGIN FreeBSD ARM
+            - goos: freebsd
               goarch: arm64
-            # END Android
+            - goos: freebsd
+              goarch: arm
+              goarm: 7
+            # END FreeBSD ARM
+            # BEGIN S390X
+            - goos: linux
+              goarch: s390x
+            # END S390X
             # END Other architectures
-        fail-fast: false
+            # BEGIN OPENBSD ARM
+            - goos: openbsd
+              goarch: arm64
+            - goos: openbsd
+              goarch: arm
+              goarm: 7
+            # END OPENBSD ARM
         
     runs-on: ubuntu-latest
     env:
@@ -70,10 +99,13 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.16.4
+        go-version: ^1.17.5
+
+    - name: Tidy up Go Modules
+      run: go mod tidy
 
     - name: Build
-      run: go build -v -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+      run: go build -v -ldflags "-s -w" -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
