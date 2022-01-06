@@ -14,7 +14,7 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 	// Non-Minecraft packet which uses `go-mc` packet scan method may cause panic.
 	// So a panic handler is needed.
 	if err := recover(); err != nil {
-		log.Printf(color.HiRedString("Service %s: Bad Minecraft packet was received: %v", s.Name, err))
+		log.Printf(color.HiRedString("Service %s : Bad Minecraft packet was received: %v", s.Name, err))
 	}
 }
 
@@ -79,12 +79,12 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Service %s: A new Minecraft player requested a login: %s", s.Name, playerName)
+	log.Printf("Service %s : A new Minecraft player requested a login: %s", s.Name, playerName)
 	// TODO PlayerName handle
 
 	remote, err := mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	if err != nil {
-		log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
+		log.Printf("Service %s : Failed to dial to target server: %v", s.Name, err.Error())
 		conn.Close()
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.Conn) (*mcnet.Conn, err
 	}
 
 	// Server bound : Login Start
-	err := remote.WritePacket(p)
+	err = remote.WritePacket(p)
 	if err != nil {
 		return nil, err
 	}

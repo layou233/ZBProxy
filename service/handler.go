@@ -14,14 +14,19 @@ func newConnReceiver(s *config.ConfigProxyService,
 	conn net.Conn,
 	isMinecraftHandleNeeded bool,
 	flowType int) {
-	var err error
+
+	log.Println("Service", s.Name, ": A new connection request sent by", conn.RemoteAddr().String(), "is received.")
+	defer log.Println("Service", s.Name, ": A connection with", conn.RemoteAddr().String(), "is closed.")
+	var err error // in order to avoid scoop problems
 	var remote *mcnet.Conn = nil
+
 	if isMinecraftHandleNeeded {
 		remote, err = minecraft.NewConnHandler(s, &conn)
 	}
 	if err != nil {
 		return
 	}
+
 	if remote == nil {
 		remote, err = mcnet.DialMC(fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 		if err != nil {

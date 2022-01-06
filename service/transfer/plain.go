@@ -18,8 +18,8 @@ const (
 func SimpleTransfer(a, b net.Conn, flow int) {
 	switch flow {
 	case FLOW_ORIGIN:
-		io.Copy(a, b)
 		go io.Copy(b, a)
+		io.Copy(a, b)
 
 	case FLOW_LINUX_ZEROCOPY:
 		if runtime.GOOS != "linux" {
@@ -28,7 +28,7 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 		fallthrough
 
 	case FLOW_AUTO:
-		zerocopy.Transfer(a, b)
 		go zerocopy.Transfer(b, a)
+		zerocopy.Transfer(a, b)
 	}
 }
