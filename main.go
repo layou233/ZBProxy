@@ -26,9 +26,9 @@ func main() {
 	config.LoadConfig()
 
 	group := sync.WaitGroup{}
-	for i := 0; i < len(config.Config.Services); i++ {
+	for _, s := range config.Config.Services {
 		group.Add(1)
-		go service.StartNewService(&config.Config.Services[i], &group)
+		go service.StartNewService(&s, &group)
 	}
 	(&group).Wait()
 }
