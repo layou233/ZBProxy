@@ -54,3 +54,7 @@ If you are running ZBProxy on a Linux-based system, you can go to **[ZBProxy Doc
 
 ## TODO List
 1. Some functions is still not implemented.
+
+## Sponsor
+[![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
+JetBrains for open source support development license.
