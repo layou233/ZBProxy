@@ -3,6 +3,7 @@ package transfer
 import (
 	"acln.ro/zerocopy"
 	"github.com/fatih/color"
+	"github.com/xtls/xray-core/common/buf"
 	"io"
 	"log"
 	"net"
@@ -12,6 +13,7 @@ import (
 const (
 	FLOW_ORIGIN = iota
 	FLOW_LINUX_ZEROCOPY
+	FLOW_MULTIPLE
 	FLOW_AUTO
 )
 
@@ -28,7 +30,19 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 		fallthrough
 
 	case FLOW_AUTO:
-		go zerocopy.Transfer(b, a)
-		zerocopy.Transfer(a, b)
+		if runtime.GOOS == "linux" {
+			go zerocopy.Transfer(b, a)
+			zerocopy.Transfer(a, b)
+			return
+		}
+		fallthrough
+
+	case FLOW_MULTIPLE:
+		aReader := buf.NewReader(a)
+		bReader := buf.NewReader(b)
+		aWriter := buf.NewWriter(a)
+		bWriter := buf.NewWriter(b)
+		go buf.Copy(bReader, aWriter)
+		buf.Copy(aReader, bWriter)
 	}
 }

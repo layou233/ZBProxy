@@ -60,6 +60,8 @@ func getFlowType(flow string) int {
 		return transfer.FLOW_ORIGIN
 	case "linux-zerocopy":
 		return transfer.FLOW_LINUX_ZEROCOPY
+	case "multiple":
+		return transfer.FLOW_MULTIPLE
 	case "auto":
 		return transfer.FLOW_AUTO
 	default:
