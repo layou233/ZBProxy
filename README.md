@@ -6,7 +6,7 @@ Support multiplatform because of Golang\'s attributes.
 一键搭建Minecraft加速IP软件，作者[B站@贴吧蜡油](https://space.bilibili.com/404017926 "点我前往空间")。  
 本项目遵守国际化理念，所以代码内注释以及README都将以英语编写，可借助翻译工具辅助阅读。  
 
-#### **[Document (W.I.P)](https://zbchecker.ml/doc/ZBProxy)**
+#### **[Document (W.I.P)](https://launium.com/doc/ZBProxy)**
 
 ## What can it do?
 In many situations you can use Nginx ```proxy_pass``` to easy proxy your Minecraft data.  
@@ -20,11 +20,11 @@ stream {
     }
 }
 ```
-But start from 2020, Hypixel set up an authencation of the player login address.  
-If you do not login from their official address as known as ```mc.hypixel.net:25565```, you will not be able to join the game.  
+But start from 2020, Hypixel set up an authentication of the player login address.  
+If you do not log in from their official address as known as ```mc.hypixel.net:25565```, you will not be able to join the game.  
 The original method is to cheat the server by modifying the ```hosts``` file.  
 But that\'s too complicated for people who don\'t know the principle.  
-We studied its working principle, and successfully bypassed the detection by modifying the sent data at the technical level.  
+We studied its working principle, and successfully bypassed the detection by modifying the data sent by client at the technical level.  
 The product of the research is what you see now as ZBProxy.  
 For players, just enter the address of your proxy server, you can join the game **directly** as usual.
 
@@ -45,15 +45,15 @@ chmod 777 PATH_OF_THE_FILE
 
 Since ZBProxy 3.0, users are allowed to set the listening port and forwarding destination through the automatically generated JSON configuration file, including choosing whether to enable the hostname rewriting function and a series of surprise functions.  
 At the first startup, **a JSON configuration file** is **automatically generated**, which contains a preset Hypixel forwarding configuration, so users can still build forwarding services in only one step like old versions, but reasonable use of the configuration file can help users explore more possibilities of ZBProxy. Including but not limited to quickly setting up an ordinary and efficient reverse proxy.  
-If you are just new in here, you can view the **[ZBProxy Document](https://zbchecker.ml/doc/ZBProxy)** to learn about how to unlock the power of ZBProxy through configuration.
+If you are just new in here, you can view the **[ZBProxy Document](https://launium.com/doc/ZBProxy)** to learn about how to unlock the power of ZBProxy through configuration.
 
 ## Are there any other ways to improve my games?
 Generally speaking, Linux-based operating environments have more room for optimization.  
 ZBProxy supports **Zero Copy** technology on Linux, which can *reduce memory usage **by one time**, save **a lot of** CPU processing, and reduce **network latency***. When users set `Flow` to `auto` or `linux-zerocopy` on their `Service` configuration, this technology will be automatically adopted in due course.  
-If you are running ZBProxy on a Linux-based system, you can go to **[ZBProxy Document](https://zbchecker.ml/doc/ZBProxy)** to view **tips for optimizing network settings**.
+If you are running ZBProxy on a Linux-based system, you can go to **[ZBProxy Document](https://launium.com/doc/ZBProxy)** to view **tips for optimizing network settings**.
 
 ## TODO List
-1. Some functions is still not implemented.
+1. Some functions are still not implemented.
 
 ## Sponsor
 [![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
