@@ -105,7 +105,7 @@ jobs:
       run: go mod tidy
 
     - name: Build
-      run: go build -v -ldflags "-s -w" -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+      run: go build -v -trimpath -ldflags "-s -w" -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
