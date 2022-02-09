@@ -25,10 +25,10 @@ func main() {
 
 	config.LoadConfig()
 
-	group := sync.WaitGroup{}
+	group := &sync.WaitGroup{}
 	for _, s := range config.Config.Services {
 		group.Add(1)
-		go service.StartNewService(&s, &group)
+		go service.StartNewService(s, group)
 	}
-	(&group).Wait()
+	group.Wait()
 }

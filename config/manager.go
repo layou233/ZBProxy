@@ -38,7 +38,7 @@ func generateDefaultConfig() {
 		log.Panic("Failed to create configuration file:", err.Error())
 	}
 	Config = configMain{
-		Services: []ConfigProxyService{
+		Services: []*ConfigProxyService{
 			{
 				Name:                  "HypixelDefault",
 				TargetAddress:         "mc.hypixel.net",

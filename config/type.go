@@ -1,7 +1,7 @@
 package config
 
 type configMain struct {
-	Services []ConfigProxyService
+	Services []*ConfigProxyService
 }
 
 type ConfigProxyService struct {
