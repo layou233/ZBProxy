@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "3.0-SNAPSHOT"
+const Version = "3.0-rc.1"
 
 func printErr(err error) {
 	log.Printf("Error to check for update, caution: %v.", err.Error())
