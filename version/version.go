@@ -16,7 +16,7 @@ func printErr(err error) {
 }
 
 func CheckUpdate() {
-	resp, err := http.Get(`https://raw.githubusercontent.com/layou233/ZBProxy/master/version/version.go`)
+	resp, err := http.Get(`https://cdn.jsdelivr.net/gh/layou233/ZBProxy@latest/version/version.go`)
 	if err != nil {
 		printErr(err)
 		return
