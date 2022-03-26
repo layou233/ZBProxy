@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"log"
+	"runtime"
 	"sync"
 )
 
@@ -20,7 +21,9 @@ func main() {
   / /   |  _  { |  ___/ |  _  /  | | | |   }  {     \  /
  / /__  | |_| | | |     | | \ \  | |_| |  / /\ \    / /
 /_____| |_____/ |_|     |_|  \_\ \_____/ /_/  \_\  /_/`))
-	color.HiGreen("Welcome to ZBProxy %s!\n\n", version.Version)
+	color.HiGreen("Welcome to ZBProxy %s!\n", version.Version)
+	color.HiBlack("Build Information: %s, %s-%s\n",
+		runtime.Version(), runtime.GOOS, runtime.GOARCH)
 	go version.CheckUpdate()
 
 	config.LoadConfig()
