@@ -24,7 +24,7 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 		s.EnableMojangCapeRequirement ||
 		s.MotdDescription != "" ||
 		s.MotdFavicon != ""
-	var flowType = getFlowType(s.Flow)
+	flowType := getFlowType(s.Flow)
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
 	}
@@ -47,9 +47,9 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 	}
 
 	for {
-		conn, err := listen.Accept()
+		conn, err := listen.AcceptTCP()
 		if err == nil {
-			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType)
+			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr)
 		}
 	}
 }
@@ -60,6 +60,8 @@ func getFlowType(flow string) int {
 		return transfer.FLOW_ORIGIN
 	case "linux-zerocopy":
 		return transfer.FLOW_LINUX_ZEROCOPY
+	case "zerocopy":
+		return transfer.FLOW_ZEROCOPY
 	case "multiple":
 		return transfer.FLOW_MULTIPLE
 	case "auto":
