@@ -40,12 +40,14 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 	if s.EnableHostnameRewrite && s.RewrittenHostname == "" {
 		s.RewrittenHostname = s.TargetAddress
 	}
-
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%v", s.Listen))
+	listen, err := net.ListenTCP("tcp", &net.TCPAddr{
+		IP:   nil, // listens on all available IP addresses of the local system
+		Port: int(s.Listen),
+	})
 	if err != nil {
 		log.Panic(color.HiRedString("Service %s: Can't start listening on port %v: %v", s.Name, s.Listen, err.Error()))
 	}
-
+	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	for {
 		conn, err := listen.AcceptTCP()
 		if err == nil {
