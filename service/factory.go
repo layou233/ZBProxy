@@ -11,12 +11,11 @@ import (
 	"net"
 	"strconv"
 	"strings"
-	"sync"
 )
 
-func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
-	defer wg.Done()
+var ListenerArray = make([]net.Listener, 1)
 
+func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
 	var isMinecraftHandleNeeded = s.EnableHostnameRewrite ||
 		s.EnableAnyDest ||
@@ -47,6 +46,7 @@ func StartNewService(s *config.ConfigProxyService, wg *sync.WaitGroup) {
 	if err != nil {
 		log.Panic(color.HiRedString("Service %s: Can't start listening on port %v: %v", s.Name, s.Listen, err.Error()))
 	}
+	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
 	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	for {
 		conn, err := listen.AcceptTCP()

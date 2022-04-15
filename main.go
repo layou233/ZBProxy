@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"log"
+	"os"
+	"os/signal"
 	"runtime"
-	"sync"
+	"syscall"
 )
 
 func main() {
@@ -28,10 +30,21 @@ func main() {
 
 	config.LoadConfig()
 
-	group := &sync.WaitGroup{}
 	for _, s := range config.Config.Services {
-		group.Add(1)
-		go service.StartNewService(s, group)
+		go service.StartNewService(s)
 	}
-	group.Wait()
+
+	{
+		osSignals := make(chan os.Signal, 1)
+		signal.Notify(osSignals, os.Interrupt, os.Kill, syscall.SIGTERM)
+		<-osSignals // wait for exits
+
+		// sometimes after the program exits on Windows, the ports are still occupied and "listening".
+		// so manually closes these listeners when the program exits.
+		for _, listener := range service.ListenerArray {
+			if listener != nil { // avoid null pointers
+				listener.Close()
+			}
+		}
+	}
 }
