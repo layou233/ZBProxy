@@ -1,12 +1,12 @@
 package service
 
 import (
-	"ZBProxy/config"
-	"ZBProxy/service/minecraft"
-	"ZBProxy/service/transfer"
-	"ZBProxy/version"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/service/minecraft"
+	"github.com/layou233/ZBProxy/service/transfer"
+	"github.com/layou233/ZBProxy/version"
 	"log"
 	"net"
 	"strconv"

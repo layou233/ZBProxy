@@ -1,8 +1,8 @@
 package transfer
 
 import (
-	"ZBProxy/common/zerocopy"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common/zerocopy"
 	"github.com/xtls/xray-core/common/buf"
 	"io"
 	"log"

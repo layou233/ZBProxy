@@ -1,4 +1,4 @@
-module ZBProxy
+module github.com/layou233/ZBProxy
 
 go 1.16
 

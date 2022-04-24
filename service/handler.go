@@ -1,9 +1,9 @@
 package service
 
 import (
-	"ZBProxy/config"
-	"ZBProxy/service/minecraft"
-	"ZBProxy/service/transfer"
+	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/service/minecraft"
+	"github.com/layou233/ZBProxy/service/transfer"
 	"log"
 	"net"
 )

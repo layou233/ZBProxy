@@ -1,12 +1,12 @@
 package main
 
 import (
-	"ZBProxy/config"
-	"ZBProxy/console"
-	"ZBProxy/service"
-	"ZBProxy/version"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/console"
+	"github.com/layou233/ZBProxy/service"
+	"github.com/layou233/ZBProxy/version"
 	"log"
 	"os"
 	"os/signal"

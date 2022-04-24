@@ -1,11 +1,11 @@
 package minecraft
 
 import (
-	"ZBProxy/config"
 	"errors"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/config"
 	"log"
 	"net"
 )
