@@ -25,6 +25,8 @@ type writerOnly struct {
 func SimpleTransfer(a, b *net.TCPConn, flow int) {
 	switch flow {
 	case FLOW_ORIGIN:
+		defer a.Close()
+		defer b.Close()
 		go io.Copy(writerOnly{b}, a)
 		io.Copy(writerOnly{a}, b)
 
@@ -50,6 +52,8 @@ func SimpleTransfer(a, b *net.TCPConn, flow int) {
 		bReader := buf.NewReader(b)
 		aWriter := buf.NewWriter(a)
 		bWriter := buf.NewWriter(b)
+		defer a.Close()
+		defer b.Close()
 		go buf.Copy(bReader, aWriter)
 		buf.Copy(aReader, bWriter)
 	}

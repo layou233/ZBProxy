@@ -25,7 +25,6 @@ func newConnReceiver(s *config.ConfigProxyService,
 			return
 		}
 	}
-	log.Println(remote)
 
 	if remote == nil {
 		remote, err = net.DialTCP("tcp", nil, remoteAddr)
