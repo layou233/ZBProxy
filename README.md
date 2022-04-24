@@ -1,4 +1,7 @@
 # ZBProxy
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_small)
+[![Go Reference](https://pkg.go.dev/badge/github.com/layou233/ZBProxy.svg)](https://pkg.go.dev/github.com/layou233/ZBProxy)
+[![Go Report Card](https://goreportcard.com/badge/github.com/layou233/ZBProxy)](https://goreportcard.com/report/github.com/layou233/ZBProxy)  
 **NEWS: NEW ZBPROXY 3.0 WITH CONFIGURATION SUPPORT IS COMING SOON AND ALREADY AVAILABLE IN THE ACTIONS.**  
 
 🚀Easy proxy your data at the best privacy, giving you better experience enjoying Minecraft.  
@@ -56,8 +59,7 @@ If you are running ZBProxy on a Linux-based system, you can go to **[ZBProxy Doc
 1. Some functions are still not implemented.
 
 ## Sponsor
-[![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_shield)
- 
+[![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
 JetBrains for open source support development license.
 
 ## License
