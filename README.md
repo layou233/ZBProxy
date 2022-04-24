@@ -9,6 +9,7 @@ Support multiplatform because of Golang\'s attributes.
 一键搭建Minecraft加速IP软件，作者[B站@贴吧蜡油](https://space.bilibili.com/404017926 "点我前往空间")。  
 本项目遵守国际化理念，所以代码内注释以及README都将以英语编写，可借助翻译工具辅助阅读。  
 
+#### **[Join Official Telegram Group](https://t.me/launium)**  
 #### **[Document (W.I.P)](https://launium.com/doc/ZBProxy)**
 
 ## What can it do?
