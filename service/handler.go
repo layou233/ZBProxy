@@ -20,11 +20,12 @@ func newConnReceiver(s *config.ConfigProxyService,
 	var remote *net.TCPConn = nil
 
 	if isMinecraftHandleNeeded {
-		err = minecraft.NewConnHandler(s, conn)
+		remote, err = minecraft.NewConnHandler(s, conn, remoteAddr)
 		if err != nil {
 			return
 		}
 	}
+	log.Println(remote)
 
 	if remote == nil {
 		remote, err = net.DialTCP("tcp", nil, remoteAddr)
