@@ -51,5 +51,5 @@ func generateMotdPacket(protocolVersion int, motdFavicon, motdDescription string
 		},
 		Favicon: motdFavicon,
 	})
-	return packet.Marshal(packetid.ServerInfo, packet.String(motd))
+	return packet.Marshal(packetid.StatusResponse, packet.String(motd))
 }
