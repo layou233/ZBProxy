@@ -47,7 +47,7 @@ func generateDefaultConfig() {
 				Flow:                  "auto",
 				EnableHostnameRewrite: true,
 				MotdFavicon:           "{DEFAULT_MOTD}",
-				MotdDescription:       `§d{NAME}§e service is working on §a§o{INFO}§r\r\n§c§lProxy for §6§n{HOST}:{PORT}§r`,
+				MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
 			},
 		},
 	}
