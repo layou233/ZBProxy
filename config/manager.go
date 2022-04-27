@@ -2,10 +2,11 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/fatih/color"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 var Config configMain
