@@ -40,14 +40,16 @@ func generateDefaultConfig() {
 	Config = configMain{
 		Services: []*ConfigProxyService{
 			{
-				Name:                  "HypixelDefault",
-				TargetAddress:         "mc.hypixel.net",
-				TargetPort:            25565,
-				Listen:                25565,
-				Flow:                  "auto",
-				EnableHostnameRewrite: true,
-				MotdFavicon:           "{DEFAULT_MOTD}",
-				MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
+				Name:          "HypixelDefault",
+				TargetAddress: "mc.hypixel.net",
+				TargetPort:    25565,
+				Listen:        25565,
+				Flow:          "auto",
+				Minecraft: minecraft{
+					EnableHostnameRewrite: true,
+					MotdFavicon:           "{DEFAULT_MOTD}",
+					MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
+				},
 			},
 		},
 	}

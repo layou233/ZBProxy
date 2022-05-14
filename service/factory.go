@@ -17,27 +17,27 @@ var ListenerArray = make([]net.Listener, 1)
 
 func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
-	var isMinecraftHandleNeeded = s.EnableHostnameRewrite ||
-		s.EnableAnyDest ||
-		s.EnableWhiteList ||
-		s.EnableMojangCapeRequirement ||
-		s.MotdDescription != "" ||
-		s.MotdFavicon != ""
+	var isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
+		s.Minecraft.EnableAnyDest ||
+		s.Minecraft.EnableWhiteList ||
+		s.Minecraft.EnableMojangCapeRequirement ||
+		s.Minecraft.MotdDescription != "" ||
+		s.Minecraft.MotdFavicon != ""
 	flowType := getFlowType(s.Flow)
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
 	}
-	if s.MotdFavicon == "{DEFAULT_MOTD}" {
-		s.MotdFavicon = minecraft.DefaultMotd
+	if s.Minecraft.MotdFavicon == "{DEFAULT_MOTD}" {
+		s.Minecraft.MotdFavicon = minecraft.DefaultMotd
 	}
-	s.MotdDescription = strings.NewReplacer(
+	s.Minecraft.MotdDescription = strings.NewReplacer(
 		"{INFO}", "ZBProxy "+version.Version,
 		"{NAME}", s.Name,
 		"{HOST}", s.TargetAddress,
 		"{PORT}", strconv.Itoa(int(s.TargetPort)),
-	).Replace(s.MotdDescription)
-	if s.EnableHostnameRewrite && s.RewrittenHostname == "" {
-		s.RewrittenHostname = s.TargetAddress
+	).Replace(s.Minecraft.MotdDescription)
+	if s.Minecraft.EnableHostnameRewrite && s.Minecraft.RewrittenHostname == "" {
+		s.Minecraft.RewrittenHostname = s.TargetAddress
 	}
 	listen, err := net.ListenTCP("tcp", &net.TCPAddr{
 		IP:   nil, // listens on all available IP addresses of the local system
