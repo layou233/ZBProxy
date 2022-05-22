@@ -12,31 +12,30 @@ type ConfigProxyService struct {
 	Listen        uint16
 	Flow          string
 
-	IPAccess  access `json:"omitempty"`
-	Minecraft minecraft
+	IPAccess  access    `json:",omitempty"`
+	Minecraft minecraft `json:",omitempty"`
 }
 
 type access struct {
-	Mode     string `json:"omitempty"` // 'accept' or 'deny' or empty
-	ListTags []string
+	Mode     string   // 'accept' or 'deny' or empty
+	ListTags []string `json:",omitempty"`
 }
 
 type minecraft struct {
-	EnableHostnameRewrite bool `json:"omitempty"`
-	RewrittenHostname     string
+	EnableHostnameRewrite bool
+	RewrittenHostname     string `json:",omitempty"`
 
-	NameAccess access
+	NameAccess access `json:",omitempty"`
 
-	EnableAnyDest   bool
-	AnyDestSettings configAnyDest
+	EnableAnyDest   bool          `json:",omitempty"`
+	AnyDestSettings configAnyDest `json:",omitempty"`
 
 	MotdFavicon     string
 	MotdDescription string
 
-	EnableWhiteList             bool
-	EnableMojangCapeRequirement bool
+	EnableMojangCapeRequirement bool `json:",omitempty"`
 }
 
 type configAnyDest struct {
-	WildcardRootDomainName string
+	WildcardRootDomainName string `json:",omitempty"`
 }

@@ -3,12 +3,16 @@ package config
 import (
 	"encoding/json"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common/set"
 	"log"
 	"os"
 	"strings"
 )
 
-var Config configMain
+var (
+	Config configMain
+	Lists  map[string]*set.StringSet
+)
 
 func LoadConfig() {
 	configFile, err := os.ReadFile("ZBProxy.json")
@@ -28,6 +32,7 @@ func LoadConfig() {
 	}
 
 success:
+	loadLists()
 	log.Println(color.HiYellowString("Successfully loaded config from file."))
 }
 
@@ -52,11 +57,21 @@ func generateDefaultConfig() {
 				},
 			},
 		},
+		Lists: map[string][]string{
+			//"test": {"foo", "bar"},
+		},
 	}
 	newConfig, _ :=
 		json.MarshalIndent(Config, "", "    ")
 	_, err = file.WriteString(strings.ReplaceAll(string(newConfig), "\n", "\r\n"))
 	if err != nil {
 		log.Panic("Failed to save configuration file:", err.Error())
+	}
+}
+
+func loadLists() {
+	for k, v := range Config.Lists {
+		set := set.NewStringSetFromSlice(v)
+		Lists[k] = &set
 	}
 }

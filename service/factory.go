@@ -19,7 +19,6 @@ func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
 	var isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
 		s.Minecraft.EnableAnyDest ||
-		s.Minecraft.EnableWhiteList ||
 		s.Minecraft.EnableMojangCapeRequirement ||
 		s.Minecraft.MotdDescription != "" ||
 		s.Minecraft.MotdFavicon != ""

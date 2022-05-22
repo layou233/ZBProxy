@@ -44,7 +44,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 		return nil, err
 	}
 	if nextState == 1 { // status
-		if s.MotdDescription == "" && s.MotdFavicon == "" {
+		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
 
 			remote, err := net.DialTCP("tcp", nil, addr)
@@ -64,7 +64,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 			// send custom MOTD
 			conn.WritePacket(generateMotdPacket(
 				int(protocol),
-				s.MotdFavicon, s.MotdDescription))
+				s.Minecraft.MotdFavicon, s.Minecraft.MotdDescription))
 
 			// handle for ping request
 			conn.ReadPacket(&p)
@@ -98,11 +98,11 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 	remoteMC := mcnet.WrapConn(remote)
 
 	// Hostname rewritten
-	if s.EnableHostnameRewrite {
+	if s.Minecraft.EnableHostnameRewrite {
 		err = remoteMC.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
-			packet.String(s.RewrittenHostname),
+			packet.String(s.Minecraft.RewrittenHostname),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
 		))
