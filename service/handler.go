@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/transfer"
@@ -12,7 +13,9 @@ func newConnReceiver(s *config.ConfigProxyService,
 	conn *net.TCPConn,
 	isMinecraftHandleNeeded bool,
 	flowType int,
-	remoteAddr *net.TCPAddr) {
+	remoteAddr *net.TCPAddr,
+	mcNameLists []*set.StringSet,
+	mcNameMode int) {
 
 	log.Println("Service", s.Name, ": A new connection request sent by", conn.RemoteAddr().String(), "is received.")
 	defer log.Println("Service", s.Name, ": A connection with", conn.RemoteAddr().String(), "is closed.")
@@ -20,7 +23,7 @@ func newConnReceiver(s *config.ConfigProxyService,
 	var remote *net.TCPConn = nil
 
 	if isMinecraftHandleNeeded {
-		remote, err = minecraft.NewConnHandler(s, conn, remoteAddr)
+		remote, err = minecraft.NewConnHandler(s, conn, remoteAddr, mcNameLists, mcNameMode)
 		if err != nil {
 			return
 		}
