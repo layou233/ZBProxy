@@ -3,7 +3,9 @@ package service
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/service/access"
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"github.com/layou233/ZBProxy/version"
@@ -47,9 +49,48 @@ func StartNewService(s *config.ConfigProxyService) {
 	}
 	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
 	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+
+	// load access lists
+	var ipAccessLists []*set.StringSet = nil
+	ipAccessMode := access.GetAccessMode(s.IPAccess.Mode)
+	if ipAccessMode != access.DefaultMode { // IP access control enabled
+		if s.IPAccess.ListTags == nil {
+			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
+		}
+		ipAccessLists = make([]*set.StringSet, len(s.IPAccess.ListTags))
+		for i := 0; i < len(s.IPAccess.ListTags); i++ {
+			ipAccessLists[i], err = access.GetTargetList(s.IPAccess.ListTags[i])
+			if err != nil {
+				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+			}
+		}
+	}
+
 	for {
 		conn, err := listen.AcceptTCP()
 		if err == nil {
+			if ipAccessMode != access.DefaultMode {
+				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
+				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
+				hit := false
+				for _, list := range ipAccessLists {
+					if hit = list.Has(ip); hit {
+						break
+					}
+				}
+				switch ipAccessMode {
+				case access.AllowMode:
+					if !hit {
+						forciblyCloseTCP(conn)
+						continue
+					}
+				case access.BlockMode:
+					if hit {
+						forciblyCloseTCP(conn)
+						continue
+					}
+				}
+			}
 			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr)
 		}
 	}
@@ -70,4 +111,9 @@ func getFlowType(flow string) int {
 	default:
 		return -1
 	}
+}
+
+func forciblyCloseTCP(conn *net.TCPConn) {
+	conn.SetLinger(0) // let Close send RST to forcibly close the connection
+	conn.Close()      // forcibly close
 }

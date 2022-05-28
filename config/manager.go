@@ -70,8 +70,13 @@ func generateDefaultConfig() {
 }
 
 func loadLists() {
-	for k, v := range Config.Lists {
-		set := set.NewStringSetFromSlice(v)
-		Lists[k] = &set
+	if len(Config.Lists) == 0 { // if nothing in Lists
+		for k, v := range Config.Lists {
+			set := set.NewStringSetFromSlice(v)
+			Lists[k] = &set
+		}
+	} else {
+		Lists = map[string]*set.StringSet{} // empty map
 	}
+	Config.Lists = nil // free memory
 }
