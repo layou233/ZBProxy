@@ -108,9 +108,9 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 			}
 		case access.BlockMode:
 			if hit {
-				accessibility = "PASS"
-			} else {
 				accessibility = "REJECT"
+			} else {
+				accessibility = "PASS"
 			}
 		}
 	}
