@@ -112,14 +112,14 @@ jobs:
       run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }} ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
 
     - name: Upload a Non-Windows Build Artifact
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v3.1.0
       if: ${{ env.GOOS != 'windows' }}
       with:
         name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
         path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
 
     - name: Upload a Windows Build Artifact
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v3.1.0
       if: ${{ env.GOOS == 'windows' }}
       with:
         name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
