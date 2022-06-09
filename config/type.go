@@ -2,6 +2,7 @@ package config
 
 type configMain struct {
 	Services []*ConfigProxyService
+	Lists    map[string][]string
 }
 
 type ConfigProxyService struct {
@@ -11,19 +12,30 @@ type ConfigProxyService struct {
 	Listen        uint16
 	Flow          string
 
-	EnableHostnameRewrite bool
-	RewrittenHostname     string
+	IPAccess  access    `json:",omitempty"`
+	Minecraft minecraft `json:",omitempty"`
+}
 
-	EnableAnyDest   bool
-	AnyDestSettings configAnyDest
+type access struct {
+	Mode     string   // 'accept' or 'deny' or empty
+	ListTags []string `json:",omitempty"`
+}
+
+type minecraft struct {
+	EnableHostnameRewrite bool
+	RewrittenHostname     string `json:",omitempty"`
+
+	NameAccess access `json:",omitempty"`
+
+	EnableAnyDest   bool          `json:",omitempty"`
+	AnyDestSettings configAnyDest `json:",omitempty"`
 
 	MotdFavicon     string
 	MotdDescription string
 
-	EnableWhiteList             bool
-	EnableMojangCapeRequirement bool
+	EnableMojangCapeRequirement bool `json:",omitempty"`
 }
 
 type configAnyDest struct {
-	WildcardRootDomainName string
+	WildcardRootDomainName string `json:",omitempty"`
 }

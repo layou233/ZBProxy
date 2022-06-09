@@ -3,12 +3,16 @@ package config
 import (
 	"encoding/json"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common/set"
 	"log"
 	"os"
 	"strings"
 )
 
-var Config configMain
+var (
+	Config configMain
+	Lists  map[string]*set.StringSet
+)
 
 func LoadConfig() {
 	configFile, err := os.ReadFile("ZBProxy.json")
@@ -28,6 +32,7 @@ func LoadConfig() {
 	}
 
 success:
+	loadLists()
 	log.Println(color.HiYellowString("Successfully loaded config from file."))
 }
 
@@ -40,15 +45,20 @@ func generateDefaultConfig() {
 	Config = configMain{
 		Services: []*ConfigProxyService{
 			{
-				Name:                  "HypixelDefault",
-				TargetAddress:         "mc.hypixel.net",
-				TargetPort:            25565,
-				Listen:                25565,
-				Flow:                  "auto",
-				EnableHostnameRewrite: true,
-				MotdFavicon:           "{DEFAULT_MOTD}",
-				MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
+				Name:          "HypixelDefault",
+				TargetAddress: "mc.hypixel.net",
+				TargetPort:    25565,
+				Listen:        25565,
+				Flow:          "auto",
+				Minecraft: minecraft{
+					EnableHostnameRewrite: true,
+					MotdFavicon:           "{DEFAULT_MOTD}",
+					MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
+				},
 			},
+		},
+		Lists: map[string][]string{
+			//"test": {"foo", "bar"},
 		},
 	}
 	newConfig, _ :=
@@ -57,4 +67,19 @@ func generateDefaultConfig() {
 	if err != nil {
 		log.Panic("Failed to save configuration file:", err.Error())
 	}
+}
+
+func loadLists() {
+	//log.Println("Lists:", Config.Lists)
+	if l := len(Config.Lists); l == 0 { // if nothing in Lists
+		Lists = map[string]*set.StringSet{} // empty map
+	} else {
+		Lists = make(map[string]*set.StringSet, l) // map size init
+		for k, v := range Config.Lists {
+			//log.Println("List: Loading", k, "value:", v)
+			set := set.NewStringSetFromSlice(v)
+			Lists[k] = &set
+		}
+	}
+	Config.Lists = nil // free memory
 }

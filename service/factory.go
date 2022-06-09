@@ -3,7 +3,9 @@ package service
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/service/access"
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"github.com/layou233/ZBProxy/version"
@@ -17,27 +19,26 @@ var ListenerArray = make([]net.Listener, 1)
 
 func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
-	var isMinecraftHandleNeeded = s.EnableHostnameRewrite ||
-		s.EnableAnyDest ||
-		s.EnableWhiteList ||
-		s.EnableMojangCapeRequirement ||
-		s.MotdDescription != "" ||
-		s.MotdFavicon != ""
+	var isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
+		s.Minecraft.EnableAnyDest ||
+		s.Minecraft.EnableMojangCapeRequirement ||
+		s.Minecraft.MotdDescription != "" ||
+		s.Minecraft.MotdFavicon != ""
 	flowType := getFlowType(s.Flow)
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
 	}
-	if s.MotdFavicon == "{DEFAULT_MOTD}" {
-		s.MotdFavicon = minecraft.DefaultMotd
+	if s.Minecraft.MotdFavicon == "{DEFAULT_MOTD}" {
+		s.Minecraft.MotdFavicon = minecraft.DefaultMotd
 	}
-	s.MotdDescription = strings.NewReplacer(
+	s.Minecraft.MotdDescription = strings.NewReplacer(
 		"{INFO}", "ZBProxy "+version.Version,
 		"{NAME}", s.Name,
 		"{HOST}", s.TargetAddress,
 		"{PORT}", strconv.Itoa(int(s.TargetPort)),
-	).Replace(s.MotdDescription)
-	if s.EnableHostnameRewrite && s.RewrittenHostname == "" {
-		s.RewrittenHostname = s.TargetAddress
+	).Replace(s.Minecraft.MotdDescription)
+	if s.Minecraft.EnableHostnameRewrite && s.Minecraft.RewrittenHostname == "" {
+		s.Minecraft.RewrittenHostname = s.TargetAddress
 	}
 	listen, err := net.ListenTCP("tcp", &net.TCPAddr{
 		IP:   nil, // listens on all available IP addresses of the local system
@@ -48,10 +49,65 @@ func StartNewService(s *config.ConfigProxyService) {
 	}
 	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
 	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+
+	// load access lists
+	var ipAccessLists []*set.StringSet = nil
+	ipAccessMode := access.GetAccessMode(s.IPAccess.Mode)
+	if ipAccessMode != access.DefaultMode { // IP access control enabled
+		if s.IPAccess.ListTags == nil {
+			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
+		}
+		ipAccessLists = make([]*set.StringSet, len(s.IPAccess.ListTags))
+		for i := 0; i < len(s.IPAccess.ListTags); i++ {
+			ipAccessLists[i], err = access.GetTargetList(s.IPAccess.ListTags[i])
+			if err != nil {
+				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+			}
+		}
+	}
+
+	// load Minecraft player name access lists
+	var mcNameAccessLists []*set.StringSet = nil
+	mcNameAccessMode := access.GetAccessMode(s.Minecraft.NameAccess.Mode)
+	if isMinecraftHandleNeeded && mcNameAccessMode != access.DefaultMode { // IP access control enabled
+		if s.Minecraft.NameAccess.ListTags == nil {
+			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
+		}
+		mcNameAccessLists = make([]*set.StringSet, len(s.Minecraft.NameAccess.ListTags))
+		for i := 0; i < len(s.Minecraft.NameAccess.ListTags); i++ {
+			mcNameAccessLists[i], err = access.GetTargetList(s.Minecraft.NameAccess.ListTags[i])
+			if err != nil {
+				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+			}
+		}
+	}
+
 	for {
 		conn, err := listen.AcceptTCP()
 		if err == nil {
-			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr)
+			if ipAccessMode != access.DefaultMode {
+				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
+				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
+				hit := false
+				for _, list := range ipAccessLists {
+					if hit = list.Has(ip); hit {
+						break
+					}
+				}
+				switch ipAccessMode {
+				case access.AllowMode:
+					if !hit {
+						forciblyCloseTCP(conn)
+						continue
+					}
+				case access.BlockMode:
+					if hit {
+						forciblyCloseTCP(conn)
+						continue
+					}
+				}
+			}
+			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr, mcNameAccessLists, mcNameAccessMode)
 		}
 	}
 }
@@ -71,4 +127,9 @@ func getFlowType(flow string) int {
 	default:
 		return -1
 	}
+}
+
+func forciblyCloseTCP(conn *net.TCPConn) {
+	conn.SetLinger(0) // let Close send RST to forcibly close the connection
+	conn.Close()      // forcibly close
 }

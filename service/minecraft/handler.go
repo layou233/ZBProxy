@@ -5,7 +5,9 @@ import (
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/service/access"
 	"log"
 	"net"
 )
@@ -15,6 +17,8 @@ import (
 // process and directly go to the end of this connection.
 var ErrSuccessfullyHandledMOTDRequest = errors.New("")
 
+var ErrRejectedLogin = ErrSuccessfullyHandledMOTDRequest // don't cry baby
+
 func badPacketPanicRecover(s *config.ConfigProxyService) {
 	// Non-Minecraft packet which uses `go-mc` packet scan method may cause panic.
 	// So a panic handler is needed.
@@ -23,7 +27,7 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 	}
 }
 
-func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPAddr) (*net.TCPConn, error) {
+func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPAddr, mcNameLists []*set.StringSet, mcNameMode int) (*net.TCPConn, error) {
 	defer badPacketPanicRecover(s)
 
 	conn := mcnet.WrapConn(c)
@@ -44,7 +48,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 		return nil, err
 	}
 	if nextState == 1 { // status
-		if s.MotdDescription == "" && s.MotdFavicon == "" {
+		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
 
 			remote, err := net.DialTCP("tcp", nil, addr)
@@ -64,7 +68,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 			// send custom MOTD
 			conn.WritePacket(generateMotdPacket(
 				int(protocol),
-				s.MotdFavicon, s.MotdDescription))
+				s.Minecraft.MotdFavicon, s.Minecraft.MotdDescription))
 
 			// handle for ping request
 			conn.ReadPacket(&p)
@@ -86,8 +90,36 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Service %s : A new Minecraft player requested a login: %s", s.Name, playerName)
-	// TODO PlayerName handle
+
+	accessibility := "DEFAULT"
+	if mcNameMode != access.DefaultMode {
+		hit := false
+		for _, list := range mcNameLists {
+			if hit = list.Has(string(playerName)); hit {
+				break
+			}
+		}
+		switch mcNameMode {
+		case access.AllowMode:
+			if hit {
+				accessibility = "ALLOW"
+			} else {
+				accessibility = "DENY"
+			}
+		case access.BlockMode:
+			if hit {
+				accessibility = "REJECT"
+			} else {
+				accessibility = "PASS"
+			}
+		}
+	}
+	log.Printf("Service %s : A new Minecraft player requested a login: %s [%s]", s.Name, playerName, accessibility)
+	if accessibility == "DENY" || accessibility == "REJECT" {
+		c.SetLinger(0) // TODO: kick gracefully
+		c.Close()
+		return nil, ErrRejectedLogin
+	}
 
 	remote, err := net.DialTCP("tcp", nil, addr)
 	if err != nil {
@@ -98,11 +130,11 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 	remoteMC := mcnet.WrapConn(remote)
 
 	// Hostname rewritten
-	if s.EnableHostnameRewrite {
+	if s.Minecraft.EnableHostnameRewrite {
 		err = remoteMC.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
-			packet.String(s.RewrittenHostname),
+			packet.String(s.Minecraft.RewrittenHostname),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
 		))
