@@ -36,14 +36,21 @@ func main() {
 
 	{
 		osSignals := make(chan os.Signal, 1)
-		signal.Notify(osSignals, os.Interrupt, os.Kill, syscall.SIGTERM)
-		<-osSignals // wait for exits
-
-		// sometimes after the program exits on Windows, the ports are still occupied and "listening".
-		// so manually closes these listeners when the program exits.
-		for _, listener := range service.ListenerArray {
-			if listener != nil { // avoid null pointers
-				listener.Close()
+		signal.Notify(osSignals, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP)
+		for {
+			// wait for signal
+			if <-osSignals == syscall.SIGHUP { // config reload
+				log.Println("Config Hot Reload : SIGHUP signal received.")
+				// TODO: Configuration hot reload
+			} else { // stop the program
+				// sometimes after the program exits on Windows, the ports are still occupied and "listening".
+				// so manually closes these listeners when the program exits.
+				for _, listener := range service.ListenerArray {
+					if listener != nil { // avoid null pointers
+						listener.Close()
+					}
+				}
+				break
 			}
 		}
 	}
