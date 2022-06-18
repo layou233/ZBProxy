@@ -24,7 +24,7 @@ func main() {
  / /__  | |_| | | |     | | \ \  | |_| |  / /\ \    / /
 /_____| |_____/ |_|     |_|  \_\ \_____/ /_/  \_\  /_/`))
 	color.HiGreen("Welcome to ZBProxy %s!\n", version.Version)
-	color.HiBlack("Build Information: %s, %s-%s\n",
+	color.HiBlack("Build Information: %s, %s/%s\n",
 		runtime.Version(), runtime.GOOS, runtime.GOARCH)
 	go version.CheckUpdate()
 
