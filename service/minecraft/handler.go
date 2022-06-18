@@ -10,6 +10,7 @@ import (
 	"github.com/layou233/ZBProxy/service/access"
 	"log"
 	"net"
+	"strings"
 )
 
 // ErrSuccessfullyHandledMOTDRequest means the Minecraft client requested for MOTD
@@ -24,6 +25,14 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 	// So a panic handler is needed.
 	if err := recover(); err != nil {
 		log.Printf(color.HiRedString("Service %s : Bad Minecraft packet was received: %v", s.Name, err))
+	}
+}
+
+func checkSuffix(hostname packet.String) string {
+	if strings.Contains(string(hostname), "FML") {
+		return " FML"
+	} else {
+		return ""
 	}
 }
 
@@ -134,7 +143,7 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 		err = remoteMC.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
-			packet.String(s.Minecraft.RewrittenHostname),
+			packet.String(s.Minecraft.RewrittenHostname+checkSuffix(hostname)),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
 		))
