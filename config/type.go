@@ -25,6 +25,8 @@ type minecraft struct {
 	EnableHostnameRewrite bool
 	RewrittenHostname     string `json:",omitempty"`
 
+	IgnoreFMLSuffix bool
+
 	NameAccess access `json:",omitempty"`
 
 	EnableAnyDest   bool          `json:",omitempty"`

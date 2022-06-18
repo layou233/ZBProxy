@@ -28,14 +28,6 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 	}
 }
 
-func checkSuffix(hostname packet.String) string {
-	if strings.Contains(string(hostname), "FML") {
-		return " FML"
-	} else {
-		return ""
-	}
-}
-
 func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPAddr, mcNameLists []*set.StringSet, mcNameMode int) (*net.TCPConn, error) {
 	defer badPacketPanicRecover(s)
 
@@ -143,7 +135,13 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 		err = remoteMC.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
-			packet.String(s.Minecraft.RewrittenHostname+checkSuffix(hostname)),
+			packet.String(s.Minecraft.RewrittenHostname+func() string {
+				if !s.Minecraft.IgnoreFMLSuffix &&
+					strings.HasSuffix(string(hostname), " FML") {
+					return " FML"
+				}
+				return ""
+			}()),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
 		))
