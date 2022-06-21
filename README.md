@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/layou233/ZBProxy)](https://goreportcard.com/report/github.com/layou233/ZBProxy)  
 **NEWS: NEW ZBPROXY 3.0 WITH CONFIGURATION SUPPORT IS COMING SOON AND ALREADY AVAILABLE IN THE ACTIONS.**  
 
-[**English**](README.md)   [**简体中文**](README_zh.md)
+[**English**](README.md)   [**简体中文**](README_cn.md)
 
 🚀Easy proxy your data at the best privacy, giving you better experience enjoying Minecraft.  
 Support multiplatform because of Golang\'s attributes.  
