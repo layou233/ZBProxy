@@ -17,7 +17,7 @@ import (
 
 var ListenerArray = make([]net.Listener, 1)
 
-func ParseAccessLists(s *config.ConfigProxyService, l *config.AccessLists, isMinecraftHandleNeeded bool) (IpAccessMode int, McNameAccessMode int) {
+func ParseAccessLists(s *config.ConfigProxyService, l *config.AccessLists, isMinecraftHandleNeeded bool) {
 	// load access lists
 	ipAccessMode := access.GetAccessMode(s.IPAccess.Mode)
 	var err error
@@ -48,7 +48,8 @@ func ParseAccessLists(s *config.ConfigProxyService, l *config.AccessLists, isMin
 			}
 		}
 	}
-	return ipAccessMode, mcNameAccessMode
+	l.IPAccessMode = ipAccessMode
+	l.McNameAccessMode = mcNameAccessMode
 }
 
 func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
@@ -84,12 +85,12 @@ func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
 	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
 	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 
-	ipAccessMode, mcNameAccessMode := ParseAccessLists(s, l, isMinecraftHandleNeeded)
+	ParseAccessLists(s, l, isMinecraftHandleNeeded)
 
 	for {
 		conn, err := listen.AcceptTCP()
 		if err == nil {
-			if ipAccessMode != access.DefaultMode {
+			if l.IPAccessMode != access.DefaultMode {
 				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
 				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
 				hit := false
@@ -98,7 +99,7 @@ func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
 						break
 					}
 				}
-				switch ipAccessMode {
+				switch l.IPAccessMode {
 				case access.AllowMode:
 					if !hit {
 						forciblyCloseTCP(conn)
@@ -111,7 +112,7 @@ func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
 					}
 				}
 			}
-			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr, l.McNameAccessLists, mcNameAccessMode)
+			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr, l.McNameAccessLists, l.McNameAccessMode)
 		}
 	}
 }

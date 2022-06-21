@@ -1,6 +1,8 @@
 package config
 
-import "github.com/layou233/ZBProxy/common/set"
+import (
+	"github.com/layou233/ZBProxy/common/set"
+)
 
 type configMain struct {
 	Services []*ConfigProxyService
@@ -10,6 +12,8 @@ type configMain struct {
 type AccessLists struct {
 	IpAccessLists     []*set.StringSet
 	McNameAccessLists []*set.StringSet
+	IPAccessMode      int
+	McNameAccessMode  int
 }
 
 type ConfigProxyService struct {
@@ -31,7 +35,7 @@ type access struct {
 type minecraft struct {
 	EnableHostnameRewrite bool
 	RewrittenHostname     string `json:",omitempty"`
-	
+
 	IgnoreFMLSuffix bool
 
 	NameAccess access `json:",omitempty"`

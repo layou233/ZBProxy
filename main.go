@@ -30,9 +30,13 @@ func main() {
 
 	config.LoadConfig()
 
-	accessLists := &config.AccessLists{IpAccessLists: nil, McNameAccessLists: nil}
+	var accessLists []*config.AccessLists
+	num := 0
+	accessLists = make([]*config.AccessLists, 1024)
 	for _, s := range config.Config.Services {
-		go service.StartNewService(s, accessLists)
+		accessLists[num] = &config.AccessLists{IpAccessLists: nil, McNameAccessLists: nil}
+		go service.StartNewService(s, accessLists[num])
+		num += 1
 	}
 
 	osSignals := make(chan os.Signal, 1)
@@ -42,13 +46,25 @@ func main() {
 		// capture signals to execute hot reload
 		if <-osSignals == syscall.SIGHUP {
 			// reload whitelist or blacklist
-			// TODO ipAccessMode can't be changed, need check
 			config.LoadConfig()
-			accessListsNew := config.AccessLists{IpAccessLists: nil, McNameAccessLists: nil}
+			numNew := 0
+			var accessListsNew []*config.AccessLists
 			for _, s := range config.Config.Services {
-				service.ParseAccessLists(s, &accessListsNew, true)
+				accessLists[numNew] = &config.AccessLists{IpAccessLists: nil, McNameAccessLists: nil}
+				service.ParseAccessLists(s, accessListsNew[numNew], true)
+				if accessLists[numNew].IPAccessMode != accessListsNew[numNew].IPAccessMode {
+					// ipAccessMode can't be changed, need check
+					log.Println(color.HiRedString("IPAccessMode can't be changed, please check and reload"))
+					goto End
+				}
+				numNew += 1
 			}
-			accessLists = &accessListsNew
+			if numNew != num {
+				log.Println(color.HiRedString("service configuration number was changed, please check and reload"))
+				goto End
+			}
+			accessLists = accessListsNew
+		End:
 		} else {
 			// sometimes after the program exits on Windows, the ports are still occupied and "listening".
 			// so manually closes these listeners when the program exits.
