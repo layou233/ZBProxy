@@ -44,5 +44,5 @@ https://launium.com/doc/ZBProxy
 [![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
 JetBrains for open source support development license.
 
-## 协议
+## 许可证
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_large)
