@@ -15,7 +15,6 @@
 ## 本程序可以做什么？
 在大多数情况下，你可以使用Nginx的```proxy_pass```来代理Minecraft数据。 
 完整代码如下:
-
 ```
 stream {
     server {
@@ -34,3 +33,16 @@ stream {
 
 **在最新版本，你甚至可以修改加速IP的图标和MOTD**
 
+##它安全吗?
+完全不需要担心隐私问题，我们的代码是完全开源的，所以你可以自由检查是否有后门。
+
+##如何使用？
+完整的文档已迁移至
+https://launium.com/doc/ZBProxy
+
+## 赞助商
+[![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
+JetBrains for open source support development license.
+
+## 协议
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_large)
