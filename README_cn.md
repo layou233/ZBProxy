@@ -9,7 +9,7 @@
 使用go语言编写，支持多平台.
 一键搭建Minecraft加速IP软件，作者[B站@贴吧蜡油](https://space.bilibili.com/404017926 "点我前往空间").
 
-#### **[加入tg群](https://t.me/launium)** \
+#### **[加入tg群](https://t.me/launium)** 
 #### **[文档](https://launium.com/doc/ZBProxy)**
 
 ## 本程序可以做什么？
