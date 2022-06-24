@@ -2,12 +2,13 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_small)
 [![Go Reference](https://pkg.go.dev/badge/github.com/layou233/ZBProxy.svg)](https://pkg.go.dev/github.com/layou233/ZBProxy)
 [![Go Report Card](https://goreportcard.com/badge/github.com/layou233/ZBProxy)](https://goreportcard.com/report/github.com/layou233/ZBProxy)  
+
+[**English**](README.md)|[**简体中文**](README_cn.md)
+
 **NEWS: NEW ZBPROXY 3.0 WITH CONFIGURATION SUPPORT IS COMING SOON AND ALREADY AVAILABLE IN THE ACTIONS.**  
 
 🚀Easy proxy your data at the best privacy, giving you better experience enjoying Minecraft.  
-Support multiplatform because of Golang\'s attributes.  
-一键搭建Minecraft加速IP软件，作者[B站@贴吧蜡油](https://space.bilibili.com/404017926 "点我前往空间")。  
-本项目遵守国际化理念，所以代码内注释以及README都将以英语编写，可借助翻译工具辅助阅读。  
+Support multiplatform because of Golang\'s attributes.
 
 #### **[Join Official Telegram Group](https://t.me/launium)**  
 #### **[Document (W.I.P)](https://launium.com/doc/ZBProxy)**
