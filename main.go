@@ -47,8 +47,9 @@ func main() {
 		if <-osSignals == syscall.SIGHUP {
 			// reload whitelist or blacklist
 			config.LoadConfig()
-			numNew := 0
 			var accessListsNew []*config.AccessLists
+			numNew := 0
+			accessLists = make([]*config.AccessLists, 1024)
 			for _, s := range config.Config.Services {
 				accessLists[numNew] = &config.AccessLists{IpAccessLists: nil, McNameAccessLists: nil}
 				service.ParseAccessLists(s, accessListsNew[numNew], true)
