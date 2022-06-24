@@ -17,41 +17,7 @@ import (
 
 var ListenerArray = make([]net.Listener, 1)
 
-func ParseAccessLists(s *config.ConfigProxyService, l *config.AccessLists, isMinecraftHandleNeeded bool) (IpAccessMode int, McNameAccessMode int) {
-	// load access lists
-	ipAccessMode := access.GetAccessMode(s.IPAccess.Mode)
-	var err error
-	if ipAccessMode != access.DefaultMode { // IP access control enabled
-		if s.IPAccess.ListTags == nil {
-			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
-		}
-		l.IpAccessLists = make([]*set.StringSet, len(s.IPAccess.ListTags))
-		for i := 0; i < len(s.IPAccess.ListTags); i++ {
-			l.IpAccessLists[i], err = access.GetTargetList(s.IPAccess.ListTags[i])
-			if err != nil {
-				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
-			}
-		}
-	}
-
-	// load Minecraft player name access lists
-	mcNameAccessMode := access.GetAccessMode(s.Minecraft.NameAccess.Mode)
-	if isMinecraftHandleNeeded && mcNameAccessMode != access.DefaultMode { // IP access control enabled
-		if s.Minecraft.NameAccess.ListTags == nil {
-			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
-		}
-		l.McNameAccessLists = make([]*set.StringSet, len(s.Minecraft.NameAccess.ListTags))
-		for i := 0; i < len(s.Minecraft.NameAccess.ListTags); i++ {
-			l.McNameAccessLists[i], err = access.GetTargetList(s.Minecraft.NameAccess.ListTags[i])
-			if err != nil {
-				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
-			}
-		}
-	}
-	return ipAccessMode, mcNameAccessMode
-}
-
-func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
+func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
 	var isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
 		s.Minecraft.EnableAnyDest ||
@@ -84,7 +50,37 @@ func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
 	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
 	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 
-	ipAccessMode, mcNameAccessMode := ParseAccessLists(s, l, isMinecraftHandleNeeded)
+	// load access lists
+	var ipAccessLists []*set.StringSet = nil
+	ipAccessMode := access.GetAccessMode(s.IPAccess.Mode)
+	if ipAccessMode != access.DefaultMode { // IP access control enabled
+		if s.IPAccess.ListTags == nil {
+			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
+		}
+		ipAccessLists = make([]*set.StringSet, len(s.IPAccess.ListTags))
+		for i := 0; i < len(s.IPAccess.ListTags); i++ {
+			ipAccessLists[i], err = access.GetTargetList(s.IPAccess.ListTags[i])
+			if err != nil {
+				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+			}
+		}
+	}
+
+	// load Minecraft player name access lists
+	var mcNameAccessLists []*set.StringSet = nil
+	mcNameAccessMode := access.GetAccessMode(s.Minecraft.NameAccess.Mode)
+	if isMinecraftHandleNeeded && mcNameAccessMode != access.DefaultMode { // IP access control enabled
+		if s.Minecraft.NameAccess.ListTags == nil {
+			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
+		}
+		mcNameAccessLists = make([]*set.StringSet, len(s.Minecraft.NameAccess.ListTags))
+		for i := 0; i < len(s.Minecraft.NameAccess.ListTags); i++ {
+			mcNameAccessLists[i], err = access.GetTargetList(s.Minecraft.NameAccess.ListTags[i])
+			if err != nil {
+				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+			}
+		}
+	}
 
 	for {
 		conn, err := listen.AcceptTCP()
@@ -93,7 +89,7 @@ func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
 				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
 				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
 				hit := false
-				for _, list := range l.IpAccessLists {
+				for _, list := range ipAccessLists {
 					if hit = list.Has(ip); hit {
 						break
 					}
@@ -111,7 +107,7 @@ func StartNewService(s *config.ConfigProxyService, l *config.AccessLists) {
 					}
 				}
 			}
-			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr, l.McNameAccessLists, mcNameAccessMode)
+			go newConnReceiver(s, conn, isMinecraftHandleNeeded, flowType, remoteAddr, mcNameAccessLists, mcNameAccessMode)
 		}
 	}
 }
