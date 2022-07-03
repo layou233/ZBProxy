@@ -6,10 +6,6 @@ import (
 	"github.com/layou233/ZBProxy/config"
 )
 
-func IsStringInList(item string, stringSet *set.StringSet) bool {
-	return stringSet.Has(item)
-}
-
 func GetTargetList(listName string) (*set.StringSet, error) {
 	set, ok := config.Lists[listName]
 	if ok {

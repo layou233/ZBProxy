@@ -40,8 +40,10 @@ func main() {
 		for {
 			// wait for signal
 			if <-osSignals == syscall.SIGHUP { // config reload
-				log.Println("Config Hot Reload : SIGHUP signal received.")
-				// TODO: Configuration hot reload
+				log.Println(color.HiMagentaString("Config Reload : SIGHUP signal received. Reloading..."))
+				if config.LoadLists(true) { // reload success
+					log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
+				}
 			} else { // stop the program
 				// sometimes after the program exits on Windows, the ports are still occupied and "listening".
 				// so manually closes these listeners when the program exits.

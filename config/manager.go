@@ -6,12 +6,15 @@ import (
 	"github.com/layou233/ZBProxy/common/set"
 	"log"
 	"os"
+	"runtime"
 	"strings"
+	"sync"
 )
 
 var (
-	Config configMain
-	Lists  map[string]*set.StringSet
+	Config     configMain
+	Lists      map[string]*set.StringSet
+	reloadLock sync.Mutex
 )
 
 func LoadConfig() {
@@ -22,23 +25,22 @@ func LoadConfig() {
 			generateDefaultConfig()
 			goto success
 		} else {
-			log.Panic(color.HiRedString("Unexpected error when loading config: ", err.Error()))
+			log.Panic(color.HiRedString("Unexpected error when loading config: %s", err.Error()))
 		}
 	}
 
 	err = json.Unmarshal(configFile, &Config)
 	if err != nil {
-		log.Panic(color.HiRedString("Config format error: ", err.Error()))
+		log.Panic(color.HiRedString("Config format error: %s", err.Error()))
 	}
 
 success:
-	loadLists()
+	LoadLists(false)
 	log.Println(color.HiYellowString("Successfully loaded config from file."))
 }
 
 func generateDefaultConfig() {
 	file, err := os.Create("ZBProxy.json")
-	defer file.Close()
 	if err != nil {
 		log.Panic("Failed to create configuration file:", err.Error())
 	}
@@ -65,12 +67,33 @@ func generateDefaultConfig() {
 	newConfig, _ :=
 		json.MarshalIndent(Config, "", "    ")
 	_, err = file.WriteString(strings.ReplaceAll(string(newConfig), "\n", "\r\n"))
+	file.Close()
 	if err != nil {
 		log.Panic("Failed to save configuration file:", err.Error())
 	}
 }
 
-func loadLists() {
+func LoadLists(isReload bool) bool {
+	reloadLock.Lock()
+	if isReload {
+		configFile, err := os.ReadFile("ZBProxy.json")
+		if err != nil {
+			if os.IsNotExist(err) {
+				log.Println(color.HiRedString("Fail to reload : Configuration file is not exists."))
+			} else {
+				log.Println(color.HiRedString("Unexpected error when reloading config: %s", err.Error()))
+			}
+			reloadLock.Unlock()
+			return false
+		}
+
+		err = json.Unmarshal(configFile, &Config)
+		if err != nil {
+			log.Println(color.HiRedString("Fail to reload : Config format error: %s", err.Error()))
+			reloadLock.Unlock()
+			return false
+		}
+	}
 	//log.Println("Lists:", Config.Lists)
 	if l := len(Config.Lists); l == 0 { // if nothing in Lists
 		Lists = map[string]*set.StringSet{} // empty map
@@ -83,4 +106,7 @@ func loadLists() {
 		}
 	}
 	Config.Lists = nil // free memory
+	reloadLock.Unlock()
+	runtime.GC()
+	return true
 }

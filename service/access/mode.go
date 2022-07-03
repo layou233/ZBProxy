@@ -8,7 +8,7 @@ const (
 	BlockMode
 )
 
-func GetAccessMode(mode string) int {
+func ParseAccessMode(mode string) int {
 	switch mode {
 	case "allow", "whitelist":
 		return AllowMode

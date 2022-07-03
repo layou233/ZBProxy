@@ -5,6 +5,7 @@ import (
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
+	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/access"
@@ -28,7 +29,12 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 	}
 }
 
-func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPAddr, mcNameLists []*set.StringSet, mcNameMode int) (*net.TCPConn, error) {
+func NewConnHandler(s *config.ConfigProxyService,
+	c *net.TCPConn,
+	addr *net.TCPAddr,
+	//mcNameLists []*set.StringSet,
+	mcNameMode int) (*net.TCPConn, error) {
+
 	defer badPacketPanicRecover(s)
 
 	conn := mcnet.WrapConn(c)
@@ -95,8 +101,8 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 	accessibility := "DEFAULT"
 	if mcNameMode != access.DefaultMode {
 		hit := false
-		for _, list := range mcNameLists {
-			if hit = list.Has(string(playerName)); hit {
+		for _, list := range s.Minecraft.NameAccess.ListTags {
+			if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(string(playerName)); hit {
 				break
 			}
 		}
@@ -135,12 +141,12 @@ func NewConnHandler(s *config.ConfigProxyService, c *net.TCPConn, addr *net.TCPA
 		err = remoteMC.WritePacket(packet.Marshal(
 			0x0, // Server bound : Handshake
 			protocol,
-			packet.String(s.Minecraft.RewrittenHostname+func() string {
+			packet.String(func() string {
 				if !s.Minecraft.IgnoreFMLSuffix &&
 					strings.HasSuffix(string(hostname), " FML") {
-					return " FML"
+					return s.Minecraft.RewrittenHostname + " FML"
 				}
-				return ""
+				return s.Minecraft.RewrittenHostname
 			}()),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
