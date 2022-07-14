@@ -1,19 +1,8 @@
 package config
 
-import (
-	"github.com/layou233/ZBProxy/common/set"
-)
-
 type configMain struct {
 	Services []*ConfigProxyService
 	Lists    map[string][]string
-}
-
-type AccessLists struct {
-	IpAccessLists     []*set.StringSet
-	McNameAccessLists []*set.StringSet
-	IPAccessMode      int
-	McNameAccessMode  int
 }
 
 type ConfigProxyService struct {
