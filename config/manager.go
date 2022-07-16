@@ -52,6 +52,7 @@ func generateDefaultConfig() {
 				TargetPort:    25565,
 				Listen:        25565,
 				Flow:          "auto",
+				Debug:         false,
 				Minecraft: minecraft{
 					EnableHostnameRewrite: true,
 					IgnoreFMLSuffix:       true,

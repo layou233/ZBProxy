@@ -26,6 +26,9 @@ func StartNewService(s *config.ConfigProxyService) {
 		s.Minecraft.MotdDescription != "" ||
 		s.Minecraft.MotdFavicon != ""
 	flowType := getFlowType(s.Flow)
+	if s.Debug {
+		log.Printf("Flow mode : %s", s.Flow)
+	}
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
 	}

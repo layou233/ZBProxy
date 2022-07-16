@@ -11,6 +11,7 @@ type ConfigProxyService struct {
 	TargetPort    uint16
 	Listen        uint16
 	Flow          string
+	Debug         bool
 
 	IPAccess  access    `json:",omitempty"`
 	Minecraft minecraft `json:",omitempty"`

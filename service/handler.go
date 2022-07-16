@@ -22,6 +22,9 @@ func newConnReceiver(s *config.ConfigProxyService,
 	var remote *net.TCPConn = nil
 
 	if isMinecraftHandleNeeded {
+		if s.Debug {
+			log.Println("Using Minecraft Autofix packs mode")
+		}
 		remote, err = minecraft.NewConnHandler(s, conn, remoteAddr, mcNameMode)
 		if err != nil {
 			return
@@ -29,6 +32,9 @@ func newConnReceiver(s *config.ConfigProxyService,
 	}
 
 	if remote == nil {
+		if s.Debug {
+			log.Println("Using normal mode")
+		}
 		remote, err = net.DialTCP("tcp", nil, remoteAddr)
 		if err != nil {
 			log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())

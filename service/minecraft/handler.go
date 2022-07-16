@@ -51,13 +51,22 @@ func NewConnHandler(s *config.ConfigProxyService,
 		nextState packet.Byte
 	)
 	err = p.Scan(&protocol, &hostname, &port, &nextState)
+	if s.Debug {
+		log.Println("Handshake Packet Start")
+		log.Printf("Protocol Code : %d", protocol)
+		log.Printf("Hostname : %s", hostname)
+		log.Printf("Port : %d", port)
+		log.Printf("State Code : %d", int(nextState))
+	}
 	if err != nil {
 		return nil, err
 	}
 	if nextState == 1 { // status
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
-
+			if s.Debug {
+				log.Println("Get motd by remote")
+			}
 			remote, err := net.DialTCP("tcp", nil, addr)
 			if err != nil {
 				return nil, err
@@ -70,6 +79,10 @@ func NewConnHandler(s *config.ConfigProxyService,
 		} else {
 			// Server bound : Status Request
 			// Must read, but not used (and also nothing included in it)
+			if s.Debug {
+				log.Println("Get motd by local")
+			}
+
 			conn.ReadPacket(&p)
 
 			// send custom MOTD
