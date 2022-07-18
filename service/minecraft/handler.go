@@ -143,8 +143,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 			protocol,
 			packet.String(func() string {
 				if !s.Minecraft.IgnoreFMLSuffix &&
-					strings.HasSuffix(string(hostname), "FML") {
-					return s.Minecraft.RewrittenHostname + " FML"
+					strings.HasSuffix(string(hostname), string(byte(0)) + "FML" + string(byte(0))) {
+					return s.Minecraft.RewrittenHostname + string(byte(0)) + "FML" + string(byte(0))
 				}
 				return s.Minecraft.RewrittenHostname
 			}()),
