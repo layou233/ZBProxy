@@ -27,7 +27,7 @@ func NewClientFromURL(s string) (*Client, error) {
 	}
 	c := &Client{}
 	switch u.Scheme {
-	case "socks", "socks5":
+	case "socks", "socks5", "":
 		c.Version = "5"
 		c.Username = u.User.Username()
 		c.Password, _ = u.User.Password()
@@ -40,12 +40,13 @@ func NewClientFromURL(s string) (*Client, error) {
 	default:
 		return nil, fmt.Errorf("socks: unknown SOCKS version: %v", u.Scheme)
 	}
+	c.Network = "tcp" // TODO: tcp4, tcp6 and unix support
 	c.Address = u.Host
 	return c, nil
 }
 
 func (c Client) Dial(network, address string) (net.Conn, error) {
-	conn, err := net.Dial(network, c.Address)
+	conn, err := net.Dial(c.Network, c.Address)
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}
@@ -56,7 +57,11 @@ func (c Client) Dial(network, address string) (net.Conn, error) {
 }
 
 func (c Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn, error) {
-	conn, err := net.DialTCP(network, laddr, raddr)
+	SAddr, err := net.ResolveTCPAddr(c.Network, c.Address)
+	if err != nil {
+		return nil, fmt.Errorf("socks: can't resolve SOCKS server address: %v", err)
+	}
+	conn, err := net.DialTCP(c.Network, laddr, SAddr)
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}

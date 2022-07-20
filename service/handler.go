@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"log"
@@ -10,10 +11,10 @@ import (
 
 func newConnReceiver(s *config.ConfigProxyService,
 	conn *net.TCPConn,
+	out outbound.Outbound,
 	isMinecraftHandleNeeded bool,
 	flowType int,
 	remoteAddr *net.TCPAddr,
-	//mcNameLists []*set.StringSet,
 	mcNameMode int) {
 
 	log.Println("Service", s.Name, ": A new connection request sent by", conn.RemoteAddr().String(), "is received.")
@@ -22,14 +23,14 @@ func newConnReceiver(s *config.ConfigProxyService,
 	var remote *net.TCPConn = nil
 
 	if isMinecraftHandleNeeded {
-		remote, err = minecraft.NewConnHandler(s, conn, remoteAddr, mcNameMode)
+		remote, err = minecraft.NewConnHandler(s, conn, out, remoteAddr, mcNameMode)
 		if err != nil {
 			return
 		}
 	}
 
 	if remote == nil {
-		remote, err = net.DialTCP("tcp", nil, remoteAddr)
+		remote, err = out.DialTCP("tcp", nil, remoteAddr)
 		if err != nil {
 			log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
 			conn.Close()

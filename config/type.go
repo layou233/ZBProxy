@@ -14,6 +14,7 @@ type ConfigProxyService struct {
 
 	IPAccess  access    `json:",omitempty"`
 	Minecraft minecraft `json:",omitempty"`
+	Outbound  outbound  `json:",omitempty"`
 }
 
 type access struct {
@@ -34,10 +35,14 @@ type minecraft struct {
 
 	MotdFavicon     string
 	MotdDescription string
-
-	EnableMojangCapeRequirement bool `json:",omitempty"`
 }
 
 type configAnyDest struct {
 	WildcardRootDomainName string `json:",omitempty"`
+}
+
+type outbound struct {
+	Type           string
+	URL            string
+	DomainStrategy string
 }

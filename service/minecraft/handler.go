@@ -8,6 +8,7 @@ import (
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/service/access"
 	"log"
 	"net"
@@ -31,8 +32,8 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 
 func NewConnHandler(s *config.ConfigProxyService,
 	c *net.TCPConn,
+	out outbound.Outbound,
 	addr *net.TCPAddr,
-	//mcNameLists []*set.StringSet,
 	mcNameMode int) (*net.TCPConn, error) {
 
 	defer badPacketPanicRecover(s)
@@ -58,7 +59,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
 
-			remote, err := net.DialTCP("tcp", nil, addr)
+			remote, err := out.DialTCP("tcp", nil, addr)
 			if err != nil {
 				return nil, err
 			}
@@ -128,7 +129,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, ErrRejectedLogin
 	}
 
-	remote, err := net.DialTCP("tcp", nil, addr)
+	remote, err := out.DialTCP("tcp", nil, addr)
 	if err != nil {
 		log.Printf("Service %s : Failed to dial to target server: %v", s.Name, err.Error())
 		conn.Close()
