@@ -2,7 +2,6 @@ package transfer
 
 import (
 	"github.com/fatih/color"
-	"github.com/layou233/ZBProxy/common/zerocopy"
 	"github.com/xtls/xray-core/common/buf"
 	"io"
 	"log"
@@ -22,7 +21,7 @@ type writerOnly struct {
 	io.Writer
 }
 
-func SimpleTransfer(a, b *net.TCPConn, flow int) {
+func SimpleTransfer(a, b net.Conn, flow int) {
 	switch flow {
 	case FLOW_ORIGIN:
 		defer a.Close()
@@ -41,8 +40,10 @@ func SimpleTransfer(a, b *net.TCPConn, flow int) {
 
 	case FLOW_AUTO:
 		if runtime.GOOS == "linux" {
-			go zerocopy.CopyTCP(b, a)
-			zerocopy.CopyTCP(a, b)
+			defer a.Close()
+			defer b.Close()
+			go io.Copy(b, a)
+			io.Copy(a, b)
 			return // TODO: Use MULTIPLE when fail to sendfile or splice
 		}
 		fallthrough

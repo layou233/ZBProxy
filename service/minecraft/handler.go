@@ -2,6 +2,7 @@ package minecraft
 
 import (
 	"errors"
+	"fmt"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
@@ -31,10 +32,9 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 }
 
 func NewConnHandler(s *config.ConfigProxyService,
-	c *net.TCPConn,
+	c net.Conn,
 	out outbound.Outbound,
-	addr *net.TCPAddr,
-	mcNameMode int) (*net.TCPConn, error) {
+	mcNameMode int) (net.Conn, error) {
 
 	defer badPacketPanicRecover(s)
 
@@ -59,7 +59,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
 
-			remote, err := out.DialTCP("tcp", nil, addr)
+			remote, err := out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 			if err != nil {
 				return nil, err
 			}
@@ -124,12 +124,12 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 	log.Printf("Service %s : A new Minecraft player requested a login: %s [%s]", s.Name, playerName, accessibility)
 	if accessibility == "DENY" || accessibility == "REJECT" {
-		c.SetLinger(0) // TODO: kick gracefully
+		c.(*net.TCPConn).SetLinger(0) // TODO: kick gracefully
 		c.Close()
 		return nil, ErrRejectedLogin
 	}
 
-	remote, err := out.DialTCP("tcp", nil, addr)
+	remote, err := out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	if err != nil {
 		log.Printf("Service %s : Failed to dial to target server: %v", s.Name, err.Error())
 		conn.Close()

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/fatih/color"
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
@@ -50,7 +49,6 @@ func StartNewService(s *config.ConfigProxyService) {
 		log.Panic(color.HiRedString("Service %s: Can't start listening on port %v: %v", s.Name, s.Listen, err.Error()))
 	}
 	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
-	remoteAddr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 
 	// load access lists
 	ipAccessMode := access.ParseAccessMode(s.IPAccess.Mode)
@@ -109,7 +107,7 @@ func StartNewService(s *config.ConfigProxyService) {
 					}
 				}
 			}
-			go newConnReceiver(s, conn, out, isMinecraftHandleNeeded, flowType, remoteAddr, mcNameAccessMode)
+			go newConnReceiver(s, conn, out, isMinecraftHandleNeeded, flowType, mcNameAccessMode)
 		}
 	}
 }
