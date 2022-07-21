@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-var SystemOutbound *systemOutbound = &systemOutbound{}
+var SystemOutbound Outbound = &systemOutbound{}
 
 type systemOutbound struct {
 	net.Dialer
