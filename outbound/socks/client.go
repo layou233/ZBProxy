@@ -52,6 +52,7 @@ func (c Client) Dial(network, address string) (net.Conn, error) {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}
 	if err = c.Handshake(conn, conn, network, address); err != nil {
+		conn.Close()
 		return nil, err
 	}
 	return conn, nil
@@ -67,6 +68,7 @@ func (c Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}
 	if err = c.Handshake(conn, conn, network, raddr.String()); err != nil {
+		conn.Close()
 		return nil, err
 	}
 	return conn, nil
@@ -76,6 +78,8 @@ func (c Client) Handshake(r io.Reader, w io.Writer, network, address string) err
 	switch c.GetVersion() {
 	case "5":
 		return c.handshake5(r, w, network, address)
+	case "4":
+		return c.handshake4(r, w, network, address)
 	}
 	return fmt.Errorf("socks: unknown SOCKS version: %v", c.Version)
 }
