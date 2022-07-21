@@ -40,7 +40,7 @@ const (
 	ReplyCode5AddressTypeUnsupported byte = 8
 )
 
-func (c Client) handshake5(r io.Reader, w io.Writer, address string) error {
+func (c Client) handshake5(r io.Reader, w io.Writer, network, address string) error {
 	host, portString, err := net.SplitHostPort(address)
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (c Client) handshake5(r io.Reader, w io.Writer, address string) error {
 		return fmt.Errorf("socks: unknown auth method: %v", handshakeResp[1])
 	}
 
-	_, err = w.Write([]byte{version5, CommandConnect, 0})
+	_, err = w.Write([]byte{version5, CommandConnect, 0}) // TODO: Bind & UDPAssociate
 	if err != nil {
 		return err
 	}

@@ -78,8 +78,12 @@ func StartNewService(s *config.ConfigProxyService) {
 
 	var out outbound.Outbound = outbound.SystemOutbound
 	switch s.Outbound.Type {
-	case "socks":
-		out, err = socks.NewClientFromURL(s.Outbound.URL)
+	case "socks", "socks5", "socks4a", "socks4":
+		out = &socks.Client{
+			Version: s.Outbound.Type,
+			Network: s.Outbound.Network,
+			Address: s.Outbound.Address,
+		}
 	}
 
 	for {

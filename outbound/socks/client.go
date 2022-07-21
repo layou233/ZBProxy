@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"net/url"
+	"strings"
 )
 
 type Client struct {
@@ -50,7 +51,7 @@ func (c Client) Dial(network, address string) (net.Conn, error) {
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}
-	if err = c.Handshake(conn, conn, address); err != nil {
+	if err = c.Handshake(conn, conn, network, address); err != nil {
 		return nil, err
 	}
 	return conn, nil
@@ -65,16 +66,33 @@ func (c Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}
-	if err = c.Handshake(conn, conn, raddr.String()); err != nil {
+	if err = c.Handshake(conn, conn, network, raddr.String()); err != nil {
 		return nil, err
 	}
 	return conn, nil
 }
 
-func (c Client) Handshake(r io.Reader, w io.Writer, address string) error {
-	switch c.Version {
+func (c Client) Handshake(r io.Reader, w io.Writer, network, address string) error {
+	switch c.GetVersion() {
 	case "5":
-		return c.handshake5(r, w, address)
+		return c.handshake5(r, w, network, address)
 	}
 	return fmt.Errorf("socks: unknown SOCKS version: %v", c.Version)
+}
+
+func (c Client) GetVersion() string {
+	c.Version = strings.ToLower(c.Version)
+	switch c.Version {
+	case "5", "4a", "4":
+		return c.Version
+	case "":
+		fallthrough
+	case "socks", "socks5":
+		return "5"
+	case "socks4a":
+		return "4a"
+	case "socks4":
+		return "4"
+	}
+	return "UNKNOWN"
 }

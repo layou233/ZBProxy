@@ -12,5 +12,5 @@ import (
 type Outbound interface {
 	Dial(network, address string) (net.Conn, error)
 	DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn, error)
-	Handshake(r io.Reader, w io.Writer, address string) error
+	Handshake(r io.Reader, w io.Writer, network, address string) error
 }
