@@ -52,7 +52,7 @@ func (c Client) handshake5(r io.Reader, w io.Writer, network, address string) er
 	port := uint16(port64)
 
 	if len(c.Methods) == 0 {
-		c.Methods = []byte{0}
+		c.Methods = []byte{AuthTypeNotRequired}
 	}
 	_, err = w.Write([]byte{version5, byte(len(c.Methods))})
 	if err != nil {
