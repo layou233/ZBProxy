@@ -51,6 +51,9 @@ func (c Client) handshake5(r io.Reader, w io.Writer, network, address string) er
 	}
 	port := uint16(port64)
 
+	if len(c.Methods) == 0 {
+		c.Methods = []byte{0}
+	}
 	_, err = w.Write([]byte{version5, byte(len(c.Methods))})
 	if err != nil {
 		return err
@@ -158,8 +161,7 @@ func (c Client) handshake5(r io.Reader, w io.Writer, network, address string) er
 			return err
 		}
 	}
-	var bindPort uint16
-	err = binary.Read(r, binary.BigEndian, bindPort)
+	_, err = rw.ReadBytes(r, 2)
 	if err != nil {
 		return err
 	}
