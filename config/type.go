@@ -42,8 +42,7 @@ type configAnyDest struct {
 }
 
 type outbound struct {
-	Type           string
-	Network        string
-	Address        string
-	DomainStrategy string
+	Type    string
+	Network string
+	Address string
 }
