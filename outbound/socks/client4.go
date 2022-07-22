@@ -19,7 +19,7 @@ const (
 	ReplyCode4IdentdReportDifferentUserID byte = 0x5D
 )
 
-func (c Client) handshake4(r io.Reader, w io.Writer, network, address string) error {
+func (c Client) handshake4(r io.Reader, w io.Writer, address string) error {
 	host, portString, err := net.SplitHostPort(address)
 	if err != nil {
 		return err
@@ -41,16 +41,16 @@ func (c Client) handshake4(r io.Reader, w io.Writer, network, address string) er
 		}
 		for _, ip := range ipList {
 			if ipv4 := ip.To4(); ipv4 != nil {
-				ip = ipv4
-				goto ok
+				return c.request4(r, w, port, ipv4)
 			}
 		}
 		return fmt.Errorf("socks: can't resolve any IPv4 address from domain %v: %v", host, ipList)
 	}
-	ip = ip.To4()
-ok:
+	return c.request4(r, w, port, ip.To4())
+}
 
-	_, err = w.Write([]byte{version4, CommandConnect})
+func (c Client) request4(r io.Reader, w io.Writer, port uint16, addr []byte) error {
+	_, err := w.Write([]byte{version4, CommandConnect})
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ ok:
 	if err != nil {
 		return err
 	}
-	_, err = w.Write(ip)
+	_, err = w.Write(addr)
 	if err != nil {
 		return err
 	}
@@ -70,12 +70,15 @@ ok:
 	if err != nil {
 		return err
 	}
+	return c.handleResponse4(r)
+}
 
+func (c Client) handleResponse4(r io.Reader) error {
 	resp, err := rw.ReadBytes(r, 2)
 	if err != nil {
 		return err
 	}
-	if resp[0] != 0 {
+	if resp[0] != 0 && resp[0] != version4 { // compatible with nonstandard implementation
 		return fmt.Errorf("socks: expected response version 0, but got: %v", resp[0])
 	}
 	switch resp[1] {

@@ -78,8 +78,10 @@ func (c Client) Handshake(r io.Reader, w io.Writer, network, address string) err
 	switch c.GetVersion() {
 	case "5":
 		return c.handshake5(r, w, network, address)
+	case "4a":
+		return c.handshake4A(r, w, address)
 	case "4":
-		return c.handshake4(r, w, network, address)
+		return c.handshake4(r, w, address)
 	}
 	return fmt.Errorf("socks: unknown SOCKS version: %v", c.Version)
 }
@@ -89,9 +91,7 @@ func (c Client) GetVersion() string {
 	switch c.Version {
 	case "5", "4a", "4":
 		return c.Version
-	case "":
-		fallthrough
-	case "socks", "socks5":
+	case "", "socks", "socks5":
 		return "5"
 	case "socks4a":
 		return "4a"
