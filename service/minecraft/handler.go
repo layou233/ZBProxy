@@ -124,7 +124,9 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 	log.Printf("Service %s : A new Minecraft player requested a login: %s [%s]", s.Name, playerName, accessibility)
 	if accessibility == "DENY" || accessibility == "REJECT" {
-		c.(*net.TCPConn).SetLinger(0) // TODO: kick gracefully
+		// https://wiki.vg/Chat
+		conn.WritePacket(packet.Marshal(0x00, packet.String(s.Minecraft.KickText)))
+		c.(*net.TCPConn).SetLinger(0)
 		c.Close()
 		return nil, ErrRejectedLogin
 	}
