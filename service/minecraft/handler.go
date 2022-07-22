@@ -3,7 +3,6 @@ package minecraft
 import (
 	"errors"
 	"fmt"
-	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
@@ -126,7 +125,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	log.Printf("Service %s : A new Minecraft player requested a login: %s [%s]", s.Name, playerName, accessibility)
 	if accessibility == "DENY" || accessibility == "REJECT" {
 		conn.WritePacket(packet.Marshal(
-			packetid.LoginDisconnect,
+			0x00, // Client bound : Disconnect (login)
 			generateKickMessage(s, playerName),
 		))
 		c.(*net.TCPConn).SetLinger(10)
@@ -145,7 +144,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	// Hostname rewritten
 	if s.Minecraft.EnableHostnameRewrite {
 		err = remoteMC.WritePacket(packet.Marshal(
-			0x0, // Server bound : Handshake
+			0x00, // Server bound : Handshake
 			protocol,
 			packet.String(func() string {
 				if !s.Minecraft.IgnoreFMLSuffix &&
@@ -159,7 +158,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		))
 	} else {
 		err = remoteMC.WritePacket(packet.Marshal(
-			0x0, // Server bound : Handshake
+			0x00, // Server bound : Handshake
 			protocol,
 			hostname,
 			port,

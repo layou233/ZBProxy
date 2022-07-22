@@ -2,7 +2,6 @@ package minecraft
 
 import (
 	"encoding/json"
-	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net/packet"
 	"github.com/layou233/ZBProxy/version"
 )
@@ -51,5 +50,8 @@ func generateMotdPacket(protocolVersion int, motdFavicon, motdDescription string
 		},
 		Favicon: motdFavicon,
 	})
-	return packet.Marshal(packetid.StatusResponse, packet.String(motd))
+	return packet.Marshal(
+		0x00, // Client bound : Status Response
+		packet.String(motd),
+	)
 }
