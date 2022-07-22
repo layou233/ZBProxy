@@ -55,7 +55,6 @@ func generateDefaultConfig() {
 				Minecraft: minecraft{
 					EnableHostnameRewrite: true,
 					IgnoreFMLSuffix:       true,
-					KickText:              "{\"text\":\"[ZBProxy] Your username or ip is not in the whitelist\"}",
 					MotdFavicon:           "{DEFAULT_MOTD}",
 					MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
 				},
