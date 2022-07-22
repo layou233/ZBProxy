@@ -35,7 +35,6 @@ type minecraft struct {
 
 	MotdFavicon     string
 	MotdDescription string
-	KickText        string
 }
 
 type configAnyDest struct {
