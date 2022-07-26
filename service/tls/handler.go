@@ -16,10 +16,10 @@ func NewConnHandler(s *config.ConfigProxyService,
 	c net.Conn,
 	out outbound.Outbound) (net.Conn, error) {
 	header, buf, err := SniffAndRecordTLS(c)
-	defer buf.Reset()
 	if err != nil {
 		if err == ErrNotTLS {
 			if s.TLSSniffing.RejectNonTLS {
+				buf.Reset()
 				return nil, err
 			}
 			return dialAndWrite(s, buf, out)
@@ -35,10 +35,12 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 	if !hit {
 		if s.TLSSniffing.RejectIfNonMatch {
+			buf.Reset()
 			return nil, errors.New("")
 		}
 		return dialAndWrite(s, buf, out)
 	}
+	defer buf.Reset()
 	remote, err := out.Dial("tcp", fmt.Sprintf("%s:%v", domain, s.TargetPort))
 	if err != nil {
 		return nil, err
@@ -51,6 +53,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 }
 
 func dialAndWrite(s *config.ConfigProxyService, buffer *bytes.Buffer, out outbound.Outbound) (net.Conn, error) {
+	defer buffer.Reset()
 	conn, err := out.Dial("tcp", fmt.Sprintf("%s:%v", s.TargetAddress, s.TargetPort))
 	if err != nil {
 		return nil, err
