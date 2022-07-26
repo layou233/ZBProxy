@@ -7,7 +7,10 @@ func ReadByte(reader io.Reader) (byte, error) {
 		return br.ReadByte()
 	}
 	b, err := ReadBytes(reader, 1)
-	return b[0], err
+	if err != nil {
+		return 0, err
+	}
+	return b[0], nil
 }
 
 func ReadBytes(reader io.Reader, size int) ([]byte, error) {
