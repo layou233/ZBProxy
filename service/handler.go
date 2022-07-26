@@ -5,6 +5,7 @@ import (
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/service/minecraft"
+	"github.com/layou233/ZBProxy/service/tls"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"log"
 	"net"
@@ -13,6 +14,7 @@ import (
 func newConnReceiver(s *config.ConfigProxyService,
 	conn *net.TCPConn,
 	out outbound.Outbound,
+	isTLSHandleNeeded bool,
 	isMinecraftHandleNeeded bool,
 	flowType int,
 	mcNameMode int) {
@@ -22,9 +24,16 @@ func newConnReceiver(s *config.ConfigProxyService,
 	var err error // in order to avoid scoop problems
 	var remote net.Conn = nil
 
-	if isMinecraftHandleNeeded {
+	if isTLSHandleNeeded {
+		remote, err = tls.NewConnHandler(s, conn, out)
+		if err != nil {
+			conn.Close()
+			return
+		}
+	} else if isMinecraftHandleNeeded {
 		remote, err = minecraft.NewConnHandler(s, conn, out, mcNameMode)
 		if err != nil {
+			conn.Close()
 			return
 		}
 	}

@@ -21,10 +21,18 @@ var ListenerArray = make([]net.Listener, 1)
 
 func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
-	var isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
-		s.Minecraft.EnableAnyDest ||
-		s.Minecraft.MotdDescription != "" ||
-		s.Minecraft.MotdFavicon != ""
+	var (
+		isTLSHandleNeeded = s.TLSSniffing.RejectNonTLS ||
+			s.TLSSniffing.RejectIfNonMatch ||
+			len(s.TLSSniffing.SNIAllowListTags) != 0
+		isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
+			s.Minecraft.EnableAnyDest ||
+			s.Minecraft.MotdDescription != "" ||
+			s.Minecraft.MotdFavicon != ""
+	)
+	if isTLSHandleNeeded && isMinecraftHandleNeeded {
+		log.Panic(color.HiRedString("Service %s: The current version can't handle TLS and Minecraft at the same time.", s.Name))
+	}
 	flowType := getFlowType(s.Flow)
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
@@ -111,7 +119,7 @@ func StartNewService(s *config.ConfigProxyService) {
 					}
 				}
 			}
-			go newConnReceiver(s, conn, out, isMinecraftHandleNeeded, flowType, mcNameAccessMode)
+			go newConnReceiver(s, conn, out, isTLSHandleNeeded, isMinecraftHandleNeeded, flowType, mcNameAccessMode)
 		}
 	}
 }

@@ -12,9 +12,10 @@ type ConfigProxyService struct {
 	Listen        uint16
 	Flow          string
 
-	IPAccess  access    `json:",omitempty"`
-	Minecraft minecraft `json:",omitempty"`
-	Outbound  outbound  `json:",omitempty"`
+	IPAccess    access      `json:",omitempty"`
+	Minecraft   minecraft   `json:",omitempty"`
+	TLSSniffing tlsSniffing `json:",omitempty"`
+	Outbound    outbound    `json:",omitempty"`
 }
 
 type access struct {
@@ -41,8 +42,14 @@ type configAnyDest struct {
 	WildcardRootDomainName string `json:",omitempty"`
 }
 
+type tlsSniffing struct {
+	RejectNonTLS     bool
+	RejectIfNonMatch bool     `json:",omitempty"`
+	SNIAllowListTags []string `json:",omitempty"`
+}
+
 type outbound struct {
 	Type    string
-	Network string
-	Address string
+	Network string `json:",omitempty"`
+	Address string `json:",omitempty"`
 }
