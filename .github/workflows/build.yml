@@ -66,6 +66,10 @@ jobs:
             - goos: linux
               goarch: ppc64le
             # END PPC
+            # BEGIN LOONGARCH
+            - goos: linux
+              goarch: loong64
+            # END LOONGARCH
             # BEGIN FreeBSD ARM
             - goos: freebsd
               goarch: arm64
@@ -99,7 +103,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: ^1.18
+        go-version: ^1.19
 
     - name: Tidy up Go Modules
       run: go mod tidy
