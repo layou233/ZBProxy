@@ -55,8 +55,13 @@ func generateDefaultConfig() {
 				Minecraft: minecraft{
 					EnableHostnameRewrite: true,
 					IgnoreFMLSuffix:       true,
-					MotdFavicon:           "{DEFAULT_MOTD}",
-					MotdDescription:       "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
+					OnlineCount: onlineCount{
+						Max:            114514,
+						Online:         -1,
+						EnableMaxLimit: false,
+					},
+					MotdFavicon:     "{DEFAULT_MOTD}",
+					MotdDescription: "§d{NAME}§e service is working on §a§o{INFO}§r\n§c§lProxy for §6§n{HOST}:{PORT}§r",
 				},
 			},
 		},

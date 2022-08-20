@@ -27,6 +27,8 @@ type minecraft struct {
 	EnableHostnameRewrite bool
 	RewrittenHostname     string `json:",omitempty"`
 
+	OnlineCount onlineCount
+
 	IgnoreFMLSuffix bool
 
 	NameAccess access `json:",omitempty"`
@@ -36,6 +38,12 @@ type minecraft struct {
 
 	MotdFavicon     string
 	MotdDescription string
+}
+
+type onlineCount struct {
+	Max            int
+	Online         int32
+	EnableMaxLimit bool
 }
 
 type configAnyDest struct {

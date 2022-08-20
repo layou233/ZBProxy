@@ -94,6 +94,13 @@ func StartNewService(s *config.ConfigProxyService) {
 		}
 	}
 
+	options := &transfer.Options{
+		Out:                     out,
+		IsTLSHandleNeeded:       isTLSHandleNeeded,
+		IsMinecraftHandleNeeded: isMinecraftHandleNeeded,
+		FlowType:                flowType,
+		McNameMode:              mcNameAccessMode,
+	}
 	for {
 		conn, err := listen.AcceptTCP()
 		if err == nil {
@@ -119,7 +126,7 @@ func StartNewService(s *config.ConfigProxyService) {
 					}
 				}
 			}
-			go newConnReceiver(s, conn, out, isTLSHandleNeeded, isMinecraftHandleNeeded, flowType, mcNameAccessMode)
+			go newConnReceiver(s, conn, options)
 		}
 	}
 }

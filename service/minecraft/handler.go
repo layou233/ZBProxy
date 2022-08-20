@@ -9,8 +9,8 @@ import (
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
-	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/service/access"
+	"github.com/layou233/ZBProxy/service/transfer"
 	"log"
 	"net"
 	"strings"
@@ -33,8 +33,7 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 
 func NewConnHandler(s *config.ConfigProxyService,
 	c net.Conn,
-	out outbound.Outbound,
-	mcNameMode int) (net.Conn, error) {
+	options *transfer.Options) (net.Conn, error) {
 
 	defer badPacketPanicRecover(s)
 
@@ -59,7 +58,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
 
-			remote, err := out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+			remote, err := options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 			if err != nil {
 				return nil, err
 			}
@@ -76,7 +75,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 			// send custom MOTD
 			conn.WritePacket(generateMotdPacket(
 				int(protocol),
-				s.Minecraft.MotdFavicon, s.Minecraft.MotdDescription))
+				s, options))
 
 			// handle for ping request
 			conn.ReadPacket(&p)
@@ -99,15 +98,26 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, err
 	}
 
+	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max >= int(options.GetCount()) {
+		log.Printf("Service %s : Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, playerName)
+		conn.WritePacket(packet.Marshal(
+			0x00, // Client bound : Disconnect (login)
+			generatePlayerNumberLimitExceededMessage(s, playerName),
+		))
+		c.(*net.TCPConn).SetLinger(10)
+		c.Close()
+		return nil, ErrRejectedLogin
+	}
+
 	accessibility := "DEFAULT"
-	if mcNameMode != access.DefaultMode {
+	if options.McNameMode != access.DefaultMode {
 		hit := false
 		for _, list := range s.Minecraft.NameAccess.ListTags {
 			if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(string(playerName)); hit {
 				break
 			}
 		}
-		switch mcNameMode {
+		switch options.McNameMode {
 		case access.AllowMode:
 			if hit {
 				accessibility = "ALLOW"
@@ -133,7 +143,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, ErrRejectedLogin
 	}
 
-	remote, err := out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+	remote, err := options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	if err != nil {
 		log.Printf("Service %s : Failed to dial to target server: %v", s.Name, err.Error())
 		conn.Close()
