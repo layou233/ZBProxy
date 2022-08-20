@@ -1,5 +1,6 @@
 [Unit]
 Description=ZBProxy Service
+Documentation=https://github.com/layou233/ZBProxy
 After=network.target nss-lookup.target
 
 [Service]

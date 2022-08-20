@@ -3,6 +3,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/layou233/ZBProxy.svg)](https://pkg.go.dev/github.com/layou233/ZBProxy)
 [![Go Report Card](https://goreportcard.com/badge/github.com/layou233/ZBProxy)](https://goreportcard.com/report/github.com/layou233/ZBProxy)
 
+[**English**](README.md) | **简体中文**
+
 **新闻：ZBProxy-3.0版本已经推出，请前往[**Actions**](https://github.com/layou233/ZBProxy/actions)下载最新版本**
 
 🚀快速搭建Minecraft服务器加速IP，给您最好的体验.
@@ -13,7 +15,7 @@
 #### **[文档](https://launium.com/doc/ZBProxy)**
 
 ## 本程序可以做什么？
-在大多数情况下，你可以使用Nginx的```proxy_pass```来代理Minecraft数据。 
+在大多数情况下，你可以使用Nginx的```proxy_pass```来中转Minecraft数据。 
 完整代码如下:
 ```
 stream {

@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/layou233/ZBProxy.svg)](https://pkg.go.dev/github.com/layou233/ZBProxy)
 [![Go Report Card](https://goreportcard.com/badge/github.com/layou233/ZBProxy)](https://goreportcard.com/report/github.com/layou233/ZBProxy)  
 
-[**English**](README.md)|[**简体中文**](README_cn.md)
+**English** | [**简体中文**](README_cn.md)
 
 **NEWS: NEW ZBPROXY 3.0 WITH CONFIGURATION SUPPORT IS COMING SOON AND ALREADY AVAILABLE IN THE ACTIONS.**  
 
@@ -14,7 +14,7 @@ Support multiplatform because of Golang\'s attributes.
 #### **[Document (W.I.P)](https://launium.com/doc/ZBProxy)**
 
 ## What can it do?
-In many situations you can use Nginx ```proxy_pass``` to easy proxy your Minecraft data.  
+In many situations you can use Nginx ```proxy_pass``` to easy relay your Minecraft data.  
 The complete code is as follows:
 
 ```
@@ -38,8 +38,8 @@ There is no need to worry about privacy at all, because the connection to any Mi
 Our code is completely open source, so you can freely check whether there is a backdoor.
 
 ## How to use it?
-1. Download the compiled executable file at [releases page](https://github.com/layou233/ZBProxy/releases/ "releases").  
-2. Run it, and your data proxy service is now established!  
+1. Download the compiled executable file at [Actions page](https://github.com/layou233/ZBProxy/actions "Actions"). Login required.  
+2. Run it, and your relay service is now established!  
 For Linux system, you may need to give permissions to the executable file in order to solve problems that cannot run or run blocked. Just enter the following command:
 ```bash
 chmod 777 PATH_OF_THE_FILE
