@@ -14,10 +14,10 @@ type Options struct {
 	onlineCount             int32
 }
 
-func (receiver Options) AddCount(n int32) {
+func (receiver *Options) AddCount(n int32) {
 	atomic.AddInt32(&receiver.onlineCount, n)
 }
 
-func (receiver Options) GetCount() int32 {
+func (receiver *Options) GetCount() int32 {
 	return receiver.onlineCount
 }
