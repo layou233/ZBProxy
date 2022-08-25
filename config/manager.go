@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"github.com/fatih/color"
+	"github.com/fsnotify/fsnotify"
 	"github.com/layou233/ZBProxy/common/set"
 	"log"
 	"os"
@@ -114,4 +115,30 @@ func LoadLists(isReload bool) bool {
 	reloadLock.Unlock()
 	runtime.GC()
 	return true
+}
+
+func MonitorConfig(watcher *fsnotify.Watcher) error {
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					continue
+				}
+				if event.Op&fsnotify.Write == fsnotify.Write { // config reload
+					log.Println(color.HiMagentaString("Config Reload : file change detected. Reloading..."))
+					if LoadLists(true) { // reload success
+						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
+					}
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					continue
+				}
+				log.Println(color.HiRedString("Config Reload Error : ", err))
+			}
+		}
+	}()
+
+	return watcher.Add("config.json")
 }
