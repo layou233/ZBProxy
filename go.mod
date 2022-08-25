@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/Tnze/go-mc v1.18.2
 	github.com/fatih/color v1.13.0
+	github.com/fsnotify/fsnotify v1.5.4
 	github.com/xtls/xray-core v1.5.9
 )
 
