@@ -45,7 +45,7 @@ func main() {
 		defer watcher.Close()
 		err = config.MonitorConfig(watcher)
 		if err != nil {
-			log.Panic("Config Reload Error : ", config.MonitorConfig(watcher))
+			log.Panic("Config Reload Error : ", err)
 		}
 	}
 
