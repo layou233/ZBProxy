@@ -130,7 +130,7 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 					if LoadLists(true) { // reload success
 						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
 					} else {
-						log.Println(color.HiMagentaString("Config Reload : Unsuccessfully reloaded Lists."))
+						log.Println(color.HiMagentaString("Config Reload : Failed to reload Lists."))
 					}
 				}
 			case err, ok := <-watcher.Errors:
