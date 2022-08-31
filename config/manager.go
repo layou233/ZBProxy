@@ -142,5 +142,5 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 		}
 	}()
 
-	return watcher.Add("config.json")
+	return watcher.Add("ZBProxy.json")
 }
