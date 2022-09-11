@@ -15,7 +15,7 @@ func newConnReceiver(s *config.ConfigProxyService,
 	options *transfer.Options) {
 
 	log.Println("Service", s.Name, ": A new connection request sent by", conn.RemoteAddr().String(), "is received.")
-	defer log.Println("Service", s.Name, ": A connection with", conn.RemoteAddr().String(), "is closed.")
+	defer log.Println("Service", s.Name, ": A connection with", conn.RemoteAddr().String(), "is closed:", options.AdditionalMessages)
 	var err error // in order to avoid scoop problems
 	var remote net.Conn = nil
 

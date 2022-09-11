@@ -11,6 +11,7 @@ type Options struct {
 	IsMinecraftHandleNeeded bool
 	FlowType                int
 	McNameMode              int
+	AdditionalMessages      []string
 	onlineCount             int32
 }
 

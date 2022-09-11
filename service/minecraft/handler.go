@@ -97,6 +97,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if err != nil {
 		return nil, err
 	}
+	options.AdditionalMessages = append(options.AdditionalMessages, string(playerName))
 
 	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.GetCount()) {
 		log.Printf("Service %s : Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, playerName)
