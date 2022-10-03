@@ -46,7 +46,7 @@ func NewClientFromURL(s string) (*Client, error) {
 	return c, nil
 }
 
-func (c Client) Dial(network, address string) (net.Conn, error) {
+func (c *Client) Dial(network, address string) (net.Conn, error) {
 	conn, err := net.Dial(c.Network, c.Address)
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
@@ -58,7 +58,7 @@ func (c Client) Dial(network, address string) (net.Conn, error) {
 	return conn, nil
 }
 
-func (c Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn, error) {
+func (c *Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn, error) {
 	SAddr, err := net.ResolveTCPAddr(c.Network, c.Address)
 	if err != nil {
 		return nil, fmt.Errorf("socks: can't resolve SOCKS server address: %v", err)
@@ -74,7 +74,7 @@ func (c Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPConn
 	return conn, nil
 }
 
-func (c Client) Handshake(r io.Reader, w io.Writer, network, address string) error {
+func (c *Client) Handshake(r io.Reader, w io.Writer, network, address string) error {
 	switch c.GetVersion() {
 	case "5":
 		return c.handshake5(r, w, network, address)
@@ -86,7 +86,7 @@ func (c Client) Handshake(r io.Reader, w io.Writer, network, address string) err
 	return fmt.Errorf("socks: unknown SOCKS version: %v", c.Version)
 }
 
-func (c Client) GetVersion() string {
+func (c *Client) GetVersion() string {
 	c.Version = strings.ToLower(c.Version)
 	switch c.Version {
 	case "5", "4a", "4":

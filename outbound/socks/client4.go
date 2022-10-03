@@ -19,7 +19,7 @@ const (
 	ReplyCode4IdentdReportDifferentUserID byte = 0x5D
 )
 
-func (c Client) handshake4(r io.Reader, w io.Writer, address string) error {
+func (c *Client) handshake4(r io.Reader, w io.Writer, address string) error {
 	host, portString, err := net.SplitHostPort(address)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func (c Client) handshake4(r io.Reader, w io.Writer, address string) error {
 	return c.request4(r, w, port, ip.To4())
 }
 
-func (c Client) request4(r io.Reader, w io.Writer, port uint16, addr []byte) error {
+func (c *Client) request4(r io.Reader, w io.Writer, port uint16, addr []byte) error {
 	_, err := w.Write([]byte{version4, CommandConnect})
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (c Client) request4(r io.Reader, w io.Writer, port uint16, addr []byte) err
 	return c.handleResponse4(r)
 }
 
-func (c Client) handleResponse4(r io.Reader) error {
+func (c *Client) handleResponse4(r io.Reader) error {
 	resp, err := rw.ReadBytes(r, 2)
 	if err != nil {
 		return err

@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (c Client) handshake4A(r io.Reader, w io.Writer, address string) error {
+func (c *Client) handshake4A(r io.Reader, w io.Writer, address string) error {
 	host, portString, err := net.SplitHostPort(address)
 	if err != nil {
 		return err
