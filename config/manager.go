@@ -7,7 +7,7 @@ import (
 	"github.com/layou233/ZBProxy/common/set"
 	"log"
 	"os"
-	"runtime"
+	"runtime/debug"
 	"strings"
 	"sync"
 )
@@ -81,6 +81,7 @@ func generateDefaultConfig() {
 
 func LoadLists(isReload bool) bool {
 	reloadLock.Lock()
+	defer reloadLock.Unlock()
 	if isReload {
 		configFile, err := os.ReadFile("ZBProxy.json")
 		if err != nil {
@@ -89,14 +90,12 @@ func LoadLists(isReload bool) bool {
 			} else {
 				log.Println(color.HiRedString("Unexpected error when reloading config: %s", err.Error()))
 			}
-			reloadLock.Unlock()
 			return false
 		}
 
 		err = json.Unmarshal(configFile, &Config)
 		if err != nil {
 			log.Println(color.HiRedString("Fail to reload : Config format error: %s", err.Error()))
-			reloadLock.Unlock()
 			return false
 		}
 	}
@@ -107,13 +106,12 @@ func LoadLists(isReload bool) bool {
 		Lists = make(map[string]*set.StringSet, l) // map size init
 		for k, v := range Config.Lists {
 			//log.Println("List: Loading", k, "value:", v)
-			set := set.NewStringSetFromSlice(v)
-			Lists[k] = &set
+			list := set.NewStringSetFromSlice(v)
+			Lists[k] = &list
 		}
 	}
 	Config.Lists = nil // free memory
-	reloadLock.Unlock()
-	runtime.GC()
+	debug.FreeOSMemory()
 	return true
 }
 
@@ -123,9 +121,9 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
-					continue
+					return
 				}
-				if event.Op&fsnotify.Write == fsnotify.Write { // config reload
+				if event.Op.Has(fsnotify.Write) { // config reload
 					log.Println(color.HiMagentaString("Config Reload : file change detected. Reloading..."))
 					if LoadLists(true) { // reload success
 						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
@@ -133,10 +131,7 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 						log.Println(color.HiMagentaString("Config Reload : Failed to reload Lists."))
 					}
 				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					continue
-				}
+			case err := <-watcher.Errors:
 				log.Println(color.HiRedString("Config Reload Error : ", err))
 			}
 		}
