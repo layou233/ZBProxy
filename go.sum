@@ -18,8 +18,8 @@ github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Ky
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
 github.com/pires/go-proxyproto v0.6.2 h1:KAZ7UteSOt6urjme6ZldyFm4wDe/z0ZUP0Yv0Dos0d8=
-github.com/xtls/xray-core v1.6.1 h1:O0rMdkLM0RSUVqdfvfqO4fcB6qep8GOrli8YBEZ0Fhs=
-github.com/xtls/xray-core v1.6.1/go.mod h1:D/Va9MiyaboICvppwiVgpOuoZb/tBH3brumxekvFsBc=
+github.com/xtls/xray-core v1.6.2 h1:qfY144iyuk7h9zGzALtfHYcbow3KC0ZdZpZPNi/Z+Vs=
+github.com/xtls/xray-core v1.6.2/go.mod h1:O0fWBy8Dc37sR+Vfs5Cc1wRcLOXY6yaQtSxqQOGlKiY=
 golang.org/x/sync v0.1.0 h1:wsuoTGHzEhffawBOhz5CYhcrV4IdKZbEyZjBMuTp12o=
 golang.org/x/sys v0.0.0-20200116001909-b77594299b42/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
