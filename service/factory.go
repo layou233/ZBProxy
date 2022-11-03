@@ -65,7 +65,7 @@ func StartNewService(s *config.ConfigProxyService) {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
 		for _, tag := range s.IPAccess.ListTags {
-			if common.GetSecond[error](access.GetTargetList(tag)) != nil {
+			if err = common.GetSecond[error](access.GetTargetList(tag)); err != nil {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
 		}
@@ -78,7 +78,7 @@ func StartNewService(s *config.ConfigProxyService) {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
 		for _, tag := range s.Minecraft.NameAccess.ListTags {
-			if common.GetSecond[error](access.GetTargetList(tag)) != nil {
+			if err = common.GetSecond[error](access.GetTargetList(tag)); err != nil {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
 		}
