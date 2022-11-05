@@ -125,18 +125,20 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 					return
 				}
 				if event.Op.Has(fsnotify.Write) { // config reload
-					log.Println(color.HiMagentaString("Config Reload : file change detected. Reloading..."))
+					log.Println(color.HiMagentaString("Config Reload : File change detected. Reloading..."))
 					if LoadLists(true) { // reload success
 						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
 					} else {
 						log.Println(color.HiMagentaString("Config Reload : Failed to reload Lists."))
 					}
 				}
-			case err := <-watcher.Errors:
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
 				log.Println(color.HiRedString("Config Reload Error : ", err))
 			}
 		}
 	}()
-
 	return watcher.Add("ZBProxy.json")
 }
