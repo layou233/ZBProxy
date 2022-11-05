@@ -95,7 +95,7 @@ jobs:
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
       GOARM: ${{ matrix.goarm }}
-      CGO_ENABLED: 0
+      #CGO_ENABLED: 0
       
     steps:
     - uses: actions/checkout@v3
@@ -119,7 +119,7 @@ jobs:
       run: go mod tidy
 
     - name: Build
-      run: go build -v -trimpath -ldflags "-s -w" -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+      run: go build -v -trimpath -ldflags "-s -w -buildid=" -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
