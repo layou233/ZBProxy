@@ -2,18 +2,19 @@ package service
 
 import (
 	"fmt"
+	"log"
+	"net"
+
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/tls"
 	"github.com/layou233/ZBProxy/service/transfer"
-	"log"
-	"net"
 )
 
 func newConnReceiver(s *config.ConfigProxyService,
 	conn *net.TCPConn,
-	options *transfer.Options) {
-
+	options *transfer.Options,
+) {
 	log.Println("Service", s.Name, ": A new connection request sent by", conn.RemoteAddr().String(), "is received.")
 	defer log.Println("Service", s.Name, ": A connection with", conn.RemoteAddr().String(), "is closed.")
 	var err error // in order to avoid scoop problems

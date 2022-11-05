@@ -1,7 +1,11 @@
 package service
 
 import (
-	"github.com/fatih/color"
+	"log"
+	"net"
+	"strconv"
+	"strings"
+
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
@@ -11,10 +15,8 @@ import (
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"github.com/layou233/ZBProxy/version"
-	"log"
-	"net"
-	"strconv"
-	"strings"
+
+	"github.com/fatih/color"
 )
 
 var ListenerArray = make([]net.Listener, 1)
@@ -65,7 +67,7 @@ func StartNewService(s *config.ConfigProxyService) {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
 		for _, tag := range s.IPAccess.ListTags {
-			if err = common.GetSecond[error](access.GetTargetList(tag)); err != nil {
+			if _, err = access.GetTargetList(tag); err != nil {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
 		}
@@ -78,7 +80,7 @@ func StartNewService(s *config.ConfigProxyService) {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
 		for _, tag := range s.Minecraft.NameAccess.ListTags {
-			if err = common.GetSecond[error](access.GetTargetList(tag)); err != nil {
+			if _, err = access.GetTargetList(tag); err != nil {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
 		}

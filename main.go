@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/fsnotify/fsnotify"
-	"github.com/layou233/ZBProxy/config"
-	"github.com/layou233/ZBProxy/console"
-	"github.com/layou233/ZBProxy/service"
-	"github.com/layou233/ZBProxy/version"
 	"log"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	"github.com/layou233/ZBProxy/config"
+	"github.com/layou233/ZBProxy/console"
+	"github.com/layou233/ZBProxy/service"
+	"github.com/layou233/ZBProxy/version"
+
+	"github.com/fatih/color"
+	"github.com/fsnotify/fsnotify"
 )
 
 func main() {
@@ -34,9 +36,10 @@ func main() {
 	for _, s := range config.Config.Services {
 		go service.StartNewService(s)
 	}
+
 	// hot reload
-	// use inotify in linux
-	// use Win32 ReadDirectoryChangesW in Windows
+	// use inotify on Linux
+	// use Win32 ReadDirectoryChangesW on Windows
 	{
 		watcher, err := fsnotify.NewWatcher()
 		if err != nil {

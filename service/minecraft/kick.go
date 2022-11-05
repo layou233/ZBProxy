@@ -2,10 +2,12 @@ package minecraft
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/layou233/ZBProxy/config"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/net/packet"
-	"github.com/layou233/ZBProxy/config"
-	"time"
 )
 
 func generateKickMessage(s *config.ConfigProxyService, name packet.String) chat.Message {

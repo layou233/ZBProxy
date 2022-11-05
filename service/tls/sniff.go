@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"github.com/layou233/ZBProxy/common/rw"
-	"github.com/xtls/xray-core/common/protocol/tls"
 	"net"
+
+	"github.com/layou233/ZBProxy/common/rw"
+
+	"github.com/xtls/xray-core/common/protocol/tls"
 )
 
 var ErrNotTLS = errors.New("not TLS header")

@@ -3,17 +3,19 @@ package minecraft
 import (
 	"errors"
 	"fmt"
-	mcnet "github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/net/packet"
-	"github.com/fatih/color"
+	"log"
+	"net"
+	"strings"
+
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/access"
 	"github.com/layou233/ZBProxy/service/transfer"
-	"log"
-	"net"
-	"strings"
+
+	mcnet "github.com/Tnze/go-mc/net"
+	"github.com/Tnze/go-mc/net/packet"
+	"github.com/fatih/color"
 )
 
 // ErrSuccessfullyHandledMOTDRequest means the Minecraft client requested for MOTD
@@ -33,8 +35,8 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 
 func NewConnHandler(s *config.ConfigProxyService,
 	c net.Conn,
-	options *transfer.Options) (net.Conn, error) {
-
+	options *transfer.Options,
+) (net.Conn, error) {
 	defer badPacketPanicRecover(s)
 
 	conn := mcnet.WrapConn(c)
@@ -90,9 +92,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	// Server bound : Login Start
 	// Get player name and check the profile
 	conn.ReadPacket(&p)
-	var (
-		playerName packet.String
-	)
+	var playerName packet.String
 	err = p.Scan(&playerName)
 	if err != nil {
 		return nil, err

@@ -2,14 +2,16 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/fatih/color"
-	"github.com/fsnotify/fsnotify"
-	"github.com/layou233/ZBProxy/common/set"
 	"log"
 	"os"
 	"runtime/debug"
 	"strings"
 	"sync"
+
+	"github.com/layou233/ZBProxy/common/set"
+
+	"github.com/fatih/color"
+	"github.com/fsnotify/fsnotify"
 )
 
 var (
@@ -70,8 +72,7 @@ func generateDefaultConfig() {
 			//"test": {"foo", "bar"},
 		},
 	}
-	newConfig, _ :=
-		json.MarshalIndent(Config, "", "    ")
+	newConfig, _ := json.MarshalIndent(Config, "", "    ")
 	_, err = file.WriteString(strings.ReplaceAll(string(newConfig), "\n", "\r\n"))
 	file.Close()
 	if err != nil {
@@ -99,13 +100,13 @@ func LoadLists(isReload bool) bool {
 			return false
 		}
 	}
-	//log.Println("Lists:", Config.Lists)
+	// log.Println("Lists:", Config.Lists)
 	if l := len(Config.Lists); l == 0 { // if nothing in Lists
 		Lists = map[string]*set.StringSet{} // empty map
 	} else {
 		Lists = make(map[string]*set.StringSet, l) // map size init
 		for k, v := range Config.Lists {
-			//log.Println("List: Loading", k, "value:", v)
+			// log.Println("List: Loading", k, "value:", v)
 			list := set.NewStringSetFromSlice(v)
 			Lists[k] = &list
 		}

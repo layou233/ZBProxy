@@ -1,12 +1,13 @@
 package transfer
 
 import (
-	"github.com/fatih/color"
-	"github.com/xtls/xray-core/common/buf"
 	"io"
 	"log"
 	"net"
 	"runtime"
+
+	"github.com/fatih/color"
+	"github.com/xtls/xray-core/common/buf"
 )
 
 const (

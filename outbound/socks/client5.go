@@ -4,10 +4,11 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/layou233/ZBProxy/common/rw"
 	"io"
 	"net"
 	"strconv"
+
+	"github.com/layou233/ZBProxy/common/rw"
 )
 
 const (

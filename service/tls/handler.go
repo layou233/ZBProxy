@@ -4,17 +4,19 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"net"
+
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/service/access"
-	"net"
 )
 
 func NewConnHandler(s *config.ConfigProxyService,
 	c net.Conn,
-	out outbound.Outbound) (net.Conn, error) {
+	out outbound.Outbound,
+) (net.Conn, error) {
 	header, buf, err := SniffAndRecordTLS(c)
 	if err != nil {
 		if err == ErrNotTLS {

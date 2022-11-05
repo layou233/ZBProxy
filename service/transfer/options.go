@@ -1,8 +1,9 @@
 package transfer
 
 import (
-	"github.com/layou233/ZBProxy/outbound"
 	"sync/atomic"
+
+	"github.com/layou233/ZBProxy/outbound"
 )
 
 type Options struct {
