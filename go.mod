@@ -3,7 +3,7 @@ module github.com/layou233/ZBProxy
 go 1.18
 
 require (
-	github.com/Tnze/go-mc v1.18.2
+	github.com/Tnze/go-mc v1.19.0
 	github.com/fatih/color v1.13.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/xtls/xray-core v1.6.5

@@ -1,5 +1,5 @@
-github.com/Tnze/go-mc v1.18.2 h1:75dTJ0dJNI4V/7iG7Ze1pWkDmE9D02OQe6RfEZV0FBE=
-github.com/Tnze/go-mc v1.18.2/go.mod h1:DyB0mWjox4fSiOdShzh7yx4nzx7q6AXUKzlXnT+iCTo=
+github.com/Tnze/go-mc v1.19.0 h1:RYrtCQJWo7xnnLTclShwl9Di6mH3WcD+Z+l3RsEA0gA=
+github.com/Tnze/go-mc v1.19.0/go.mod h1:DyW8IaHwJqwg4m9E+y2FV+SN62wqy0jWA0O2Hkiilmk=
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
