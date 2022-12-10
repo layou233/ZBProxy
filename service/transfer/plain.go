@@ -23,6 +23,7 @@ type writerOnly struct {
 }
 
 func SimpleTransfer(a, b net.Conn, flow int) {
+	//nolint:errcheck
 	switch flow {
 	case FLOW_ORIGIN:
 		defer a.Close()

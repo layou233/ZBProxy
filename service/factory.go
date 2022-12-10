@@ -138,6 +138,7 @@ func getFlowType(flow string) int {
 }
 
 func forciblyCloseTCP(conn *net.TCPConn) {
+	//nolint:errcheck
 	conn.SetLinger(0) // let Close send RST to forcibly close the connection
 	conn.Close()      // forcibly close
 }
