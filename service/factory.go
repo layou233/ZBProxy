@@ -3,8 +3,6 @@ package service
 import (
 	"log"
 	"net"
-	"strconv"
-	"strings"
 
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/set"
@@ -12,9 +10,7 @@ import (
 	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/outbound/socks"
 	"github.com/layou233/ZBProxy/service/access"
-	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/transfer"
-	"github.com/layou233/ZBProxy/version"
 
 	"github.com/fatih/color"
 )
@@ -29,7 +25,7 @@ func StartNewService(s *config.ConfigProxyService) {
 			len(s.TLSSniffing.SNIAllowListTags) != 0
 		isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
 			s.Minecraft.EnableAnyDest ||
-			s.Minecraft.MotdDescription != "" ||
+			s.Minecraft.MotdDescription != "" && s.Minecraft.MotdDescription != config.DefaultMotd ||
 			s.Minecraft.MotdFavicon != ""
 	)
 	if isTLSHandleNeeded && isMinecraftHandleNeeded {
@@ -39,15 +35,6 @@ func StartNewService(s *config.ConfigProxyService) {
 	if flowType == -1 {
 		log.Panic(color.HiRedString("Service %s: Unknown flow type '%s'.", s.Name, s.Flow))
 	}
-	if s.Minecraft.MotdFavicon == "{DEFAULT_MOTD}" {
-		s.Minecraft.MotdFavicon = minecraft.DefaultMotd
-	}
-	s.Minecraft.MotdDescription = strings.NewReplacer(
-		"{INFO}", "ZBProxy "+version.Version,
-		"{NAME}", s.Name,
-		"{HOST}", s.TargetAddress,
-		"{PORT}", strconv.Itoa(int(s.TargetPort)),
-	).Replace(s.Minecraft.MotdDescription)
 	if s.Minecraft.EnableHostnameRewrite && s.Minecraft.RewrittenHostname == "" {
 		s.Minecraft.RewrittenHostname = s.TargetAddress
 	}
