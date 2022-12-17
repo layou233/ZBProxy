@@ -26,10 +26,14 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 	//nolint:errcheck
 	switch flow {
 	case FLOW_ORIGIN:
-		defer a.Close()
-		defer b.Close()
-		go io.Copy(writerOnly{b}, a)
+		go func() {
+			io.Copy(writerOnly{b}, a)
+			a.Close()
+			b.Close()
+		}()
 		io.Copy(writerOnly{a}, b)
+		a.Close()
+		b.Close()
 
 	case FLOW_ZEROCOPY:
 		fallthrough
@@ -42,10 +46,14 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 
 	case FLOW_AUTO:
 		if runtime.GOOS == "linux" {
-			defer a.Close()
-			defer b.Close()
-			go io.Copy(b, a)
+			go func() {
+				io.Copy(b, a)
+				a.Close()
+				b.Close()
+			}()
 			io.Copy(a, b)
+			a.Close()
+			b.Close()
 			return // TODO: Use MULTIPLE when fail to sendfile or splice
 		}
 		fallthrough
@@ -55,9 +63,14 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 		bReader := buf.NewReader(b)
 		aWriter := buf.NewWriter(a)
 		bWriter := buf.NewWriter(b)
-		defer a.Close()
-		defer b.Close()
-		go buf.Copy(bReader, aWriter)
+
+		go func() {
+			buf.Copy(bReader, aWriter)
+			a.Close()
+			b.Close()
+		}()
 		buf.Copy(aReader, bWriter)
+		a.Close()
+		b.Close()
 	}
 }
