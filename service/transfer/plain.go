@@ -16,6 +16,8 @@ const (
 	FLOW_ZEROCOPY
 	FLOW_MULTIPLE
 	FLOW_AUTO
+
+	osSupportSplice = runtime.GOOS == "linux" || runtime.GOOS == "android"
 )
 
 type writerOnly struct {
@@ -39,13 +41,13 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 		fallthrough
 
 	case FLOW_LINUX_ZEROCOPY:
-		if runtime.GOOS != "linux" {
+		if !osSupportSplice {
 			log.Panic(color.HiRedString("Only Linux based systems support Linux ZeroCopy, please set your flow to origin or auto."))
 		}
 		fallthrough
 
 	case FLOW_AUTO:
-		if runtime.GOOS == "linux" {
+		if osSupportSplice {
 			go func() {
 				io.Copy(b, a)
 				a.Close()
