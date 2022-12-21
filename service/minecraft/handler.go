@@ -121,7 +121,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, err
 	}
 
-	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.GetCount()) {
+	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.OnlineCount.Load()) {
 		log.Printf("Service %s : Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, playerName)
 		err := conn.WritePacket(packet.Marshal(
 			0x00, // Client bound : Disconnect (login)

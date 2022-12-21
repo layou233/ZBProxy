@@ -32,7 +32,7 @@ type motdObject struct {
 func generateMotdPacket(protocolVersion int, s *config.ConfigProxyService, options *transfer.Options) packet.Packet {
 	online := s.Minecraft.OnlineCount.Online
 	if online < 0 {
-		online = options.GetCount()
+		online = options.OnlineCount.Load()
 	}
 	motd, _ := json.Marshal(motdObject{
 		Version: struct {

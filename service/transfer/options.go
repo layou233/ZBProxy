@@ -12,13 +12,5 @@ type Options struct {
 	IsMinecraftHandleNeeded bool
 	FlowType                int
 	McNameMode              int
-	onlineCount             int32
-}
-
-func (receiver *Options) AddCount(n int32) {
-	atomic.AddInt32(&receiver.onlineCount, n)
-}
-
-func (receiver *Options) GetCount() int32 {
-	return receiver.onlineCount
+	OnlineCount             atomic.Int32
 }

@@ -42,7 +42,7 @@ func newConnReceiver(s *config.ConfigProxyService,
 			return
 		}
 	}
-	options.AddCount(1)
-	defer options.AddCount(-1)
+	options.OnlineCount.Add(1)
+	defer options.OnlineCount.Add(-1)
 	transfer.SimpleTransfer(conn, remote, options.FlowType)
 }
