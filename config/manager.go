@@ -61,7 +61,6 @@ func generateDefaultConfig() {
 				Flow:          "auto",
 				Minecraft: minecraft{
 					EnableHostnameRewrite: true,
-					IgnoreFMLSuffix:       false,
 					OnlineCount: onlineCount{
 						Max:            114514,
 						Online:         -1,

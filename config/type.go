@@ -29,7 +29,7 @@ type minecraft struct {
 
 	OnlineCount onlineCount
 
-	IgnoreFMLSuffix bool
+	IgnoreFMLSuffix bool `json:",omitempty"`
 
 	NameAccess access `json:",omitempty"`
 
