@@ -26,7 +26,7 @@ func main() {
   / /   |  _  { |  ___/ |  _  /  | | | |   }  {     \  /
  / /__  | |_| | | |     | | \ \  | |_| |  / /\ \    / /
 /_____| |_____/ |_|     |_|  \_\ \_____/ /_/  \_\  /_/`))
-	color.HiGreen("Welcome to ZBProxy %s!\n", version.Version)
+	color.HiGreen("Welcome to ZBProxy %s (%s)!\n", version.Version, version.CommitHash)
 	color.HiBlack("Build Information: %s, %s/%s\n",
 		runtime.Version(), runtime.GOOS, runtime.GOARCH)
 	go version.CheckUpdate()
