@@ -24,7 +24,6 @@ RUN apk add --no-cache git \
                     "Online": -1,\
                     "EnableMaxLimit": false\
                 },\
-                "IgnoreFMLSuffix": true,\
                 "NameAccess": {\
                     "Mode": ""\
                 },\
