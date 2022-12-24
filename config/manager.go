@@ -2,7 +2,10 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -42,6 +45,7 @@ func LoadConfig() {
 	}
 
 success:
+	log.Println(color.HiYellowString("Start loading file."))
 	LoadLists(false)
 	log.Println(color.HiYellowString("Successfully loaded config from file."))
 }
@@ -104,14 +108,27 @@ func LoadLists(isReload bool) bool {
 		}
 	}
 	// log.Println("Lists:", Config.Lists)
+	ListsModeTable := findListsMode()
 	if l := len(Config.Lists); l == 0 { // if nothing in Lists
 		Lists = map[string]*set.StringSet{} // empty map
 	} else {
 		Lists = make(map[string]*set.StringSet, l) // map size init
 		for k, v := range Config.Lists {
 			// log.Println("List: Loading", k, "value:", v)
-			list := set.NewStringSetFromSlice(v)
-			Lists[k] = &list
+			switch ListsModeTable[k] {
+			case "HypixelGuild":
+				// v[0] A Player Name in Guild
+				// v[1] Hypixel ApiKey
+				err, v := getHypixelGuildList(v)
+				if err != nil {
+					log.Panic(err)
+				}
+				list := set.NewStringSetFromSlice(v)
+				Lists[k] = &list
+			default:
+				list := set.NewStringSetFromSlice(v)
+				Lists[k] = &list
+			}
 		}
 	}
 	Config.Lists = nil // free memory
@@ -157,4 +174,78 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 		}
 	}()
 	return watcher.Add("ZBProxy.json")
+}
+
+func findListsMode() (table map[string]string) {
+	table = make(map[string]string, 0)
+	for _, v := range Config.Services {
+		for _, v1 := range v.Minecraft.NameAccess.ListTags {
+			table[v1] = v.Minecraft.NameAccess.Mode
+		}
+		if v.Minecraft.NameAccess.Mode == "HypixelGuild" {
+			v.Minecraft.NameAccess.Mode = "allow"
+		}
+	}
+	return table
+}
+
+func getHypixelGuildList(info []string) (err error, NameList []string) {
+	cli := http.DefaultClient
+	req, err := http.NewRequest("POST", "https://api.mojang.com/profiles/minecraft", strings.NewReader("[\""+info[0]+"\"]"))
+	if err != nil {
+		return err, nil
+	}
+	resp, err := cli.Do(req)
+	if err != nil {
+		return err, nil
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err, nil
+	}
+	configUuid := make([]*mojangUuidSingle, 0)
+	if err = json.Unmarshal(body, &configUuid); err != nil {
+		return err, nil
+	}
+	uuid := configUuid[0].Id
+	req, err = http.NewRequest("GET", "https://api.hypixel.net/guild?key="+info[1]+"&player="+uuid, nil)
+	if err != nil {
+		return err, nil
+	}
+	resp, err = cli.Do(req)
+	if err != nil {
+		return err, nil
+	}
+	body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return err, nil
+	}
+	var configHypixel hypixelConfig
+	var configProfile mojangUuidSingle
+	if err = json.Unmarshal(body, &configHypixel); err != nil {
+		return err, nil
+	}
+	if !configHypixel.State {
+		return errors.New("wrong apikey"), nil
+	}
+	for _, v := range configHypixel.Guild.Members {
+		req, err := http.NewRequest("GET", "https://sessionserver.mojang.com/session/minecraft/profile/"+v.Uuid, nil)
+		if err != nil {
+			continue
+		}
+		resp, err := cli.Do(req)
+		if err != nil {
+			continue
+		}
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			continue
+		}
+		err = json.Unmarshal(body, &configProfile)
+		if err != nil {
+			continue
+		}
+		NameList = append(NameList, configProfile.Name)
+	}
+	return nil, NameList
 }

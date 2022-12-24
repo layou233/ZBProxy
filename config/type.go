@@ -61,3 +61,21 @@ type outbound struct {
 	Network string `json:",omitempty"`
 	Address string `json:",omitempty"`
 }
+
+type mojangUuidSingle struct {
+	Id   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type hypixelConfig struct {
+	State bool         `json:"success,omitempty"`
+	Guild hypixelGuild `json:"guild,omitempty"`
+}
+
+type hypixelGuild struct {
+	Members []hypixelGuildMemeber `json:"members,omitempty"`
+}
+
+type hypixelGuildMemeber struct {
+	Uuid string `json:"uuid,omitempty"`
+}

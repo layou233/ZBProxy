@@ -52,17 +52,24 @@ func main() {
 		}
 	}
 
-	{
-		osSignals := make(chan os.Signal, 1)
-		signal.Notify(osSignals, os.Interrupt, syscall.SIGTERM)
-		<-osSignals
-		// stop the program
-		// sometimes after the program exits on Windows, the ports are still occupied and "listening".
-		// so manually closes these listeners when the program exits.
-		for _, listener := range service.ListenerArray {
-			if listener != nil { // avoid null pointers
-				listener.Close()
+	osSignals := make(chan os.Signal, 1)
+	signal.Notify(osSignals, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP)
+	for {
+		// wait for signal
+		if <-osSignals == syscall.SIGHUP { // config reload
+			log.Println(color.HiMagentaString("Config Reload : SIGHUP signal received. Reloading..."))
+			if config.LoadLists(true) { // reload success
+				log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
 			}
+		} else { // stop the program
+			// sometimes after the program exits on Windows, the ports are still occupied and "listening".
+			// so manually closes these listeners when the program exits.
+			for _, listener := range service.ListenerArray {
+				if listener != nil { // avoid null pointers
+					listener.Close()
+				}
+			}
+			break
 		}
 	}
 }
