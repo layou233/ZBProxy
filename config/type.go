@@ -18,6 +18,11 @@ type ConfigProxyService struct {
 	Outbound    outbound    `json:",omitempty"`
 }
 
+type HypixelGuildAccess struct {
+	ApiKey     string `json:",omitempty"`
+	SampleName string `json:",omitempty"`
+}
+
 type access struct {
 	Mode     string   // 'accept' or 'deny' or empty
 	ListTags []string `json:",omitempty"`
@@ -32,6 +37,8 @@ type minecraft struct {
 	IgnoreFMLSuffix bool `json:",omitempty"`
 
 	NameAccess access `json:",omitempty"`
+
+	HypixelGuild HypixelGuildAccess `json:",omitempty"`
 
 	EnableAnyDest   bool          `json:",omitempty"`
 	AnyDestSettings configAnyDest `json:",omitempty"`

@@ -22,9 +22,10 @@ import (
 const DefaultMotd = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAeZQTFRF/+IAzrcHKyodHx8fR0IZ89cC2MAFKikdw64IIyMeXFQX/eAAxa8IIiIfrpwLISAfgHQRnYwOuKQKaF4VJyYecGUUj4AQ99sBUUsYMS4d38YE+98AWVEXrJkM7dMCQDsaPzsb9NgCTkgYuqYJ3sYEUEoYODQcJiUe0LkHW1MX+94B178GMC4dcmgTwq0I5s0DpJINoZAN69shjLi/i7i/ZZfEU4fHVIfHeqnB0NFOZqr/f7PWY1sVtcd7n7+g+NwBm76nv8tq7tMCRkEagLPU4Nc06M4DPjob4McE49cvgLTUxMxjnL6lpMCYi6B7s8d/ssZ/a4iJQmWPZaj7NUdcXnNvYJ7sMkVcu8pxW5XdLjtMNjMcssaBVovNKTI9qMORUYG+JCgtnr6hTHiu+N8MlbuxR26f7twci7fBQ2SPfXES5dgsgbTRPVuA29U8ebLgxMxdiHoQ0tFLb63w0dFMOFFverHe3NU6PVl9hLTN5tkpQWKLj7m78d0XRWqZmb2q++EGSnOnICIkTny0rsSHqpgMJSoxUoTCuch1KTNAV43QZHlxSXKkcY6IdrDl+N4EZqn8lLuy2tQ+t8h40tJMmLyr8N0ZtqIKerHdd7DjloYPkbq3dGkT59ooq8OMxM1ixs1gzbYH1nu7OAAAA1JJREFUeJyFl/dfE0EQxZesRkPU0CIlGCACIiAWrBhFQQELotjF3sGK2HvD3huK2P5TL7nL7bwZPnvvR/bNl83eu5k9pajyQpppylQwhKdxg0JNj3BDfhQMM2baAWpWjBMK7AYOUIUcoAutBgFQBRwQK7IZJEAVc0JJHqxH4wCYLQClZZxQXgGGRCUF6DmCkKzihOokGGpSFBCbKwi15ZxQh3FI1hOAntcgCHklnDC/EQxNIQLQzWFBKBJxWICGlggB6PqFgiDjwE57EQXwxGck4qAXT2pwATzxS1pbly5bzrRiZasn1xSnAJb4VW02rXZNiTQFYOLXWAFrPVd7igIg8eusgPU5W0cnAUDiN1gBG31fVzcB0MRb69vIVnuaCcAkfpO1fjM9rQYK8BO/xQrYinmArHiJ77UCtlkAXuL7iLbv6O+H+p27WiwAnnhHid1Qv2evDtVaADzxSu2D+v0HHM9AjwXA+8tBqD90OGvq7jCGOk7A/nIE6o8e80ypGt+RrOYE2l+OQ/0JY6pM+J4K0QAHurylk6eg/jQ1pU0DkAOz0/2JZ85C/SCahsw+xcDUqXbnz+fOQ/0FbiJPXE7U4qi6eAnqL6e5hz5x2UKHr4zQ8pGrbvsARUgkRQu9Bv/++g3ltg9UqMkH4MDU+ibU37qdNTntg6nejDwYmPoO1N+955l6mjmhrNQn0IF5H+ofPPRNDeKJV5pjMAPzEdT30mTLJ04WvYH5+AnUP1WgUQvAHZjPnkP9C8U0bAFkBubLV1D/OsoB0WILwInDG6gf7H/bx8RvQIwfxw1IveOBYoD3HwIAHx1T1wAF4I/8FFDf1pdxhUmg1DAAPgcBvmRtJFBKj1LA1yDAN9c3FjMA+lKq7wH1P3LGcQOAORG0gZ++c8IAyJz4FQT47QMa8w3AzIk/QYC/ZrPe6+tOJjInXPHEaz2uuDq6DYDOiax44h2NCUK2v+RmY5q9NfLOX/JPEDJx8IfrEFuULbS8VhCc/mKmM78ZQOKzqpIX4ln0lsZvBmHRQrMDCzVOAJEWtihbKD+pjMgymROuxsTI4yeFADonvA1ywCR3KFgmc8LVhCCIOxQu80DlEm8kvtHYepwdU42Yyfwbja+zb20v8VT4jfYfTXskk4+wbR0AAAAASUVORK5CYII=`
 
 var (
-	Config     configMain
-	Lists      map[string]*set.StringSet
-	reloadLock sync.Mutex
+	Config               configMain
+	Lists                map[string]*set.StringSet
+	GuildPlayerNameLists map[string]*set.StringSet
+	reloadLock           sync.Mutex
 )
 
 func LoadConfig() {
@@ -45,7 +46,6 @@ func LoadConfig() {
 	}
 
 success:
-	log.Println(color.HiYellowString("Start loading file."))
 	LoadLists(false)
 	log.Println(color.HiYellowString("Successfully loaded config from file."))
 }
@@ -108,30 +108,29 @@ func LoadLists(isReload bool) bool {
 		}
 	}
 	// log.Println("Lists:", Config.Lists)
-	ListsModeTable := findListsMode()
 	if l := len(Config.Lists); l == 0 { // if nothing in Lists
 		Lists = map[string]*set.StringSet{} // empty map
 	} else {
 		Lists = make(map[string]*set.StringSet, l) // map size init
 		for k, v := range Config.Lists {
 			// log.Println("List: Loading", k, "value:", v)
-			switch ListsModeTable[k] {
-			case "HypixelGuild":
-				// v[0] A Player Name in Guild
-				// v[1] Hypixel ApiKey
-				err, v := getHypixelGuildList(v)
-				if err != nil {
-					log.Panic(err)
-				}
-				list := set.NewStringSetFromSlice(v)
-				Lists[k] = &list
-			default:
-				list := set.NewStringSetFromSlice(v)
-				Lists[k] = &list
-			}
+			list := set.NewStringSetFromSlice(v)
+			Lists[k] = &list
 		}
 	}
 	Config.Lists = nil // free memory
+
+	GuildPlayerNameLists = map[string]*set.StringSet{}
+	for _, v := range Config.Services {
+		if v.Minecraft.HypixelGuild.SampleName != "" && v.Minecraft.HypixelGuild.ApiKey != "" {
+			err, l := getHypixelGuildList([]string{v.Minecraft.HypixelGuild.SampleName, v.Minecraft.HypixelGuild.ApiKey})
+			if err != nil {
+				log.Panic(err)
+			}
+			list := set.NewStringSetFromSlice(l)
+			GuildPlayerNameLists[v.Name] = &list
+		}
+	}
 
 	for _, s := range Config.Services {
 		if s.Minecraft.MotdFavicon == "{DEFAULT_MOTD}" {
@@ -176,19 +175,6 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 	return watcher.Add("ZBProxy.json")
 }
 
-func findListsMode() (table map[string]string) {
-	table = make(map[string]string, 0)
-	for _, v := range Config.Services {
-		for _, v1 := range v.Minecraft.NameAccess.ListTags {
-			table[v1] = v.Minecraft.NameAccess.Mode
-		}
-		if v.Minecraft.NameAccess.Mode == "HypixelGuild" {
-			v.Minecraft.NameAccess.Mode = "allow"
-		}
-	}
-	return table
-}
-
 func getHypixelGuildList(info []string) (err error, NameList []string) {
 	cli := http.DefaultClient
 	req, err := http.NewRequest("POST", "https://api.mojang.com/profiles/minecraft", strings.NewReader("[\""+info[0]+"\"]"))
@@ -200,6 +186,7 @@ func getHypixelGuildList(info []string) (err error, NameList []string) {
 		return err, nil
 	}
 	body, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
 	if err != nil {
 		return err, nil
 	}
@@ -217,6 +204,7 @@ func getHypixelGuildList(info []string) (err error, NameList []string) {
 		return err, nil
 	}
 	body, err = io.ReadAll(resp.Body)
+	resp.Body.Close()
 	if err != nil {
 		return err, nil
 	}
@@ -228,6 +216,7 @@ func getHypixelGuildList(info []string) (err error, NameList []string) {
 	if !configHypixel.State {
 		return errors.New("wrong apikey"), nil
 	}
+	log.Println(color.HiYellowString("Loading guild list..."))
 	for _, v := range configHypixel.Guild.Members {
 		req, err := http.NewRequest("GET", "https://sessionserver.mojang.com/session/minecraft/profile/"+v.Uuid, nil)
 		if err != nil {
@@ -238,6 +227,7 @@ func getHypixelGuildList(info []string) (err error, NameList []string) {
 			continue
 		}
 		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
 		if err != nil {
 			continue
 		}
@@ -247,5 +237,6 @@ func getHypixelGuildList(info []string) (err error, NameList []string) {
 		}
 		NameList = append(NameList, configProfile.Name)
 	}
+	log.Println(color.HiYellowString("Loaded successfully."))
 	return nil, NameList
 }

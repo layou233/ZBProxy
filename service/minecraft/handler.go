@@ -137,10 +137,10 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 
 	accessibility := "DEFAULT"
+	hit := false
 	if options.McNameMode != access.DefaultMode {
-		hit := false
 		for _, list := range s.Minecraft.NameAccess.ListTags {
-			if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(string(playerName)); hit {
+			if hit = common.Must[*set.StringSet](access.GetTargetList(config.Lists, list)).Has(string(playerName)); hit {
 				break
 			}
 		}
@@ -156,6 +156,25 @@ func NewConnHandler(s *config.ConfigProxyService,
 				accessibility = "REJECT"
 			} else {
 				accessibility = "PASS"
+			}
+		}
+	}
+	if s.Minecraft.HypixelGuild.ApiKey != "" &&
+		s.Minecraft.HypixelGuild.SampleName != "" {
+		state := common.Must[*set.StringSet](access.GetTargetList(config.GuildPlayerNameLists, s.Name)).Has(string(playerName))
+		if accessibility == "DEFAULT" {
+			if state {
+				accessibility = "ALLOW"
+			} else {
+				accessibility = "DENY"
+			}
+		} else {
+			//Resolving conflicts with NameAccess
+			if accessibility == "DENY" && state {
+				accessibility = "ALLOW"
+			}
+			if accessibility == "PASS" && !state {
+				accessibility = "REJECT"
 			}
 		}
 	}

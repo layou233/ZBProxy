@@ -53,7 +53,7 @@ func main() {
 	}
 
 	osSignals := make(chan os.Signal, 1)
-	signal.Notify(osSignals, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP)
+	signal.Notify(osSignals, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	for {
 		// wait for signal
 		if <-osSignals == syscall.SIGHUP { // config reload

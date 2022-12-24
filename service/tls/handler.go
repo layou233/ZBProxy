@@ -31,7 +31,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	domain := header.Domain()
 	hit := false
 	for _, list := range s.TLSSniffing.SNIAllowListTags {
-		if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(domain); hit {
+		if hit = common.Must[*set.StringSet](access.GetTargetList(config.Lists, list)).Has(domain); hit {
 			break
 		}
 	}

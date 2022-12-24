@@ -54,7 +54,7 @@ func StartNewService(s *config.ConfigProxyService) {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
 		for _, tag := range s.IPAccess.ListTags {
-			if _, err = access.GetTargetList(tag); err != nil {
+			if _, err = access.GetTargetList(config.Lists, tag); err != nil {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
 		}
@@ -62,14 +62,22 @@ func StartNewService(s *config.ConfigProxyService) {
 
 	// load Minecraft player name access lists
 	mcNameAccessMode := access.ParseAccessMode(s.Minecraft.NameAccess.Mode)
-	if isMinecraftHandleNeeded && mcNameAccessMode != access.DefaultMode { // IP access control enabled
+	if isMinecraftHandleNeeded && mcNameAccessMode != access.DefaultMode { // Name access control enabled
 		if s.Minecraft.NameAccess.ListTags == nil {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
 		for _, tag := range s.Minecraft.NameAccess.ListTags {
-			if _, err = access.GetTargetList(tag); err != nil {
+			if _, err = access.GetTargetList(config.Lists, tag); err != nil {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
+		}
+	}
+
+	// load Hypixel Guild name access lists
+	if s.Minecraft.HypixelGuild.ApiKey != "" &&
+		s.Minecraft.HypixelGuild.SampleName != "" { //Hypixel Guild name access enabled
+		if _, err = access.GetTargetList(config.GuildPlayerNameLists, s.Name); err != nil {
+			log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 		}
 	}
 
@@ -98,7 +106,7 @@ func StartNewService(s *config.ConfigProxyService) {
 				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
 				hit := false
 				for _, list := range s.IPAccess.ListTags {
-					if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(ip); hit {
+					if hit = common.Must[*set.StringSet](access.GetTargetList(config.Lists, list)).Has(ip); hit {
 						break
 					}
 				}

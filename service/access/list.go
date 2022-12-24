@@ -4,13 +4,12 @@ import (
 	"fmt"
 
 	"github.com/layou233/ZBProxy/common/set"
-	"github.com/layou233/ZBProxy/config"
 )
 
-func GetTargetList(listName string) (*set.StringSet, error) {
-	set, ok := config.Lists[listName]
+func GetTargetList(lists map[string]*set.StringSet, listName string) (*set.StringSet, error) {
+	sets, ok := lists[listName]
 	if ok {
-		return set, nil
+		return sets, nil
 	}
 	return nil, fmt.Errorf("list %q not found", listName)
 }
