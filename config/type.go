@@ -36,6 +36,7 @@ type minecraft struct {
 	EnableAnyDest   bool          `json:",omitempty"`
 	AnyDestSettings configAnyDest `json:",omitempty"`
 
+	PingMode        string
 	MotdFavicon     string
 	MotdDescription string
 }

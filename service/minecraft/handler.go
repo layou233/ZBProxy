@@ -94,13 +94,23 @@ func NewConnHandler(s *config.ConfigProxyService,
 			}
 
 			// handle for ping request
-			err = conn.ReadPacket(&p)
-			if err != nil {
-				return nil, err
-			}
-			err = conn.WritePacket(p)
-			if err != nil {
-				return nil, err
+			switch s.Minecraft.PingMode {
+			case pingModeDisconnect:
+			case pingMode0ms:
+				err = conn.WritePacket(
+					packet.Marshal(0x01, packet.Long(1<<63-1))) // max int64 value
+				if err != nil {
+					return nil, err
+				}
+			default:
+				err = conn.ReadPacket(&p)
+				if err != nil {
+					return nil, err
+				}
+				err = conn.WritePacket(p)
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			conn.Close()
