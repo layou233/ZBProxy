@@ -105,7 +105,7 @@ func (r *ReaderV) readMulti() (net.Buffers, error) {
 	}
 
 	for i := nBuf; i < len(bs); i++ {
-		Put(bs[i])
+		Put(bs[i]) //nolint:errcheck
 		bs[i] = nil
 	}
 

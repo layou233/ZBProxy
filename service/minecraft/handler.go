@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"net"
 	"strings"
 
@@ -97,8 +98,10 @@ func NewConnHandler(s *config.ConfigProxyService,
 			switch s.Minecraft.PingMode {
 			case pingModeDisconnect:
 			case pingMode0ms:
-				err = conn.WritePacket(
-					packet.Marshal(0x01, packet.Long(1<<63-1))) // max int64 value
+				err = conn.WritePacket(packet.Marshal(
+					0x01, // Client bound : Ping Response
+					packet.Long(math.MaxInt64),
+				))
 				if err != nil {
 					return nil, err
 				}

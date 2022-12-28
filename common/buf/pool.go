@@ -16,7 +16,7 @@ func Put(buf []byte) error {
 
 func PutMulti(buffers [][]byte) {
 	for _, buffer := range buffers {
-		Put(buffer)
+		Put(buffer) //nolint:errcheck
 	}
 }
 
