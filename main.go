@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/console"
@@ -19,6 +21,7 @@ import (
 
 func main() {
 	log.SetOutput(color.Output)
+	rand.Seed(time.Now().UnixNano())
 	console.SetTitle(fmt.Sprintf("ZBProxy %v | Running...", version.Version))
 	console.Println(color.HiRedString(` ______  _____   _____   _____    _____  __    __ __    __
 |___  / |  _  \ |  _  \ |  _  \  /  _  \ \ \  / / \ \  / /

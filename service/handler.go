@@ -9,16 +9,24 @@ import (
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/tls"
 	"github.com/layou233/ZBProxy/service/transfer"
+
+	"github.com/fatih/color"
+)
+
+var (
+	GreenPlus = color.HiGreenString("[+]")
+	RedMinus  = color.HiRedString("[-]")
 )
 
 func newConnReceiver(s *config.ConfigProxyService,
 	conn *net.TCPConn,
 	options *transfer.Options,
 ) {
-	log.Println("Service", s.Name, ": A new connection request sent by", conn.RemoteAddr().String(), "is received.")
-	defer log.Println("Service", s.Name, ": A connection with", conn.RemoteAddr().String(), "is closed.")
-	var err error // in order to avoid scoop problems
-	var remote net.Conn = nil
+	ctx := new(transfer.ConnContext).Init()
+	log.Println("Service", s.Name, ":", ctx.ColoredID, GreenPlus, conn.RemoteAddr().String())
+	defer log.Println("Service", s.Name, ":", ctx.ColoredID, RedMinus, conn.RemoteAddr().String(), ctx)
+	var err error // avoid scoop problems
+	var remote net.Conn
 
 	if options.IsTLSHandleNeeded {
 		remote, err = tls.NewConnHandler(s, conn, options.Out)
@@ -27,7 +35,7 @@ func newConnReceiver(s *config.ConfigProxyService,
 			return
 		}
 	} else if options.IsMinecraftHandleNeeded {
-		remote, err = minecraft.NewConnHandler(s, conn, options)
+		remote, err = minecraft.NewConnHandler(s, ctx, conn, options)
 		if err != nil {
 			conn.Close()
 			return

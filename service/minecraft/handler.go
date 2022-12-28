@@ -33,6 +33,7 @@ func badPacketPanicRecover(s *config.ConfigProxyService) {
 }
 
 func NewConnHandler(s *config.ConfigProxyService,
+	ctx *transfer.ConnContext,
 	c net.Conn,
 	options *transfer.Options,
 ) (net.Conn, error) {
@@ -131,7 +132,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 
 	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.OnlineCount.Load()) {
-		log.Printf("Service %s : Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, playerName)
+		log.Printf("Service %s : %s Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, ctx.ColoredID, playerName)
 		err := conn.WritePacket(packet.Marshal(
 			0x00, // Client bound : Disconnect (login)
 			generatePlayerNumberLimitExceededMessage(s, playerName),
@@ -168,7 +169,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 			}
 		}
 	}
-	log.Printf("Service %s : A new Minecraft player requested a login: %s [%s]", s.Name, playerName, accessibility)
+	log.Printf("Service %s : %s New Minecraft player logged in: %s [%s]", s.Name, ctx.ColoredID, playerName, accessibility)
+	ctx.AttachInfo("PlayerName=" + string(playerName))
 	if accessibility == "DENY" || accessibility == "REJECT" {
 		err = conn.WritePacket(packet.Marshal(
 			0x00, // Client bound : Disconnect (login)
@@ -185,7 +187,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 
 	remote, err := options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 	if err != nil {
-		log.Printf("Service %s : Failed to dial to target server: %v", s.Name, err.Error())
+		log.Printf("Service %s : %s Failed to dial to target server: %v", s.Name, ctx.ColoredID, err.Error())
 		conn.Close()
 		return nil, err
 	}
