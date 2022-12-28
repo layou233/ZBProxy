@@ -3,8 +3,9 @@
 package buf
 
 import (
-	"golang.org/x/sys/unix"
 	"net"
+
+	"golang.org/x/sys/unix"
 )
 
 type unixReader struct {

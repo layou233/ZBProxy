@@ -1,13 +1,13 @@
 package transfer
 
 import (
-	"github.com/layou233/ZBProxy/common"
 	"io"
 	"log"
 	"net"
 	"runtime"
 	"syscall"
 
+	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/common/buf"
 
 	"github.com/fatih/color"
@@ -70,8 +70,8 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 	case FLOW_MULTIPLE:
 		aReader := buf.NewReaderV(a, common.Must(a.(syscall.Conn).SyscallConn()))
 		bReader := buf.NewReaderV(b, common.Must(b.(syscall.Conn).SyscallConn()))
-		//aWriter := buf.NewWriter(a)
-		//bWriter := buf.NewWriter(b)
+		// aWriter := buf.NewWriter(a)
+		// bWriter := buf.NewWriter(b)
 
 		go func() {
 			buf.Copy(a, bReader)
