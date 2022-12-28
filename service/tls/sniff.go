@@ -7,13 +7,11 @@ import (
 	"net"
 
 	"github.com/layou233/ZBProxy/common/rw"
-
-	"github.com/xtls/xray-core/common/protocol/tls"
 )
 
 var ErrNotTLS = errors.New("not TLS header")
 
-func SniffAndRecordTLS(conn net.Conn) (*tls.SniffHeader, *bytes.Buffer, error) {
+func SniffAndRecordTLS(conn net.Conn) (*SniffHeader, *bytes.Buffer, error) {
 	var recorder bytes.Buffer
 	recorder.Grow(64)
 	b, err := rw.ReadByte(conn)
@@ -63,8 +61,8 @@ func SniffAndRecordTLS(conn net.Conn) (*tls.SniffHeader, *bytes.Buffer, error) {
 		recorder.Reset()
 		return nil, nil, err
 	}
-	h := &tls.SniffHeader{}
-	err = tls.ReadClientHello(bs, h)
+	h := &SniffHeader{}
+	err = ReadClientHello(bs, h)
 	if err == nil {
 		return h, &recorder, nil
 	}
@@ -72,10 +70,8 @@ func SniffAndRecordTLS(conn net.Conn) (*tls.SniffHeader, *bytes.Buffer, error) {
 }
 
 func IsValidTLSVersion(major, minor byte) bool {
-	if major < 4 {
-		if minor > 0 {
-			return major > minor
-		}
+	if major == 3 {
+		return minor < 4 && minor > 0
 	}
 	return false
 }
