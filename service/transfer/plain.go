@@ -6,6 +6,8 @@ import (
 	"net"
 	"runtime"
 
+	zbuf "github.com/layou233/ZBProxy/common/buf"
+
 	"github.com/fatih/color"
 	"github.com/xtls/xray-core/common/buf"
 )
@@ -29,11 +31,15 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 	switch flow {
 	case FLOW_ORIGIN:
 		go func() {
-			io.Copy(writerOnly{b}, a)
+			buffer := zbuf.Get(32 * 1024)
+			io.CopyBuffer(writerOnly{b}, a, buffer)
+			zbuf.Put(buffer)
 			a.Close()
 			b.Close()
 		}()
-		io.Copy(writerOnly{a}, b)
+		buffer := zbuf.Get(32 * 1024)
+		io.CopyBuffer(writerOnly{a}, b, buffer)
+		zbuf.Put(buffer)
 		a.Close()
 		b.Close()
 
