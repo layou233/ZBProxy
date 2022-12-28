@@ -1,15 +1,16 @@
 package transfer
 
 import (
+	"github.com/layou233/ZBProxy/common"
 	"io"
 	"log"
 	"net"
 	"runtime"
+	"syscall"
 
-	zbuf "github.com/layou233/ZBProxy/common/buf"
+	"github.com/layou233/ZBProxy/common/buf"
 
 	"github.com/fatih/color"
-	"github.com/xtls/xray-core/common/buf"
 )
 
 const (
@@ -31,15 +32,15 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 	switch flow {
 	case FLOW_ORIGIN:
 		go func() {
-			buffer := zbuf.Get(32 * 1024)
+			buffer := buf.Get(32 * 1024)
 			io.CopyBuffer(writerOnly{b}, a, buffer)
-			zbuf.Put(buffer)
+			buf.Put(buffer)
 			a.Close()
 			b.Close()
 		}()
-		buffer := zbuf.Get(32 * 1024)
+		buffer := buf.Get(32 * 1024)
 		io.CopyBuffer(writerOnly{a}, b, buffer)
-		zbuf.Put(buffer)
+		buf.Put(buffer)
 		a.Close()
 		b.Close()
 
@@ -67,17 +68,17 @@ func SimpleTransfer(a, b net.Conn, flow int) {
 		fallthrough
 
 	case FLOW_MULTIPLE:
-		aReader := buf.NewReader(a)
-		bReader := buf.NewReader(b)
-		aWriter := buf.NewWriter(a)
-		bWriter := buf.NewWriter(b)
+		aReader := buf.NewReaderV(a, common.Must(a.(syscall.Conn).SyscallConn()))
+		bReader := buf.NewReaderV(b, common.Must(b.(syscall.Conn).SyscallConn()))
+		//aWriter := buf.NewWriter(a)
+		//bWriter := buf.NewWriter(b)
 
 		go func() {
-			buf.Copy(bReader, aWriter)
+			buf.Copy(a, bReader)
 			a.Close()
 			b.Close()
 		}()
-		buf.Copy(aReader, bWriter)
+		buf.Copy(b, aReader)
 		a.Close()
 		b.Close()
 	}

@@ -14,6 +14,12 @@ func Put(buf []byte) error {
 	return DefaultAllocator.Put(buf)
 }
 
+func PutMulti(buffers [][]byte) {
+	for _, buffer := range buffers {
+		Put(buffer)
+	}
+}
+
 func Make(size int) []byte {
 	var buffer []byte
 	switch {
