@@ -7,7 +7,6 @@ import (
 	"net"
 
 	"github.com/layou233/ZBProxy/common"
-	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/service/access"
@@ -31,7 +30,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	domain := header.Domain()
 	hit := false
 	for _, list := range s.TLSSniffing.SNIAllowListTags {
-		if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(domain); hit {
+		if hit = common.Must(access.GetTargetList(list)).Has(domain); hit {
 			break
 		}
 	}

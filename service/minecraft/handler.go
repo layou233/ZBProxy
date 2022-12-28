@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/layou233/ZBProxy/common"
-	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/access"
 	"github.com/layou233/ZBProxy/service/transfer"
@@ -150,7 +149,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if options.McNameMode != access.DefaultMode {
 		hit := false
 		for _, list := range s.Minecraft.NameAccess.ListTags {
-			if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(string(playerName)); hit {
+			if hit = common.Must(access.GetTargetList(list)).Has(string(playerName)); hit {
 				break
 			}
 		}

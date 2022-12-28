@@ -5,7 +5,6 @@ import (
 	"net"
 
 	"github.com/layou233/ZBProxy/common"
-	"github.com/layou233/ZBProxy/common/set"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/outbound"
 	"github.com/layou233/ZBProxy/outbound/socks"
@@ -98,7 +97,7 @@ func StartNewService(s *config.ConfigProxyService) {
 				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
 				hit := false
 				for _, list := range s.IPAccess.ListTags {
-					if hit = common.Must[*set.StringSet](access.GetTargetList(list)).Has(ip); hit {
+					if hit = common.Must(access.GetTargetList(list)).Has(ip); hit {
 						break
 					}
 				}
