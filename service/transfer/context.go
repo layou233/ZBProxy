@@ -12,6 +12,7 @@ import (
 type ConnContext struct {
 	ColoredID      string
 	AdditionalInfo []string
+	Hostname       string
 }
 
 func (c *ConnContext) AttachInfo(info string) {

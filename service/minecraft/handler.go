@@ -189,24 +189,35 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 
 	var remote net.Conn
+	ctx.Hostname = string(hostname)
+	addFMLSuffix := false
+	if strings.HasSuffix(ctx.Hostname, fmlSuffix) {
+		// same with strings.TrimSuffix
+		ctx.Hostname = ctx.Hostname[:len(ctx.Hostname)-len(fmlSuffix)]
+		if !s.Minecraft.IgnoreFMLSuffix {
+			addFMLSuffix = true
+		}
+	}
 	if s.Minecraft.EnableAnyDest {
-		host := string(hostname)
-		if strings.HasSuffix(host, s.Minecraft.AnyDestSettings.WildcardRootDomainName) {
+		if strings.HasSuffix(ctx.Hostname, s.Minecraft.AnyDestSettings.WildcardRootDomainName) {
 			// same with strings.TrimSuffix
-			host = host[:len(host)-len(s.Minecraft.AnyDestSettings.WildcardRootDomainName)]
-			if host[len(host)-1] == '.' {
-				host = host[:len(host)-1]
+			ctx.Hostname = ctx.Hostname[:len(ctx.Hostname)-len(s.Minecraft.AnyDestSettings.WildcardRootDomainName)]
+			if ctx.Hostname[len(ctx.Hostname)-1] == '.' {
+				ctx.Hostname = ctx.Hostname[:len(ctx.Hostname)-1]
 			}
 
-			if host != "" {
+			if ctx.Hostname != "" {
 				log.Printf("Service %s : %s AnyDest overrode target to: %s %s",
-					s.Name, ctx.ColoredID, host, ctx)
-				remote, err = options.Out.Dial("tcp", fmt.Sprintf("%v:%v", host, s.TargetPort))
+					s.Name, ctx.ColoredID, ctx.Hostname, ctx)
+				remote, err = options.Out.Dial("tcp", fmt.Sprintf("%v:%v", ctx.Hostname, s.TargetPort))
 				goto dialed
 			}
 		}
 	}
 
+	if s.Minecraft.EnableHostnameRewrite {
+		ctx.Hostname = s.Minecraft.RewrittenHostname
+	}
 	remote, err = options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
 dialed:
 	if err != nil {
@@ -222,11 +233,10 @@ dialed:
 			0x00, // Server bound : Handshake
 			protocol,
 			packet.String(func() string {
-				if !s.Minecraft.IgnoreFMLSuffix &&
-					strings.HasSuffix(string(hostname), "\x00FML\x00") {
-					return s.Minecraft.RewrittenHostname + "\x00FML\x00"
+				if addFMLSuffix {
+					return ctx.Hostname + fmlSuffix
 				}
-				return s.Minecraft.RewrittenHostname
+				return ctx.Hostname
 			}()),
 			packet.UnsignedShort(s.TargetPort),
 			packet.Byte(2),
