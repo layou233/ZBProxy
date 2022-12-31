@@ -188,7 +188,27 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, ErrRejectedLogin
 	}
 
-	remote, err := options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+	var remote net.Conn
+	if s.Minecraft.EnableAnyDest {
+		host := string(hostname)
+		if strings.HasSuffix(host, s.Minecraft.AnyDestSettings.WildcardRootDomainName) {
+			// same with strings.TrimSuffix
+			host = host[:len(host)-len(s.Minecraft.AnyDestSettings.WildcardRootDomainName)]
+			if host[len(host)-1] == '.' {
+				host = host[:len(host)-1]
+			}
+
+			if host != "" {
+				log.Printf("Service %s : %s AnyDest overrode target to: %s %s",
+					s.Name, ctx.ColoredID, host, ctx)
+				remote, err = options.Out.Dial("tcp", fmt.Sprintf("%v:%v", host, s.TargetPort))
+				goto dialed
+			}
+		}
+	}
+
+	remote, err = options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+dialed:
 	if err != nil {
 		log.Printf("Service %s : %s Failed to dial to target server: %v", s.Name, ctx.ColoredID, err.Error())
 		conn.Close()
