@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/console"
 	"github.com/layou233/ZBProxy/service"
@@ -30,8 +31,8 @@ func main() {
  / /__  | |_| | | |     | | \ \  | |_| |  / /\ \    / /
 /_____| |_____/ |_|     |_|  \_\ \_____/ /_/  \_\  /_/`))
 	color.HiGreen("Welcome to ZBProxy %s (%s)!\n", version.Version, version.CommitHash)
-	color.HiBlack("Build Information: %s, %s/%s\n",
-		runtime.Version(), runtime.GOOS, runtime.GOARCH)
+	color.HiBlack("Build Information: %s, %s/%s, CGO %s\n",
+		runtime.Version(), runtime.GOOS, runtime.GOARCH, common.CGOHint)
 	go version.CheckUpdate()
 
 	config.LoadConfig()
