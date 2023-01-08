@@ -61,10 +61,10 @@ jobs:
               goarch: mips
             # END MIPS
             # BEGIN PPC
-            - goos: linux
-              goarch: ppc64
-            - goos: linux
-              goarch: ppc64le
+#            - goos: linux
+#              goarch: ppc64
+#            - goos: linux
+#              goarch: ppc64le
             # END PPC
             # BEGIN LOONGARCH
             - goos: linux
@@ -118,8 +118,12 @@ jobs:
     - name: Tidy up Go Modules
       run: go mod tidy
 
+    - name: Get Git Commit Hash
+      id: hash
+      run: echo "git_hash=$(git rev-parse --short HEAD || echo "unknown version")" >> $GITHUB_OUTPUT
+
     - name: Build
-      run: go build -v -trimpath -ldflags "-s -w -buildid=" -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+      run: go build -v -trimpath -ldflags '-X "github.com/layou233/ZBProxy/version.CommitHash=${{ steps.hash.outputs.git_hash }}" -s -w -buildid=' -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
