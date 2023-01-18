@@ -289,6 +289,10 @@ func (b *Buffer) FreeBytes() []byte {
 	return b.data[b.end:b.Cap()]
 }
 
+func (b *Buffer) Rewind(start int) {
+	b.start = start
+}
+
 func (b *Buffer) IsEmpty() bool {
 	return b.end-b.start == 0
 }

@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/layou233/ZBProxy/common"
+	"github.com/layou233/ZBProxy/common/buf"
+	"github.com/layou233/ZBProxy/common/mcprotocol"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/access"
 	"github.com/layou233/ZBProxy/service/transfer"
 
-	mcnet "github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/net/packet"
 	"github.com/fatih/color"
 )
 
@@ -39,21 +39,25 @@ func NewConnHandler(s *config.ConfigProxyService,
 	options *transfer.Options,
 ) (net.Conn, error) {
 	defer badPacketPanicRecover(s)
+	buffer := buf.NewSize(256)
+	defer buffer.Release()
+	buffer.Reset(mcprotocol.MaxVarIntLen)
 
-	conn := mcnet.WrapConn(c)
-	var p packet.Packet
-	err := conn.ReadPacket(&p)
+	conn := mcprotocol.StreamConn(c)
+	err := conn.ReadLimitedPacket(buffer, 250)
 	if err != nil {
 		return nil, err
 	}
 
-	var ( // Server bound : Handshake
-		protocol  packet.VarInt
-		hostname  packet.String
-		port      packet.UnsignedShort
-		nextState packet.Byte
+	var packetID mcprotocol.VarInt
+	// Server bound : Handshake
+	var (
+		protocol  mcprotocol.VarInt
+		hostname  string
+		port      uint16
+		nextState byte
 	)
-	err = p.Scan(&protocol, &hostname, &port, &nextState)
+	err = mcprotocol.Scan(buffer, &packetID, &protocol, &hostname, &port, &nextState)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +69,9 @@ func NewConnHandler(s *config.ConfigProxyService,
 			if err != nil {
 				return nil, err
 			}
-			remoteMC := mcnet.WrapConn(remote)
 
-			err = remoteMC.WritePacket(p) // Server bound : Handshake
+			buffer.Rewind(mcprotocol.MaxVarIntLen)
+			err = mcprotocol.StreamConn(remote).WritePacket(buffer) // Server bound : Handshake
 			if err != nil {
 				return nil, err
 			}
@@ -81,36 +85,56 @@ func NewConnHandler(s *config.ConfigProxyService,
 		} else {
 			// Server bound : Status Request
 			// Must read, but not used (and also nothing included in it)
-			err = conn.ReadPacket(&p)
+			buffer.Reset(mcprotocol.MaxVarIntLen)
+			err = conn.ReadLimitedPacket(buffer, 1)
 			if err != nil {
 				return nil, err
 			}
 
 			// send custom MOTD
-			err = conn.WritePacket(generateMotdPacket(
-				int(protocol),
-				s, options))
+			buffer.Reset(mcprotocol.MaxVarIntLen)
+			motd := generateMOTD(int(protocol), s, options)
+			if err != nil {
+				return nil, err
+			}
+			motdLen := len(motd)
+
+			buffer.Reset(mcprotocol.MaxVarIntLen)
+			buffer.WriteByte(0x00) // Client bound : Status Response
+			mcprotocol.VarInt(motdLen).WriteTo(buffer)
+			mcprotocol.AppendPacketLength(buffer, buffer.Len()+motdLen)
+
+			_, err = c.Write(buffer.Bytes())
+			if err != nil {
+				return nil, err
+			}
+			_, err = c.Write(motd)
 			if err != nil {
 				return nil, err
 			}
 
 			// handle for ping request
+			buffer.Reset(mcprotocol.MaxVarIntLen)
 			switch s.Minecraft.PingMode {
 			case pingModeDisconnect:
 			case pingMode0ms:
-				err = conn.WritePacket(packet.Marshal(
-					0x01, // Client bound : Ping Response
-					packet.Long(math.MaxInt64),
-				))
+				err = mcprotocol.WriteToPacket(buffer,
+					byte(0x01), // Client bound : Ping Response
+					int64(math.MaxInt64),
+				)
+				if err != nil {
+					return nil, err
+				}
+				err = conn.WritePacket(buffer)
 				if err != nil {
 					return nil, err
 				}
 			default:
-				err = conn.ReadPacket(&p)
+				err = conn.ReadLimitedPacket(buffer, 9)
 				if err != nil {
 					return nil, err
 				}
-				err = conn.WritePacket(p)
+				err = conn.WritePacket(buffer)
 				if err != nil {
 					return nil, err
 				}
@@ -123,23 +147,44 @@ func NewConnHandler(s *config.ConfigProxyService,
 	// else: login
 
 	// Server bound : Login Start
+	// This packet shall be at most 1+mcprotocol.MaxVarIntLen+16+1+16=39 bytes long.
+	// 1 stands for packet ID.
+	// mcprotocol.MaxVarIntLen stands for player name length.
+	// 16 stands for the maximum length of a valid player name.
+	// 1 stands for boolean which decides whether the UUID will be sent.
+	// 16 stands for optional UUID length.
 	// Get player name and check the profile
-	err = conn.ReadPacket(&p)
+	buffer.Reset(mcprotocol.MaxVarIntLen)
+	err = conn.ReadLimitedPacket(buffer, 1+mcprotocol.MaxVarIntLen+16+1+16)
 	if err != nil {
 		return nil, err
 	}
-	var playerName packet.String
-	err = p.Scan(&playerName)
+	var (
+		playerName string
+	)
+	err = mcprotocol.Scan(buffer, &packetID, &playerName)
 	if err != nil {
 		return nil, err
 	}
 
 	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.OnlineCount.Load()) {
 		log.Printf("Service %s : %s Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, ctx.ColoredID, playerName)
-		err := conn.WritePacket(packet.Marshal(
-			0x00, // Client bound : Disconnect (login)
-			generatePlayerNumberLimitExceededMessage(s, playerName),
-		))
+		msg, err := generatePlayerNumberLimitExceededMessage(s, playerName).MarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		msgLen := len(msg)
+
+		buffer.Reset(mcprotocol.MaxVarIntLen)
+		buffer.WriteByte(0x00) // Client bound : Disconnect (login)
+		mcprotocol.VarInt(msgLen).WriteTo(buffer)
+		mcprotocol.AppendPacketLength(buffer, buffer.Len()+msgLen)
+
+		_, err = c.Write(buffer.Bytes())
+		if err != nil {
+			return nil, err
+		}
+		_, err = c.Write(msg)
 		if err != nil {
 			return nil, err
 		}
@@ -175,10 +220,22 @@ func NewConnHandler(s *config.ConfigProxyService,
 	log.Printf("Service %s : %s New Minecraft player logged in: %s [%s]", s.Name, ctx.ColoredID, playerName, accessibility)
 	ctx.AttachInfo("PlayerName=" + string(playerName))
 	if accessibility == "DENY" || accessibility == "REJECT" {
-		err = conn.WritePacket(packet.Marshal(
-			0x00, // Client bound : Disconnect (login)
-			generateKickMessage(s, playerName),
-		))
+		msg, err := generateKickMessage(s, playerName).MarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		msgLen := len(msg)
+
+		buffer.Reset(mcprotocol.MaxVarIntLen)
+		buffer.WriteByte(0x00) // Client bound : Disconnect (login)
+		mcprotocol.VarInt(msgLen).WriteTo(buffer)
+		mcprotocol.AppendPacketLength(buffer, buffer.Len()+msgLen)
+
+		_, err = c.Write(buffer.Bytes())
+		if err != nil {
+			return nil, err
+		}
+		_, err = c.Write(msg)
 		if err != nil {
 			return nil, err
 		}
@@ -194,38 +251,48 @@ func NewConnHandler(s *config.ConfigProxyService,
 		conn.Close()
 		return nil, err
 	}
-	remoteMC := mcnet.WrapConn(remote)
+	remoteMC := mcprotocol.StreamConn(remote)
 
 	// Hostname rewritten
+	buffer.Reset(mcprotocol.MaxVarIntLen)
 	if s.Minecraft.EnableHostnameRewrite {
-		err = remoteMC.WritePacket(packet.Marshal(
-			0x00, // Server bound : Handshake
+		err = mcprotocol.WriteToPacket(buffer,
+			byte(0x00), // Server bound : Handshake
 			protocol,
-			packet.String(func() string {
+			func() string {
 				if !s.Minecraft.IgnoreFMLSuffix &&
 					strings.HasSuffix(string(hostname), "\x00FML\x00") {
 					return s.Minecraft.RewrittenHostname + "\x00FML\x00"
 				}
 				return s.Minecraft.RewrittenHostname
-			}()),
-			packet.UnsignedShort(s.TargetPort),
-			packet.Byte(2),
-		))
+			}(),
+			s.TargetPort,
+			byte(2),
+		)
 	} else {
-		err = remoteMC.WritePacket(packet.Marshal(
-			0x00, // Server bound : Handshake
+		err = mcprotocol.WriteToPacket(buffer,
+			byte(0x00), // Server bound : Handshake
 			protocol,
 			hostname,
 			port,
-			packet.Byte(2),
-		))
+			byte(2),
+		)
 	}
+	if err != nil {
+		return nil, err
+	}
+	err = remoteMC.WritePacket(buffer)
 	if err != nil {
 		return nil, err
 	}
 
 	// Server bound : Login Start
-	err = remoteMC.WritePacket(p)
+	buffer.Reset(mcprotocol.MaxVarIntLen)
+	err = mcprotocol.WriteToPacket(buffer,
+		byte(0x00),
+		playerName,
+	)
+	err = remoteMC.WritePacket(buffer)
 	if err != nil {
 		return nil, err
 	}

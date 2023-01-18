@@ -4,65 +4,63 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/layou233/ZBProxy/common/mcprotocol"
 	"github.com/layou233/ZBProxy/config"
-
-	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/net/packet"
 )
 
-func generateKickMessage(s *config.ConfigProxyService, name packet.String) chat.Message {
-	return chat.Message{
-		Color: chat.White,
-		Extra: []chat.Message{
-			{Bold: true, Color: chat.Red, Text: "ZB"},
+func generateKickMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
+	return mcprotocol.Message{
+		Color: mcprotocol.White,
+		Extra: []mcprotocol.Message{
+			{Bold: true, Color: mcprotocol.Red, Text: "ZB"},
 			{Bold: true, Text: "Proxy"},
 			{Text: " - "},
-			{Bold: true, Color: chat.Gold, Text: "Connection Rejected\n"},
+			{Bold: true, Color: mcprotocol.Gold, Text: "Connection Rejected\n"},
 
 			{Text: "Your connection request is refused by ZBProxy.\n"},
 			{Text: "Reason: "},
-			{Color: chat.LightPurple, Text: "You don't have permission to access this service.\n"},
+			{Color: mcprotocol.LightPurple, Text: "You don't have permission to access this service.\n"},
 			{Text: "Please contact the Administrators for help.\n\n"},
 
 			{
-				Color: chat.Gray,
+				Color: mcprotocol.Gray,
 				Text: fmt.Sprintf("Timestamp: %d | Player Name: %s | Service: %s\n",
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: "GitHub: "},
 			{
-				Color: chat.Aqua, UnderLined: true,
-				Text:       "https://github.com/layou233/ZBProxy",
-				ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
+				Color: mcprotocol.Aqua, UnderLined: true,
+				Text: "https://github.com/layou233/ZBProxy",
+				//ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
 			},
 		},
 	}
 }
 
-func generatePlayerNumberLimitExceededMessage(s *config.ConfigProxyService, name packet.String) chat.Message {
-	return chat.Message{
-		Color: chat.White,
-		Extra: []chat.Message{
-			{Bold: true, Color: chat.Red, Text: "ZB"},
+func generatePlayerNumberLimitExceededMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
+	return mcprotocol.Message{
+		Color: mcprotocol.White,
+		Extra: []mcprotocol.Message{
+			{Bold: true, Color: mcprotocol.Red, Text: "ZB"},
 			{Bold: true, Text: "Proxy"},
 			{Text: " - "},
-			{Bold: true, Color: chat.Gold, Text: "Connection Rejected\n"},
+			{Bold: true, Color: mcprotocol.Gold, Text: "Connection Rejected\n"},
 
 			{Text: "Your connection request is refused by ZBProxy.\n"},
 			{Text: "Reason: "},
-			{Color: chat.LightPurple, Text: "Service online player number limitation exceeded.\n"},
+			{Color: mcprotocol.LightPurple, Text: "Service online player number limitation exceeded.\n"},
 			{Text: "Please contact the Administrators for help.\n\n"},
 
 			{
-				Color: chat.Gray,
+				Color: mcprotocol.Gray,
 				Text: fmt.Sprintf("Timestamp: %d | Player Name: %s | Service: %s\n",
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: "GitHub: "},
 			{
-				Color: chat.Aqua, UnderLined: true,
-				Text:       "https://github.com/layou233/ZBProxy",
-				ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
+				Color: mcprotocol.Aqua, UnderLined: true,
+				Text: "https://github.com/layou233/ZBProxy",
+				//ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
 			},
 		},
 	}

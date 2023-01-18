@@ -2,12 +2,9 @@ package minecraft
 
 import (
 	"encoding/json"
-
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"github.com/layou233/ZBProxy/version"
-
-	"github.com/Tnze/go-mc/net/packet"
 )
 
 type motdObject struct {
@@ -29,7 +26,7 @@ type motdObject struct {
 	Favicon string `json:"favicon"`
 }
 
-func generateMotdPacket(protocolVersion int, s *config.ConfigProxyService, options *transfer.Options) packet.Packet {
+func generateMOTD(protocolVersion int, s *config.ConfigProxyService, options *transfer.Options) []byte {
 	online := s.Minecraft.OnlineCount.Online
 	if online < 0 {
 		online = options.OnlineCount.Load()
@@ -56,8 +53,5 @@ func generateMotdPacket(protocolVersion int, s *config.ConfigProxyService, optio
 		},
 		Favicon: s.Minecraft.MotdFavicon,
 	})
-	return packet.Marshal(
-		0x00, // Client bound : Status Response
-		packet.String(motd),
-	)
+	return motd
 }

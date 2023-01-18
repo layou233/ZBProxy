@@ -54,12 +54,13 @@ func (c Conn) ReadPacket(buffer *buf.Buffer) error {
 // Then reset the buffer to MaxVarIntLen.
 // Note that the given buffer should have at least 5 bytes front headroom space.
 func (c Conn) WritePacket(buffer *buf.Buffer) (err error) {
-	l := buffer.Len()
-	packetLengthBytes, packetLengthLen := EncodeVarInt(int32(l))
-	header := buffer.ExtendHeader(MaxVarIntLen - packetLengthLen)
-	copy(header, packetLengthBytes[:])
-
+	AppendPacketLength(buffer, buffer.Len())
 	_, err = c.Writer.Write(buffer.Bytes())
 	buffer.Reset(MaxVarIntLen)
 	return
+}
+
+func AppendPacketLength(buffer *buf.Buffer, l int) {
+	packetLengthBytes, packetLengthLen := EncodeVarInt(int32(l))
+	copy(buffer.ExtendHeader(packetLengthLen), packetLengthBytes[:packetLengthLen])
 }

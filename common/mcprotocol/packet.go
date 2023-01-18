@@ -86,28 +86,28 @@ func ReadString(buffer *buf.Buffer) (string, error) {
 func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 	for _, raw := range item {
 		switch i := raw.(type) {
+		case bool:
+			if i {
+				err = buffer.WriteByte(0xFF)
+			} else {
+				err = buffer.WriteZero()
+			}
 		case []byte:
 			_, err = VarInt(int32(len(i))).WriteTo(buffer)
 			if err != nil {
 				break
 			}
 			_, err = buffer.Write(i)
-			if err != nil {
-				break
-			}
 		case string:
 			_, err = VarInt(int32(len(i))).WriteTo(buffer)
 			if err != nil {
 				break
 			}
 			_, err = buffer.WriteString(i)
-			if err != nil {
-				break
-			}
 		case int8:
-			return buffer.WriteByte(byte(i))
+			err = buffer.WriteByte(byte(i))
 		case uint8: // aka byte
-			return buffer.WriteByte(i)
+			err = buffer.WriteByte(i)
 		case int16:
 			binary.BigEndian.PutUint16(buffer.Extend(2), uint16(i))
 		case uint16:
@@ -124,19 +124,54 @@ func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 			binary.BigEndian.PutUint64(buffer.Extend(8), i)
 		case VarInt:
 			_, err = i.WriteTo(buffer)
-			if err != nil {
-				break
-			}
 		case Message:
 			_, err = i.WriteTo(buffer)
-			if err != nil {
-				break
-			}
 		case *Message:
 			_, err = i.WriteTo(buffer)
-			if err != nil {
-				break
-			}
+		}
+		if err != nil {
+			break
+		}
+	}
+	return
+}
+
+func Scan(buffer *buf.Buffer, item ...any) (err error) {
+	for _, raw := range item {
+		switch i := raw.(type) {
+		case *bool:
+			var b byte
+			b, err = buffer.ReadByte()
+			*i = b == 0xFF
+		case *string:
+			*i, err = ReadString(buffer)
+		case *int8:
+			*i, err = ReadInt8(buffer)
+		case *uint8:
+			*i, err = buffer.ReadByte()
+		case *int16:
+			*i, err = ReadInt16(buffer)
+		case *uint16:
+			*i, err = ReadUint16(buffer)
+		case *int:
+			*i, err = ReadInt(buffer)
+		case *int32:
+			*i, err = ReadInt32(buffer)
+		case *uint32:
+			*i, err = ReadUint32(buffer)
+		case *int64:
+			*i, err = ReadInt64(buffer)
+		case *uint64:
+			*i, err = ReadUint64(buffer)
+		case *VarInt:
+			var value int32
+			value, _, err = ReadVarIntFrom(buffer)
+			*i = VarInt(value)
+		case *Message:
+			err = i.ReadMessage(buffer)
+		}
+		if err != nil {
+			return
 		}
 	}
 	return
