@@ -9,9 +9,13 @@ jobs:
     strategy:
         matrix:
           # Include amd64 on all platforms.
-          goos: [ windows, freebsd, openbsd, linux, dragonfly, darwin ]
+          goos: [ windows, linux, darwin ]
           goarch: [ amd64, 386 ]
+          goamd64: [ v1, v3 ]
           exclude:
+            # Exclude GOAMD64 v3 on i386
+            - goarch: 386
+              goamd64: v3
             # Exclude i386 on darwin and dragonfly.
             - goarch: 386
               goos: dragonfly
@@ -60,42 +64,23 @@ jobs:
             - goos: linux
               goarch: mips
             # END MIPS
-            # BEGIN PPC
-#            - goos: linux
-#              goarch: ppc64
-#            - goos: linux
-#              goarch: ppc64le
-            # END PPC
             # BEGIN LOONGARCH
             - goos: linux
               goarch: loong64
             # END LOONGARCH
-            # BEGIN FreeBSD ARM
-            - goos: freebsd
-              goarch: arm64
-            - goos: freebsd
-              goarch: arm
-              goarm: 7
-            # END FreeBSD ARM
             # BEGIN S390X
             - goos: linux
               goarch: s390x
             # END S390X
             # END Other architectures
-            # BEGIN OPENBSD ARM
-            - goos: openbsd
-              goarch: arm64
-            - goos: openbsd
-              goarch: arm
-              goarm: 7
-            # END OPENBSD ARM
         
     runs-on: ubuntu-latest
     env:
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
       GOARM: ${{ matrix.goarm }}
-      #CGO_ENABLED: 0
+      GOAMD64: ${{ matrix.goamd64 }}
+      CGO_ENABLED: 0
       
     steps:
     - uses: actions/checkout@v3
@@ -124,22 +109,22 @@ jobs:
       run: echo "git_hash=$(git rev-parse --short HEAD || echo "unknown version")" >> $GITHUB_OUTPUT
 
     - name: Build
-      run: go build -v -trimpath -ldflags '-X "github.com/layou233/ZBProxy/version.CommitHash=${{ steps.hash.outputs.git_hash }}" -s -w -buildid=' -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+      run: go build -v -trimpath -ldflags '-X "github.com/layou233/ZBProxy/version.CommitHash=${{ steps.hash.outputs.git_hash }}" -s -w -buildid=' -o ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
 
     - name: Handle for Windows Build
       if: ${{ env.GOOS == 'windows' }}
-      run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }} ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
+      run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }} ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
 
     - name: Upload a Non-Windows Build Artifact
       uses: actions/upload-artifact@v3.1.2
       if: ${{ env.GOOS != 'windows' }}
       with:
-        name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
-        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}
+        name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
+        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
 
     - name: Upload a Windows Build Artifact
       uses: actions/upload-artifact@v3.1.2
       if: ${{ env.GOOS == 'windows' }}
       with:
-        name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
-        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}.exe
+        name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
+        path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
