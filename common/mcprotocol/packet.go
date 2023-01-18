@@ -127,6 +127,16 @@ func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 			if err != nil {
 				break
 			}
+		case Message:
+			_, err = i.WriteTo(buffer)
+			if err != nil {
+				break
+			}
+		case *Message:
+			_, err = i.WriteTo(buffer)
+			if err != nil {
+				break
+			}
 		}
 	}
 	return
