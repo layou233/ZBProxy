@@ -33,7 +33,7 @@ func main() {
 	color.HiGreen("Welcome to ZBProxy %s (%s)!\n", version.Version, version.CommitHash)
 	color.HiBlack("Build Information: %s, %s/%s, CGO %s\n",
 		runtime.Version(), runtime.GOOS, runtime.GOARCH, common.CGOHint)
-	go version.CheckUpdate()
+	//go version.CheckUpdate()
 
 	config.LoadConfig()
 

@@ -1,5 +1,6 @@
 package version
 
+/*
 import (
 	"fmt"
 	"io"
@@ -31,3 +32,4 @@ func CheckUpdate() {
 		fmt.Println("Your ZBProxy is out of date! Check for the latest version at https://github.com/layou233/ZBProxy/releases")
 	}
 }
+*/
