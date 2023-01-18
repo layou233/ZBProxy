@@ -5,7 +5,6 @@ import (
 	"io"
 	"testing"
 
-	"github.com/Tnze/go-mc/net/packet"
 	"github.com/layou233/ZBProxy/common/buf"
 )
 
@@ -43,7 +42,6 @@ func checkRead(t *testing.T, n int32, result [MaxVarIntLen]byte) {
 }
 
 func TestVarInt_WriteTo(t *testing.T) {
-	packet.VarInt(-1).WriteTo(io.Discard)
 	checkWrite(t, 0, [MaxVarIntLen]byte{0})
 	checkWrite(t, 1, [MaxVarIntLen]byte{1})
 	checkWrite(t, 2, [MaxVarIntLen]byte{2})
@@ -70,3 +68,21 @@ func TestReadFrom(t *testing.T) {
 	checkRead(t, -1, [MaxVarIntLen]byte{255, 255, 255, 255, 15})
 	checkRead(t, -2147483648, [MaxVarIntLen]byte{128, 128, 128, 128, 8})
 }
+
+func BenchmarkVarInt_WriteTo(b *testing.B) {
+	b.ReportAllocs()
+	vi := VarInt(25565)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		vi.WriteTo(io.Discard)
+	}
+}
+
+/*func BenchmarkGoMCVarInt_WriteTo(b *testing.B) {
+	b.ReportAllocs()
+	vi := packet.VarInt(25565)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		vi.WriteTo(io.Discard)
+	}
+}*/
