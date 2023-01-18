@@ -123,6 +123,9 @@ func (m *Message) ReadMessage(buffer *buf.Buffer) error {
 		return err
 	}
 	code, err := buffer.Peek(int(length))
+	if err != nil {
+		return err
+	}
 	err = json.Unmarshal(code, m)
 	return err
 }

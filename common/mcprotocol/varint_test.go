@@ -12,8 +12,6 @@ import (
 
 func checkWrite(t *testing.T, n int32, result [MaxVarIntLen]byte) {
 	buffer := buf.NewSize(MaxVarIntLen + 1)
-	buffer.WriteZeroN(MaxVarIntLen)
-	buffer.FullReset()
 	defer buffer.Release()
 	_, err := VarInt(n).WriteTo(buffer)
 	if err != nil {
@@ -24,7 +22,6 @@ func checkWrite(t *testing.T, n int32, result [MaxVarIntLen]byte) {
 	if !bytes.Equal(buffer.Bytes(), result[:]) {
 		t.Fatalf("VarInt WriteTo error: got %v, expect %v", buffer.Bytes(), result)
 	}
-	return
 }
 
 func checkRead(t *testing.T, n int32, result [MaxVarIntLen]byte) {
@@ -38,7 +35,6 @@ func checkRead(t *testing.T, n int32, result [MaxVarIntLen]byte) {
 	if n != vi {
 		t.Fatalf("VarInt ReadFrom error: got %v, expect %v", vi, n)
 	}
-	return
 }
 
 func TestVarInt_WriteTo(t *testing.T) {
@@ -74,15 +70,6 @@ func BenchmarkVarInt_WriteTo(b *testing.B) {
 	vi := VarInt(25565)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		vi.WriteTo(io.Discard)
+		_, _ = vi.WriteTo(io.Discard)
 	}
 }
-
-/*func BenchmarkGoMCVarInt_WriteTo(b *testing.B) {
-	b.ReportAllocs()
-	vi := packet.VarInt(25565)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		vi.WriteTo(io.Discard)
-	}
-}*/

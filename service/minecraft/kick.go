@@ -31,7 +31,7 @@ func generateKickMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 			{
 				Color: mcprotocol.Aqua, UnderLined: true,
 				Text: "https://github.com/layou233/ZBProxy",
-				//ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
+				// ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
 			},
 		},
 	}
@@ -60,7 +60,7 @@ func generatePlayerNumberLimitExceededMessage(s *config.ConfigProxyService, name
 			{
 				Color: mcprotocol.Aqua, UnderLined: true,
 				Text: "https://github.com/layou233/ZBProxy",
-				//ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
+				// ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
 			},
 		},
 	}

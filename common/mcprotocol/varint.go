@@ -2,8 +2,9 @@ package mcprotocol
 
 import (
 	"errors"
-	"github.com/layou233/ZBProxy/common/rw"
 	"io"
+
+	"github.com/layou233/ZBProxy/common/rw"
 )
 
 const MaxVarIntLen = 5

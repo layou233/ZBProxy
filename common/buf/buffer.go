@@ -233,7 +233,7 @@ func (b *Buffer) Release() {
 	if b == nil || b.closed || !b.managed {
 		return
 	}
-	Put(b.data)
+	Put(b.data) //nolint:errcheck
 	*b = Buffer{closed: true}
 }
 

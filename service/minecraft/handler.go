@@ -100,8 +100,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 			motdLen := len(motd)
 
 			buffer.Reset(mcprotocol.MaxVarIntLen)
-			buffer.WriteByte(0x00) // Client bound : Status Response
-			mcprotocol.VarInt(motdLen).WriteTo(buffer)
+			common.Must0(buffer.WriteByte(0x00)) // Client bound : Status Response
+			common.Must(mcprotocol.VarInt(motdLen).WriteTo(buffer))
 			mcprotocol.AppendPacketLength(buffer, buffer.Len()+motdLen)
 
 			_, err = c.Write(buffer.Bytes())
@@ -159,9 +159,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if err != nil {
 		return nil, err
 	}
-	var (
-		playerName string
-	)
+	var playerName string
 	err = mcprotocol.Scan(buffer, &packetID, &playerName)
 	if err != nil {
 		return nil, err
@@ -176,8 +174,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 		msgLen := len(msg)
 
 		buffer.Reset(mcprotocol.MaxVarIntLen)
-		buffer.WriteByte(0x00) // Client bound : Disconnect (login)
-		mcprotocol.VarInt(msgLen).WriteTo(buffer)
+		common.Must0(buffer.WriteByte(0x00)) // Client bound : Disconnect (login)
+		common.Must(mcprotocol.VarInt(msgLen).WriteTo(buffer))
 		mcprotocol.AppendPacketLength(buffer, buffer.Len()+msgLen)
 
 		_, err = c.Write(buffer.Bytes())
@@ -227,8 +225,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 		msgLen := len(msg)
 
 		buffer.Reset(mcprotocol.MaxVarIntLen)
-		buffer.WriteByte(0x00) // Client bound : Disconnect (login)
-		mcprotocol.VarInt(msgLen).WriteTo(buffer)
+		common.Must0(buffer.WriteByte(0x00)) // Client bound : Disconnect (login)
+		common.Must(mcprotocol.VarInt(msgLen).WriteTo(buffer))
 		mcprotocol.AppendPacketLength(buffer, buffer.Len()+msgLen)
 
 		_, err = c.Write(buffer.Bytes())
@@ -292,6 +290,9 @@ func NewConnHandler(s *config.ConfigProxyService,
 		byte(0x00),
 		playerName,
 	)
+	if err != nil {
+		return nil, err
+	}
 	err = remoteMC.WritePacket(buffer)
 	if err != nil {
 		return nil, err

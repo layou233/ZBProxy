@@ -2,6 +2,7 @@ package minecraft
 
 import (
 	"encoding/json"
+
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/transfer"
 	"github.com/layou233/ZBProxy/version"
