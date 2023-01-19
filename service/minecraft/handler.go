@@ -196,7 +196,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if options.McNameMode != access.DefaultMode {
 		hit := false
 		for _, list := range s.Minecraft.NameAccess.ListTags {
-			if hit = common.Must(access.GetTargetList(list)).Has(string(playerName)); hit {
+			if hit = common.Must(access.GetTargetList(list)).Has(playerName); hit {
 				break
 			}
 		}
@@ -216,7 +216,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		}
 	}
 	log.Printf("Service %s : %s New Minecraft player logged in: %s [%s]", s.Name, ctx.ColoredID, playerName, accessibility)
-	ctx.AttachInfo("PlayerName=" + string(playerName))
+	ctx.AttachInfo("PlayerName=" + playerName)
 	if accessibility == "DENY" || accessibility == "REJECT" {
 		msg, err := generateKickMessage(s, playerName).MarshalJSON()
 		if err != nil {
@@ -259,7 +259,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 			protocol,
 			func() string {
 				if !s.Minecraft.IgnoreFMLSuffix &&
-					strings.HasSuffix(string(hostname), "\x00FML\x00") {
+					strings.HasSuffix(hostname, "\x00FML\x00") {
 					return s.Minecraft.RewrittenHostname + "\x00FML\x00"
 				}
 				return s.Minecraft.RewrittenHostname
