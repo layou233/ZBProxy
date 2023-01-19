@@ -18,12 +18,14 @@ import (
 	"github.com/fatih/color"
 )
 
-// ErrSuccessfullyHandledMOTDRequest means the Minecraft client requested for MOTD
-// and has been correctly handled by program. This used to skip the data forward
-// process and directly go to the end of this connection.
-var ErrSuccessfullyHandledMOTDRequest = errors.New("")
-
-var ErrRejectedLogin = ErrSuccessfullyHandledMOTDRequest // don't cry baby
+var (
+	// ErrSuccessfullyHandledMOTDRequest means the Minecraft client requested for MOTD
+	// and has been correctly handled by program. This used to skip the data forward
+	// process and directly go to the end of this connection.
+	ErrSuccessfullyHandledMOTDRequest = errors.New("")
+	ErrRejectedLogin                  = ErrSuccessfullyHandledMOTDRequest // don't cry baby
+	ErrBadPlayerName                  = ErrSuccessfullyHandledMOTDRequest
+)
 
 func badPacketPanicRecover(s *config.ConfigProxyService) {
 	// Non-Minecraft packet which uses `go-mc` packet scan method may cause panic.
@@ -147,22 +149,34 @@ func NewConnHandler(s *config.ConfigProxyService,
 	// else: login
 
 	// Server bound : Login Start
-	// This packet shall be at most 1+mcprotocol.MaxVarIntLen+16+1+16=39 bytes long.
-	// 1 stands for packet ID.
-	// mcprotocol.MaxVarIntLen stands for player name length.
-	// 16 stands for the maximum length of a valid player name.
-	// 1 stands for boolean which decides whether the UUID will be sent.
-	// 16 stands for optional UUID length.
+	// We only read its packet length and the player name, ignoring the rest part.
+	// Unread part would be sent to target during the copy stage.
+	// The reason for doing this is that this packet format has been modified many times in the history
+	// and it would take a lot of code to make it all compatible. So why not just forward it?
 	// Get player name and check the profile
 	buffer.Reset(mcprotocol.MaxVarIntLen)
-	err = conn.ReadLimitedPacket(buffer, 1+mcprotocol.MaxVarIntLen+16+1+16)
+	loginStartLen, _, err := mcprotocol.ReadVarIntFrom(c)
+	if err != nil {
+		return nil, err
+	}
+	_, _, err = mcprotocol.ReadVarIntFrom(c) // skip packet ID
 	if err != nil {
 		return nil, err
 	}
 	var playerName string
-	err = mcprotocol.Scan(buffer, &packetID, &playerName)
-	if err != nil {
-		return nil, err
+	{
+		playerNameLen, _, err := mcprotocol.ReadVarIntFrom(c)
+		if err != nil {
+			return nil, err
+		}
+		if playerNameLen > 16 || playerNameLen <= 0 {
+			return nil, ErrBadPlayerName
+		}
+		_, err = buffer.ReadFullFrom(c, int(playerNameLen))
+		if err != nil {
+			return nil, err
+		}
+		playerName = string(buffer.Bytes())
 	}
 
 	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.OnlineCount.Load()) {
@@ -293,7 +307,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if err != nil {
 		return nil, err
 	}
-	err = remoteMC.WritePacket(buffer)
+	mcprotocol.AppendPacketLength(buffer, int(loginStartLen))
+	_, err = remote.Write(buffer.Bytes())
 	if err != nil {
 		return nil, err
 	}
