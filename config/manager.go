@@ -20,7 +20,6 @@ const DefaultMotd = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAA
 
 var (
 	Config     configMain
-	Lists      map[string]*set.StringSet
 	reloadLock sync.Mutex
 )
 
@@ -71,7 +70,7 @@ func generateDefaultConfig() {
 				},
 			},
 		},
-		Lists: map[string][]string{
+		Lists: map[string]*set.StringSet{
 			//"test": {"foo", "bar"},
 		},
 	}
@@ -103,18 +102,6 @@ func LoadLists(isReload bool) bool {
 			return false
 		}
 	}
-	// log.Println("Lists:", Config.Lists)
-	if l := len(Config.Lists); l == 0 { // if nothing in Lists
-		Lists = map[string]*set.StringSet{} // empty map
-	} else {
-		Lists = make(map[string]*set.StringSet, l) // map size init
-		for k, v := range Config.Lists {
-			// log.Println("List: Loading", k, "value:", v)
-			list := set.NewStringSetFromSlice(v)
-			Lists[k] = &list
-		}
-	}
-	Config.Lists = nil // free memory
 
 	for _, s := range Config.Services {
 		if s.Minecraft.MotdFavicon == "{DEFAULT_MOTD}" {

@@ -8,7 +8,7 @@ import (
 )
 
 func GetTargetList(listName string) (*set.StringSet, error) {
-	set, ok := config.Lists[listName]
+	set, ok := config.Config.Lists[listName]
 	if ok {
 		return set, nil
 	}
