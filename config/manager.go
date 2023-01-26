@@ -71,7 +71,7 @@ func generateDefaultConfig() {
 				},
 			},
 		},
-		Lists: map[string]*set.StringSet{
+		Lists: map[string]set.StringSet{
 			//"test": {"foo", "bar"},
 		},
 	}

@@ -4,7 +4,7 @@ import "github.com/layou233/ZBProxy/common/set"
 
 type configMain struct {
 	Services []*ConfigProxyService
-	Lists    map[string]*set.StringSet
+	Lists    map[string]set.StringSet
 }
 
 type ConfigProxyService struct {

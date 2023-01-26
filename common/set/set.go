@@ -16,7 +16,7 @@ func (s StringSet) Delete(item string) {
 }
 
 func NewStringSetFromSlice(slice []string) StringSet {
-	s := make(StringSet)
+	s := make(StringSet, len(slice))
 	for _, item := range slice {
 		s.Add(item)
 	}

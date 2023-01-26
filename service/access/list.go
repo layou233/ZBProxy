@@ -7,7 +7,7 @@ import (
 	"github.com/layou233/ZBProxy/config"
 )
 
-func GetTargetList(listName string) (*set.StringSet, error) {
+func GetTargetList(listName string) (set.StringSet, error) {
 	set, ok := config.Config.Lists[listName]
 	if ok {
 		return set, nil
