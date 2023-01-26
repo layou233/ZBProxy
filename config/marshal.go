@@ -11,18 +11,17 @@ type configMainTemp struct {
 	Lists    map[string][]string
 }
 
+var (
+	_ json.Marshaler   = (*configMain)(nil)
+	_ json.Unmarshaler = (*configMain)(nil)
+)
+
 func (c *configMain) MarshalJSON() ([]byte, error) {
 	var list map[string][]string
-	if l := len(c.Lists); l == 0 { // if nothing in Lists
-		return json.Marshal( // empty map
-			configMainTemp{
-				Services: c.Services,
-				Lists:    nil,
-			},
-		)
-	} else {
+	if l := len(c.Lists); l != 0 {
 		list = make(map[string][]string, l) // map size init
 		for k, v := range c.Lists {
+			list[k] = make([]string, 0, len(*v))
 			for k1, _ := range *v {
 				list[k] = append(list[k], k1)
 			}
@@ -39,7 +38,6 @@ func (c *configMain) MarshalJSON() ([]byte, error) {
 func (c *configMain) UnmarshalJSON(data []byte) (err error) {
 	configTemp := configMainTemp{
 		Services: c.Services,
-		Lists:    make(map[string][]string),
 	}
 	err = json.Unmarshal(data, &configTemp)
 	if err != nil {
@@ -56,6 +54,5 @@ func (c *configMain) UnmarshalJSON(data []byte) (err error) {
 			c.Lists[k] = &list
 		}
 	}
-	configTemp.Lists = nil // free memory
 	return err
 }

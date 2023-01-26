@@ -2,8 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/layou233/ZBProxy/common/set"
-	"github.com/layou233/ZBProxy/version"
 	"log"
 	"os"
 	"runtime/debug"
@@ -11,6 +9,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/layou233/ZBProxy/common/set"
+	"github.com/layou233/ZBProxy/version"
 
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
