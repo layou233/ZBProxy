@@ -2,15 +2,15 @@ package config
 
 import (
 	"encoding/json"
+	"github.com/layou233/ZBProxy/common/set"
+	"github.com/layou233/ZBProxy/version"
 	"log"
 	"os"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/layou233/ZBProxy/common/set"
-	"github.com/layou233/ZBProxy/version"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
@@ -128,6 +128,15 @@ func MonitorConfig(watcher *fsnotify.Watcher) error {
 					return
 				}
 				if event.Op.Has(fsnotify.Write) { // config reload
+					// wait for the file to finish writing
+					for {
+						select {
+						case <-watcher.Events:
+						case <-time.After(time.Millisecond * 100):
+							goto NextStep
+						}
+					}
+				NextStep:
 					log.Println(color.HiMagentaString("Config Reload : File change detected. Reloading..."))
 					if LoadLists(true) { // reload success
 						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))

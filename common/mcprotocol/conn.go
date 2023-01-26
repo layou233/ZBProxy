@@ -61,6 +61,6 @@ func (c Conn) WritePacket(buffer *buf.Buffer) (err error) {
 }
 
 func AppendPacketLength(buffer *buf.Buffer, l int) {
-	packetLengthBytes, packetLengthLen := EncodeVarInt(int32(l))
-	copy(buffer.ExtendHeader(packetLengthLen), packetLengthBytes[:packetLengthLen])
+	lenInt32 := int32(l)
+	WriteVarIntTo(buffer.ExtendHeader(VarIntLen(lenInt32)), lenInt32)
 }

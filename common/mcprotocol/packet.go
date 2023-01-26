@@ -93,16 +93,12 @@ func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 				err = buffer.WriteZero()
 			}
 		case []byte:
-			_, err = VarInt(int32(len(i))).WriteTo(buffer)
-			if err != nil {
-				break
-			}
+			lenI := int32(len(i))
+			WriteVarIntTo(buffer.Extend(VarIntLen(lenI)), lenI)
 			_, err = buffer.Write(i)
 		case string:
-			_, err = VarInt(int32(len(i))).WriteTo(buffer)
-			if err != nil {
-				break
-			}
+			lenI := int32(len(i))
+			WriteVarIntTo(buffer.Extend(VarIntLen(lenI)), lenI)
 			_, err = buffer.WriteString(i)
 		case int8:
 			err = buffer.WriteByte(byte(i))
@@ -123,7 +119,7 @@ func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 		case uint64:
 			binary.BigEndian.PutUint64(buffer.Extend(8), i)
 		case VarInt:
-			_, err = i.WriteTo(buffer)
+			i.WriteToBuffer(buffer)
 		case Message:
 			_, err = i.WriteTo(buffer)
 		case *Message:
