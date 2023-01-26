@@ -96,9 +96,6 @@ func NewConnHandler(s *config.ConfigProxyService,
 			// send custom MOTD
 			buffer.Reset(mcprotocol.MaxVarIntLen)
 			motd := generateMOTD(int(protocol), s, options)
-			if err != nil {
-				return nil, err
-			}
 			motdLen := len(motd)
 
 			buffer.Reset(mcprotocol.MaxVarIntLen)
