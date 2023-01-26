@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+
 	"github.com/layou233/ZBProxy/common/set"
 )
 
@@ -36,7 +37,10 @@ func (c *configMain) MarshalJSON() ([]byte, error) {
 }
 
 func (c *configMain) UnmarshalJSON(data []byte) (err error) {
-	var configTemp configMainTemp
+	configTemp := configMainTemp{
+		Services: c.Services,
+		Lists:    make(map[string][]string),
+	}
 	err = json.Unmarshal(data, &configTemp)
 	if err != nil {
 		return err
@@ -53,6 +57,5 @@ func (c *configMain) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 	configTemp.Lists = nil // free memory
-	c.Services = configTemp.Services
 	return err
 }
