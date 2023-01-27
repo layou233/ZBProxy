@@ -5,14 +5,24 @@
 
 [**English**](README.md) | **简体中文**
 
-**新闻：ZBProxy-3.0版本已经推出，请前往[**Actions**](https://github.com/layou233/ZBProxy/actions)下载最新版本**
+🚀 一个简单、快速、高性能的多用途 TCP 中继，主要为搭建 Hypixel 加速 IP 而开发。
 
-🚀快速搭建Minecraft服务器加速IP，给您最好的体验.
-使用go语言编写，支持多平台.
-一键搭建Minecraft加速IP软件，作者[B站@贴吧蜡油](https://space.bilibili.com/404017926 "点我前往空间").
+一键搭建Minecraft加速IP软件，作者[B站@贴吧蜡油](https://space.bilibili.com/404017926 "点我前往空间")。
 
-#### **[加入tg群](https://t.me/launium)** 
-#### **[文档](https://launium.com/doc/ZBProxy)**
+## Feature Highlights
+
+- [x] ☝ 一键部署
+- [x] 📋 高可自定义的配置
+- [x] 🔌 在 Linux 上使用 `splice(2)` 进行零拷贝转发, 以及其它两种转发模式
+- [x] 👮 在 IP 和 Minecraft 玩家名 上启用黑/白名单 (访问控制)
+- [x] 🔄 配置文件热重载 列表 和 Minecraft MOTD
+- [x] 📦 定制的轻量高性能 Minecraft 网络协议框架
+- [x] 💻 干净且多彩的日志输出，易于跟踪每一个连接
+- [x] 🔮 多平台和 CPU 架构支持
+- 以及更多...
+
+#### **[加入 Telegram 群](https://t.me/launium)** 
+#### **[文档 (开发中)](https://launium.com/doc/ZBProxy)**
 
 ## 本程序可以做什么？
 在大多数情况下，你可以使用Nginx的```proxy_pass```来中转Minecraft数据。 

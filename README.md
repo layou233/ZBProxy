@@ -5,10 +5,19 @@
 
 **English** | [**简体中文**](README_cn.md)
 
-**NEWS: NEW ZBPROXY 3.0 WITH CONFIGURATION SUPPORT IS COMING SOON AND ALREADY AVAILABLE IN THE ACTIONS.**  
+🚀 A simple, fast, high performance multipurpose TCP relay, primarily developed for building Hypixel reverse proxies.
 
-🚀Easy proxy your data at the best privacy, giving you better experience enjoying Minecraft.  
-Support multiplatform because of Golang\'s attributes.
+## Feature Highlights
+
+ - [x] ☝ One click to go
+ - [x] 📋 Highly customizable configuration
+ - [x] 🔌 TCP zero-copy relay on Linux with `splice(2)`, and 2 more relay modes
+ - [x] 👮 Whitelist/Blacklist for IP and Minecraft player name (Access Control)
+ - [x] 🔄 Configuration hot reload for lists and Minecraft MOTD
+ - [x] 📦 Tailored high performance and lightweight Minecraft network protocol framework
+ - [x] 💻 Clean and colorful log outputs, easy to track every connection
+ - [x] 🔮 Multiple platforms and architectures
+ - And more...
 
 #### **[Join Official Telegram Group](https://t.me/launium)**  
 #### **[Document (W.I.P)](https://launium.com/doc/ZBProxy)**
