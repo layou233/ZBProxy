@@ -1,6 +1,9 @@
 package config
 
-import "github.com/layou233/ZBProxy/common/set"
+import (
+	"github.com/layou233/ZBProxy/common/set"
+	outbound2 "github.com/layou233/ZBProxy/outbound"
+)
 
 type configMain struct {
 	Services []*ConfigProxyService
@@ -14,10 +17,11 @@ type ConfigProxyService struct {
 	Listen        uint16
 	Flow          string
 
-	IPAccess    access      `json:",omitempty"`
-	Minecraft   minecraft   `json:",omitempty"`
-	TLSSniffing tlsSniffing `json:",omitempty"`
-	Outbound    outbound    `json:",omitempty"`
+	IPAccess      access                   `json:",omitempty"`
+	Minecraft     minecraft                `json:",omitempty"`
+	TLSSniffing   tlsSniffing              `json:",omitempty"`
+	SocketOptions *outbound2.SocketOptions `json:",omitempty"`
+	Outbound      outbound                 `json:",omitempty"`
 }
 
 type access struct {

@@ -6,9 +6,12 @@ import (
 	"net"
 	"net/url"
 	"strings"
+
+	"github.com/layou233/ZBProxy/outbound"
 )
 
 type Client struct {
+	Dialer             outbound.Outbound
 	Version            string
 	Network            string
 	Address            string
@@ -21,12 +24,12 @@ type Client struct {
 // socks(5)://username:password@127.0.0.1:1080
 //
 // socks4(a)://userid@127.0.0.1:1080
-func NewClientFromURL(s string) (*Client, error) {
+func NewClientFromURL(dialer outbound.Outbound, s string) (*Client, error) {
 	u, err := url.Parse(s)
 	if err != nil {
 		return nil, err
 	}
-	c := &Client{}
+	c := &Client{Dialer: dialer}
 	switch u.Scheme {
 	case "socks", "socks5", "":
 		c.Version = "5"
@@ -47,7 +50,7 @@ func NewClientFromURL(s string) (*Client, error) {
 }
 
 func (c *Client) Dial(network, address string) (net.Conn, error) {
-	conn, err := net.Dial(c.Network, c.Address)
+	conn, err := c.Dialer.Dial(c.Network, c.Address)
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}
@@ -63,7 +66,7 @@ func (c *Client) DialTCP(network string, laddr, raddr *net.TCPAddr) (*net.TCPCon
 	if err != nil {
 		return nil, fmt.Errorf("socks: can't resolve SOCKS server address: %v", err)
 	}
-	conn, err := net.DialTCP(c.Network, laddr, SAddr)
+	conn, err := c.Dialer.DialTCP(c.Network, laddr, SAddr)
 	if err != nil {
 		return nil, fmt.Errorf("socks: fail to dial to SOCKS server: %v", err)
 	}

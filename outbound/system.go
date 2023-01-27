@@ -3,9 +3,18 @@ package outbound
 import (
 	"io"
 	"net"
+	"syscall"
 )
 
 var SystemOutbound Outbound = &systemOutbound{}
+
+func NewSystemOutbound(control DialerControl) Outbound {
+	return &systemOutbound{
+		Dialer: net.Dialer{Control: control},
+	}
+}
+
+type DialerControl = func(network string, address string, c syscall.RawConn) error
 
 type systemOutbound struct {
 	net.Dialer
