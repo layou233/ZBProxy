@@ -63,6 +63,12 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if err != nil {
 		return nil, err
 	}
+	if s.Minecraft.EnableHostnameAccess {
+		if !strings.Contains(hostname, s.Minecraft.HostnameAccess) {
+			c.(*net.TCPConn).SetLinger(0)
+			return nil, errors.New("hostname not allowed")
+		}
+	}
 	if nextState == 1 { // status
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server

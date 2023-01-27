@@ -33,6 +33,9 @@ type minecraft struct {
 	EnableHostnameRewrite bool
 	RewrittenHostname     string `json:",omitempty"`
 
+	EnableHostnameAccess bool
+	HostnameAccess       string `json:",omitempty"`
+
 	OnlineCount onlineCount
 
 	IgnoreFMLSuffix bool `json:",omitempty"`
