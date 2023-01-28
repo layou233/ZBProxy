@@ -22,7 +22,7 @@ func (c *configMain) MarshalJSON() ([]byte, error) {
 		list = make(map[string][]string, l) // map size init
 		for k, v := range c.Lists {
 			list[k] = make([]string, 0, len(v))
-			for k1, _ := range v {
+			for k1 := range v {
 				list[k] = append(list[k], k1)
 			}
 		}
