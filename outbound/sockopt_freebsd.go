@@ -8,6 +8,9 @@ import (
 )
 
 func NewDialerControlFromOptions(option *SocketOptions) DialerControl {
+	if option == nil {
+		return nil
+	}
 	return func(network string, address string, c syscall.RawConn) (err error) {
 		err_ := c.Control(func(fd uintptr) {
 			fdInt := int(fd)
