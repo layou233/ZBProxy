@@ -11,6 +11,5 @@ type Options struct {
 	IsTLSHandleNeeded       bool
 	IsMinecraftHandleNeeded bool
 	FlowType                int
-	McNameMode              int
 	OnlineCount             atomic.Int32
 }

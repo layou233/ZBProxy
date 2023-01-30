@@ -47,8 +47,9 @@ func StartNewService(s *config.ConfigProxyService) {
 	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
 
 	// load access lists
-	ipAccessMode := access.ParseAccessMode(s.IPAccess.Mode)
-	if ipAccessMode != access.DefaultMode { // IP access control enabled
+	switch s.IPAccess.Mode {
+	case access.DefaultMode:
+	case access.AllowMode, access.BlockMode:
 		if s.IPAccess.ListTags == nil {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
@@ -57,18 +58,25 @@ func StartNewService(s *config.ConfigProxyService) {
 				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
 			}
 		}
+	default:
+		log.Panicf("Unknown access control mode: %s", s.IPAccess.Mode)
 	}
 
 	// load Minecraft player name access lists
-	mcNameAccessMode := access.ParseAccessMode(s.Minecraft.NameAccess.Mode)
-	if isMinecraftHandleNeeded && mcNameAccessMode != access.DefaultMode { // IP access control enabled
-		if s.Minecraft.NameAccess.ListTags == nil {
-			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
-		}
-		for _, tag := range s.Minecraft.NameAccess.ListTags {
-			if _, err = access.GetTargetList(tag); err != nil {
-				log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+	if isMinecraftHandleNeeded {
+		switch s.Minecraft.NameAccess.Mode {
+		case access.DefaultMode:
+		case access.AllowMode, access.BlockMode:
+			if s.Minecraft.NameAccess.ListTags == nil {
+				log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 			}
+			for _, tag := range s.Minecraft.NameAccess.ListTags {
+				if _, err = access.GetTargetList(tag); err != nil {
+					log.Panic(color.HiRedString("Service %s: %s", s.Name, err.Error()))
+				}
+			}
+		default:
+			log.Panicf("Unknown access control mode: %s", s.IPAccess.Mode)
 		}
 	}
 
@@ -89,12 +97,11 @@ func StartNewService(s *config.ConfigProxyService) {
 		IsTLSHandleNeeded:       isTLSHandleNeeded,
 		IsMinecraftHandleNeeded: isMinecraftHandleNeeded,
 		FlowType:                flowType,
-		McNameMode:              mcNameAccessMode,
 	}
 	for {
 		conn, err := listen.AcceptTCP()
 		if err == nil {
-			if ipAccessMode != access.DefaultMode {
+			if s.IPAccess.Mode != access.DefaultMode {
 				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
 				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
 				hit := false
@@ -103,7 +110,7 @@ func StartNewService(s *config.ConfigProxyService) {
 						break
 					}
 				}
-				switch ipAccessMode {
+				switch s.IPAccess.Mode {
 				case access.AllowMode:
 					if !hit {
 						forciblyCloseTCP(conn)

@@ -210,14 +210,14 @@ func NewConnHandler(s *config.ConfigProxyService,
 	}
 
 	accessibility := "DEFAULT"
-	if options.McNameMode != access.DefaultMode {
+	if s.Minecraft.NameAccess.Mode != access.DefaultMode {
 		hit := false
 		for _, list := range s.Minecraft.NameAccess.ListTags {
 			if hit = common.Must(access.GetTargetList(list)).Has(playerName); hit {
 				break
 			}
 		}
-		switch options.McNameMode {
+		switch s.Minecraft.NameAccess.Mode {
 		case access.AllowMode:
 			if hit {
 				accessibility = "ALLOW"
