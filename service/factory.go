@@ -76,7 +76,7 @@ func StartNewService(s *config.ConfigProxyService) {
 				}
 			}
 		default:
-			log.Panicf("Unknown access control mode: %s", s.IPAccess.Mode)
+			log.Panicf("Unknown access control mode: %s", s.Minecraft.NameAccess.Mode)
 		}
 	}
 
