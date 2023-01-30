@@ -53,5 +53,6 @@ func (c *configMain) UnmarshalJSON(data []byte) (err error) {
 			c.Lists[k] = set.NewStringSetFromSlice(v)
 		}
 	}
-	return err
+	c.Services = configTemp.Services
+	return nil
 }
