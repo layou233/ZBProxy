@@ -138,7 +138,7 @@ func getFlowType(flow string) int {
 		return transfer.FLOW_ZEROCOPY
 	case "multiple":
 		return transfer.FLOW_MULTIPLE
-	case "auto":
+	case "auto", "":
 		return transfer.FLOW_AUTO
 	default:
 		return -1
