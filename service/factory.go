@@ -14,7 +14,7 @@ import (
 	"github.com/fatih/color"
 )
 
-var ListenerArray = make([]net.Listener, 1)
+var Listeners []net.Listener
 
 func StartNewService(s *config.ConfigProxyService) {
 	// Check Settings
@@ -44,7 +44,7 @@ func StartNewService(s *config.ConfigProxyService) {
 	if err != nil {
 		log.Panic(color.HiRedString("Service %s: Can't start listening on port %v: %v", s.Name, s.Listen, err.Error()))
 	}
-	ListenerArray = append(ListenerArray, listen) // add to ListenerArray
+	Listeners = append(Listeners, listen) // add to Listeners
 
 	// load access lists
 	switch s.IPAccess.Mode {

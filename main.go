@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net"
 	"os"
 	"os/signal"
 	"runtime"
@@ -36,6 +37,7 @@ func main() {
 	// go version.CheckUpdate()
 
 	config.LoadConfig()
+	service.Listeners = make([]net.Listener, 0, len(config.Config.Services))
 
 	for _, s := range config.Config.Services {
 		go service.StartNewService(s)
@@ -63,7 +65,7 @@ func main() {
 		// stop the program
 		// sometimes after the program exits on Windows, the ports are still occupied and "listening".
 		// so manually closes these listeners when the program exits.
-		for _, listener := range service.ListenerArray {
+		for _, listener := range service.Listeners {
 			if listener != nil { // avoid null pointers
 				listener.Close()
 			}
