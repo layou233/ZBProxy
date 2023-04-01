@@ -1,9 +1,9 @@
 package set
 
 import (
-	"crypto/rand"
-	mrand "math/rand"
 	"testing"
+
+	"github.com/zhangyunhao116/fastrand"
 	//"golang.org/x/exp/slices"
 )
 
@@ -12,11 +12,11 @@ func BenchmarkStringSet_Has(b *testing.B) {
 	listSlice := make([]string, 0, ElementNum)
 	for i := 0; i < ElementNum; i++ {
 		var nameBytes [16]byte
-		rand.Read(nameBytes[:])
+		fastrand.Read(nameBytes[:])
 		listSlice = append(listSlice, string(nameBytes[:]))
 	}
 	s := NewStringSetFromSlice(listSlice)
-	target := listSlice[mrand.Int31n(ElementNum)]
+	target := listSlice[fastrand.Int31n(ElementNum)]
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -2,11 +2,11 @@ package transfer
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/layou233/ZBProxy/console"
 
 	"github.com/fatih/color"
+	"github.com/zhangyunhao116/fastrand"
 )
 
 type ConnContext struct {
@@ -19,8 +19,8 @@ func (c *ConnContext) AttachInfo(info string) {
 }
 
 func (c *ConnContext) Init() *ConnContext {
-	id := rand.Int31()
-	idColor := rand.Intn(console.ColorListN)
+	id := fastrand.Int31()
+	idColor := fastrand.Intn(len(console.ColorList))
 	c.ColoredID = color.New(console.ColorList[idColor]).Sprint("[", id, "]")
 
 	c.AdditionalInfo = make([]string, 0, 1)

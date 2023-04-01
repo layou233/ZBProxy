@@ -21,5 +21,3 @@ var ColorList = [...]color.Attribute{
 	color.FgHiRed, color.FgHiGreen, color.FgHiYellow,
 	color.FgHiBlue, color.FgHiMagenta, color.FgHiCyan, color.FgHiWhite,
 }
-
-const ColorListN = len(ColorList)
