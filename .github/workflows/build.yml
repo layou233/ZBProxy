@@ -22,10 +22,10 @@ jobs:
             - goarch: 386
               goos: darwin
           include:
-            # BEIGIN MacOS ARM64
+            # BEGIN macOS ARM64
             - goos: darwin
               goarch: arm64
-            # END MacOS ARM64
+            # END macOS ARM64
             # BEGIN Linux ARM 5 6 7
             - goos: linux
               goarch: arm
@@ -90,16 +90,6 @@ jobs:
       with:
         go-version: ^1.19
         check-latest: true
-
-    - name: Cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
 
     - name: Tidy up Go Modules
       run: go mod tidy
