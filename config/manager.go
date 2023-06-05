@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"github.com/zhangyunhao116/fastrand"
 	"log"
 	"os"
 	"runtime/debug"
@@ -86,6 +87,7 @@ func generateDefaultConfig() {
 func LoadLists(isReload bool) bool {
 	reloadLock.Lock()
 	defer reloadLock.Unlock()
+	var config configMain
 	if isReload {
 		configFile, err := os.ReadFile("ZBProxy.json")
 		if err != nil {
@@ -97,14 +99,16 @@ func LoadLists(isReload bool) bool {
 			return false
 		}
 
-		err = json.Unmarshal(configFile, &Config)
+		err = json.Unmarshal(configFile, &config)
 		if err != nil {
 			log.Println(color.HiRedString("Fail to reload : Config format error: %s", err.Error()))
 			return false
 		}
+	} else {
+		config = Config
 	}
 
-	for _, s := range Config.Services {
+	for _, s := range config.Services {
 		if s.Minecraft.MotdFavicon == "{DEFAULT_MOTD}" {
 			s.Minecraft.MotdFavicon = DefaultMotd
 		}
@@ -114,8 +118,66 @@ func LoadLists(isReload bool) bool {
 			"{HOST}", s.TargetAddress,
 			"{PORT}", strconv.Itoa(int(s.TargetPort)),
 		).Replace(s.Minecraft.MotdDescription)
+
+		if samples := s.Minecraft.OnlineCount.Sample; samples != nil {
+			var convertedSamples []Sample
+			switch samples := samples.(type) {
+			case map[string]any:
+				convertedSamples = make([]Sample, 0, len(samples))
+				for uuid, name := range samples {
+					convertedSamples = append(convertedSamples, Sample{
+						Name: name.(string),
+						ID:   uuid,
+					})
+				}
+
+			case []any:
+				convertedSamples = make([]Sample, 0, len(samples))
+				var u [16]byte
+				var dst [36]byte
+				for i, sample := range samples {
+					// generate random UUID with ZBProxy signature
+					fastrand.Read(u[:])
+					u[0] = byte(i)
+					u[1] = '$'
+					u[2] = 'Z'
+					u[3] = 'B'
+					u[4] = '$'
+
+					// marshal UUID string
+					const hexTable = "0123456789abcdef"
+					dst[8] = '-'
+					dst[13] = '-'
+					dst[18] = '-'
+					dst[23] = '-'
+					for i, x := range [16]byte{
+						0, 2, 4, 6,
+						9, 11,
+						14, 16,
+						19, 21,
+						24, 26, 28, 30, 32, 34,
+					} {
+						c := u[i]
+						dst[x] = hexTable[c>>4]
+						dst[x+1] = hexTable[c&0x0F]
+					}
+
+					convertedSamples = append(convertedSamples, Sample{
+						Name: sample.(string),
+						ID:   string(dst[:]),
+					})
+				}
+
+			default:
+				log.Println(color.HiMagentaString(
+					"Config Reload : Failed to reload samples: unknown samples input type: %T", samples))
+				return false
+			}
+			s.Minecraft.OnlineCount.Sample = convertedSamples
+		}
 	}
 
+	Config = config
 	debug.FreeOSMemory()
 	return true
 }

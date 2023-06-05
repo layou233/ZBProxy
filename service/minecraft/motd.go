@@ -8,20 +8,15 @@ import (
 	"github.com/layou233/ZBProxy/version"
 )
 
-type sample struct {
-	Name string `json:"name"`
-	ID   string `json:"id"`
-}
-
 type motdObject struct {
 	Version struct {
 		Name     string `json:"name"`
 		Protocol int    `json:"protocol"`
 	} `json:"version"`
 	Players struct {
-		Max    int      `json:"max"`
-		Online int      `json:"online"`
-		Sample []sample `json:"sample"`
+		Max    int `json:"max"`
+		Online int `json:"online"`
+		Sample any `json:"sample"`
 	} `json:"players"`
 	Description struct {
 		Text string `json:"text"`
@@ -35,14 +30,6 @@ func generateMOTD(protocolVersion int, s *config.ConfigProxyService, options *tr
 		online = options.OnlineCount.Load()
 	}
 
-	var samples []sample
-	if len(s.Minecraft.OnlineCount.Sample) > 0 {
-		samples = make([]sample, 0, len(s.Minecraft.OnlineCount.Sample))
-		for id, name := range s.Minecraft.OnlineCount.Sample {
-			samples = append(samples, sample{ID: id, Name: name})
-		}
-	}
-
 	motd, _ := json.Marshal(motdObject{
 		Version: struct {
 			Name     string `json:"name"`
@@ -52,13 +39,13 @@ func generateMOTD(protocolVersion int, s *config.ConfigProxyService, options *tr
 			Protocol: protocolVersion,
 		},
 		Players: struct {
-			Max    int      `json:"max"`
-			Online int      `json:"online"`
-			Sample []sample `json:"sample"`
+			Max    int `json:"max"`
+			Online int `json:"online"`
+			Sample any `json:"sample"`
 		}{
 			Max:    s.Minecraft.OnlineCount.Max,
 			Online: int(online),
-			Sample: samples,
+			Sample: s.Minecraft.OnlineCount.Sample,
 		},
 		Description: struct {
 			Text string `json:"text"`

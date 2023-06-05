@@ -54,7 +54,12 @@ type onlineCount struct {
 	Max            int
 	Online         int32
 	EnableMaxLimit bool
-	Sample         map[string]string `json:",omitempty"`
+	Sample         any `json:",omitempty"`
+}
+
+type Sample struct {
+	Name string `json:"name"`
+	ID   string `json:"id"`
 }
 
 type configAnyDest struct {
