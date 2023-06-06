@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -8,6 +9,7 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/config"
@@ -37,10 +39,6 @@ func main() {
 	config.LoadConfig()
 	service.Listeners = make([]net.Listener, 0, len(config.Config.Services))
 
-	for _, s := range config.Config.Services {
-		go service.StartNewService(s)
-	}
-
 	// hot reload
 	// use inotify on Linux
 	// use Win32 ReadDirectoryChangesW on Windows
@@ -50,7 +48,7 @@ func main() {
 			log.Panic(err)
 		}
 		defer watcher.Close()
-		err = config.MonitorConfig(watcher)
+		err = monitorConfig(watcher)
 		if err != nil {
 			log.Panic("Config Reload Error : ", err)
 		}
@@ -61,12 +59,49 @@ func main() {
 		signal.Notify(osSignals, os.Interrupt, syscall.SIGTERM)
 		<-osSignals
 		// stop the program
-		// sometimes after the program exits on Windows, the ports are still occupied and "listening".
-		// so manually closes these listeners when the program exits.
-		for _, listener := range service.Listeners {
-			if listener != nil { // avoid null pointers
-				listener.Close()
+		service.CleanupServices()
+	}
+}
+
+func monitorConfig(watcher *fsnotify.Watcher) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	service.ExecuteServices(ctx)
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				if event.Op.Has(fsnotify.Write) { // config reload
+					// wait for the file to finish writing
+					for {
+						select {
+						case <-watcher.Events:
+						case <-time.After(time.Millisecond * 100):
+							goto NextStep
+						}
+					}
+				NextStep:
+					log.Println(color.HiMagentaString("Config Reload : File change detected. Reloading..."))
+					if config.LoadLists(true) { // reload success
+						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
+						cancel()
+						service.CleanupServices()
+						service.Listeners = make([]net.Listener, 0, len(config.Config.Services))
+						ctx, cancel = context.WithCancel(context.Background())
+						service.ExecuteServices(ctx)
+					} else {
+						log.Println(color.HiMagentaString("Config Reload : Failed to reload Lists."))
+					}
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Println(color.HiRedString("Config Reload Error : ", err))
 			}
 		}
-	}
+	}()
+	return watcher.Add("ZBProxy.json")
 }

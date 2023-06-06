@@ -1,8 +1,11 @@
 package service
 
 import (
+	"context"
+	"io"
 	"log"
 	"net"
+	"strconv"
 
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/config"
@@ -16,7 +19,7 @@ import (
 
 var Listeners []net.Listener
 
-func StartNewService(s *config.ConfigProxyService) {
+func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 	// Check Settings
 	var (
 		isTLSHandleNeeded = s.TLSSniffing.RejectNonTLS ||
@@ -37,10 +40,8 @@ func StartNewService(s *config.ConfigProxyService) {
 	if s.Minecraft.EnableHostnameRewrite && s.Minecraft.RewrittenHostname == "" {
 		s.Minecraft.RewrittenHostname = s.TargetAddress
 	}
-	listen, err := net.ListenTCP("tcp", &net.TCPAddr{
-		IP:   nil, // listens on all available IP addresses of the local system
-		Port: int(s.Listen),
-	})
+	listenConfig := net.ListenConfig{} // TODO: Apply socket options to listeners
+	listen, err := listenConfig.Listen(ctx, "tcp", ":"+strconv.Itoa(int(s.Listen)))
 	if err != nil {
 		log.Panic(color.HiRedString("Service %s: Can't start listening on port %v: %v", s.Name, s.Listen, err.Error()))
 	}
@@ -99,7 +100,7 @@ func StartNewService(s *config.ConfigProxyService) {
 		FlowType:                flowType,
 	}
 	for {
-		conn, err := listen.AcceptTCP()
+		conn, err := listen.Accept()
 		if err == nil {
 			if s.IPAccess.Mode != access.DefaultMode {
 				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
@@ -123,7 +124,7 @@ func StartNewService(s *config.ConfigProxyService) {
 					}
 				}
 			}
-			go newConnReceiver(s, conn, options)
+			go newConnReceiver(s, conn.(*net.TCPConn), options)
 		}
 	}
 }
@@ -145,8 +146,11 @@ func getFlowType(flow string) int {
 	}
 }
 
-func forciblyCloseTCP(conn *net.TCPConn) {
+func forciblyCloseTCP(conn io.Closer) {
 	//nolint:errcheck
-	conn.SetLinger(0) // let Close send RST to forcibly close the connection
-	conn.Close()      // forcibly close
+	if tcpConn, isTCPConn := conn.(*net.TCPConn); isTCPConn {
+		// let Close send RST to forcibly close the connection
+		tcpConn.SetLinger(0)
+	}
+	conn.Close()
 }
