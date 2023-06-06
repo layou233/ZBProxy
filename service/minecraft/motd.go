@@ -16,7 +16,7 @@ type motdObject struct {
 	Players struct {
 		Max    int `json:"max"`
 		Online int `json:"online"`
-		Sample any `json:"sample"`
+		Sample any `json:"sample,omitempty"`
 	} `json:"players"`
 	Description struct {
 		Text string `json:"text"`
@@ -41,7 +41,7 @@ func generateMOTD(protocolVersion int, s *config.ConfigProxyService, options *tr
 		Players: struct {
 			Max    int `json:"max"`
 			Online int `json:"online"`
-			Sample any `json:"sample"`
+			Sample any `json:"sample,omitempty"`
 		}{
 			Max:    s.Minecraft.OnlineCount.Max,
 			Online: int(online),

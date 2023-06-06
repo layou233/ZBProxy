@@ -101,31 +101,36 @@ func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 	}
 	for {
 		conn, err := listen.Accept()
-		if err == nil {
-			if s.IPAccess.Mode != access.DefaultMode {
-				// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
-				ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
-				hit := false
-				for _, list := range s.IPAccess.ListTags {
-					if hit = common.Must(access.GetTargetList(list)).Has(ip); hit {
-						break
-					}
-				}
-				switch s.IPAccess.Mode {
-				case access.AllowMode:
-					if !hit {
-						forciblyCloseTCP(conn)
-						continue
-					}
-				case access.BlockMode:
-					if hit {
-						forciblyCloseTCP(conn)
-						continue
-					}
+		switch common.Unwrap(err) {
+		case net.ErrClosed, context.Canceled:
+			return
+		case nil:
+		default:
+			log.Panic(color.HiRedString("Service %s: Unexpected error when listening: %v", s.Name, err))
+		}
+		if s.IPAccess.Mode != access.DefaultMode {
+			// https://stackoverflow.com/questions/29687102/how-do-i-get-a-network-clients-ip-converted-to-a-string-in-golang
+			ip := conn.RemoteAddr().(*net.TCPAddr).IP.String()
+			hit := false
+			for _, list := range s.IPAccess.ListTags {
+				if hit = common.Must(access.GetTargetList(list)).Has(ip); hit {
+					break
 				}
 			}
-			go newConnReceiver(s, conn.(*net.TCPConn), options)
+			switch s.IPAccess.Mode {
+			case access.AllowMode:
+				if !hit {
+					forciblyCloseTCP(conn)
+					continue
+				}
+			case access.BlockMode:
+				if hit {
+					forciblyCloseTCP(conn)
+					continue
+				}
+			}
 		}
+		go newConnReceiver(s, conn.(*net.TCPConn), options)
 	}
 }
 
