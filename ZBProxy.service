@@ -1,6 +1,8 @@
 [Unit]
 Description=ZBProxy Service
 Documentation=https://github.com/layou233/ZBProxy
+# If you got any error with `network-online.target`, try to replace it with `nss-lookup.target`.
+# see https://github.com/layou233/ZBProxy/pull/100
 After=network-online.target
 
 [Service]
