@@ -51,7 +51,7 @@ Our code is completely open source, so you can freely check whether there is a b
 2. Run it, and your relay service is now established!  
 For Linux system, you may need to give permissions to the executable file in order to solve problems that cannot run or run blocked. Just enter the following command:
 ```bash
-chmod 777 PATH_OF_THE_FILE
+chmod +x PATH_TO_THE_FILE
 ```
 3. Ensure the port **25565** is fully open on the server.
 4. Enter your proxy server IP into your Minecraft client, and join it for game!  
