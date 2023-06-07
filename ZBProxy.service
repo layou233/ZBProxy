@@ -1,7 +1,7 @@
 [Unit]
 Description=ZBProxy Service
 Documentation=https://github.com/layou233/ZBProxy
-After=network.target nss-lookup.target
+After=network-online.target
 
 [Service]
 Type=simple
