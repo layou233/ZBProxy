@@ -81,8 +81,7 @@ func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 		}
 	}
 
-	out := outbound.NewSystemOutbound(
-		outbound.NewDialerControlFromOptions(s.SocketOptions))
+	out := outbound.NewSystemOutbound(s.SocketOptions)
 	switch s.Outbound.Type {
 	case "socks", "socks5", "socks4a", "socks4":
 		out = &socks.Client{

@@ -8,13 +8,21 @@ import (
 
 var SystemOutbound Outbound = &systemOutbound{}
 
-func NewSystemOutbound(control DialerControl) Outbound {
-	if control == nil {
+func NewSystemOutbound(options *SocketOptions) Outbound {
+	if options == nil {
 		return SystemOutbound
 	}
-	return &systemOutbound{
-		Dialer: net.Dialer{Control: control},
+
+	out := &systemOutbound{
+		Dialer: net.Dialer{
+			Control: NewDialerControlFromOptions(options),
+		},
 	}
+	if options.MultiPathTCP {
+		SetMultiPathTCP(&out.Dialer, true)
+	}
+
+	return out
 }
 
 type DialerControl = func(network string, address string, c syscall.RawConn) error

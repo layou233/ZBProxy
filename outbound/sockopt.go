@@ -5,4 +5,5 @@ type SocketOptions struct {
 	Interface     string `json:",omitempty"`
 	TCPFastOpen   bool   `json:",omitempty"`
 	TCPCongestion string `json:",omitempty"`
+	MultiPathTCP  bool   `json:",omitempty"`
 }
