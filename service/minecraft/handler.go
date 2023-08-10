@@ -104,15 +104,11 @@ func NewConnHandler(s *config.ConfigProxyService,
 			motdLen := len(motd)
 
 			buffer.Reset(mcprotocol.MaxVarIntLen)
-			common.Must0(buffer.WriteByte(0x00)) // Client bound : Status Response
-			common.Must(mcprotocol.VarInt(motdLen).WriteTo(buffer))
-			mcprotocol.AppendPacketLength(buffer, buffer.Len()+motdLen)
-
-			_, err = c.Write(buffer.Bytes())
-			if err != nil {
-				return nil, err
-			}
-			_, err = c.Write(motd)
+			common.Must0(mcprotocol.WriteToPacket(buffer,
+				byte(0x00), // Client bound : Status Response
+				mcprotocol.VarInt(motdLen),
+			))
+			err = conn.WriteVectorizedPacket(buffer, motd)
 			if err != nil {
 				return nil, err
 			}
@@ -123,8 +119,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 			case pingModeDisconnect:
 			case pingMode0ms:
 				err = mcprotocol.WriteToPacket(buffer,
-					byte(0x01), // Client bound : Ping Response
-					int64(math.MaxInt64),
+					byte(0x01),           // Client bound : Ping Response
+					int64(math.MaxInt64), // this makes no sense but only a number
 				)
 				if err != nil {
 					return nil, err
@@ -153,8 +149,8 @@ func NewConnHandler(s *config.ConfigProxyService,
 	// Server bound : Login Start
 	// We only read its packet length and the player name, ignoring the rest part.
 	// Unread part would be sent to target during the copy stage.
-	// The reason for doing this is that this packet format has been modified many times in the history
-	// and it would take a lot of code to make it all compatible. So why not just forward it?
+	// The reason for doing this is that this packet format has been modified many times in the history,
+	// so it would take a lot of code to make it all compatible. So why not just forward it?
 	// Get player name and check the profile
 	buffer.Reset(mcprotocol.MaxVarIntLen)
 	loginStartLen, _, err := mcprotocol.ReadVarIntFrom(c)
@@ -187,18 +183,13 @@ func NewConnHandler(s *config.ConfigProxyService,
 		if err != nil {
 			return nil, err
 		}
-		msgLen := len(msg)
 
 		buffer.Reset(mcprotocol.MaxVarIntLen)
-		common.Must0(buffer.WriteByte(0x00)) // Client bound : Disconnect (login)
-		common.Must(mcprotocol.VarInt(msgLen).WriteTo(buffer))
-		mcprotocol.AppendPacketLength(buffer, buffer.Len()+msgLen)
-
-		_, err = c.Write(buffer.Bytes())
-		if err != nil {
-			return nil, err
-		}
-		_, err = c.Write(msg)
+		common.Must0(mcprotocol.WriteToPacket(buffer,
+			byte(0x00), // Client bound : Disconnect (login)
+			mcprotocol.VarInt(len(msg)),
+		))
+		err = conn.WriteVectorizedPacket(buffer, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -238,18 +229,13 @@ func NewConnHandler(s *config.ConfigProxyService,
 		if err != nil {
 			return nil, err
 		}
-		msgLen := len(msg)
 
 		buffer.Reset(mcprotocol.MaxVarIntLen)
-		common.Must0(buffer.WriteByte(0x00)) // Client bound : Disconnect (login)
-		common.Must(mcprotocol.VarInt(msgLen).WriteTo(buffer))
-		mcprotocol.AppendPacketLength(buffer, buffer.Len()+msgLen)
-
-		_, err = c.Write(buffer.Bytes())
-		if err != nil {
-			return nil, err
-		}
-		_, err = c.Write(msg)
+		common.Must0(mcprotocol.WriteToPacket(buffer,
+			byte(0x00), // Client bound : Disconnect (login)
+			mcprotocol.VarInt(len(msg)),
+		))
+		err = conn.WriteVectorizedPacket(buffer, msg)
 		if err != nil {
 			return nil, err
 		}
