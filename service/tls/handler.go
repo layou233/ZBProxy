@@ -3,8 +3,8 @@ package tls
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"net"
+	"strconv"
 
 	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/config"
@@ -42,7 +42,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return dialAndWrite(s, buf, out)
 	}
 	defer buf.Reset()
-	remote, err := out.Dial("tcp", fmt.Sprintf("%s:%v", domain, s.TargetPort))
+	remote, err := out.Dial("tcp", net.JoinHostPort(domain, strconv.FormatInt(int64(s.TargetPort), 10)))
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 
 func dialAndWrite(s *config.ConfigProxyService, buffer *bytes.Buffer, out outbound.Outbound) (net.Conn, error) {
 	defer buffer.Reset()
-	conn, err := out.Dial("tcp", fmt.Sprintf("%s:%v", s.TargetAddress, s.TargetPort))
+	conn, err := out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 	if err != nil {
 		return nil, err
 	}

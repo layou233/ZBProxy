@@ -2,10 +2,10 @@ package minecraft
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"math"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/layou233/ZBProxy/common"
@@ -73,7 +73,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
 
-			remote, err := options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+			remote, err := options.Out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 			if err != nil {
 				return nil, err
 			}
@@ -245,7 +245,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, ErrRejectedLogin
 	}
 
-	remote, err := options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+	remote, err := options.Out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 	if err != nil {
 		log.Printf("Service %s : %s Failed to dial to target server: %v", s.Name, ctx.ColoredID, err.Error())
 		conn.Close()

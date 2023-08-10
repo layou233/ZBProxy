@@ -1,9 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"net"
+	"strconv"
 
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/minecraft"
@@ -43,7 +43,7 @@ func newConnReceiver(s *config.ConfigProxyService,
 	}
 
 	if remote == nil {
-		remote, err = options.Out.Dial("tcp", fmt.Sprintf("%v:%v", s.TargetAddress, s.TargetPort))
+		remote, err = options.Out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 		if err != nil {
 			log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
 			conn.Close()
