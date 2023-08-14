@@ -66,40 +66,55 @@ func main() {
 func monitorConfig(watcher *fsnotify.Watcher) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	service.ExecuteServices(ctx)
+	reloadSignal := make(chan os.Signal, 1)
+	signal.Notify(reloadSignal, syscall.SIGHUP)
 	go func() {
+		defer signal.Stop(reloadSignal)
 		for {
 			select {
+			case _, ok := <-reloadSignal:
+				if !ok {
+					log.Println(color.HiRedString("Config Reload Error : Signal channel unexpectedly closed"))
+					return
+				}
+
 			case event, ok := <-watcher.Events:
 				if !ok {
+					log.Println(color.HiRedString("Config Reload Error : Watcher event channel unexpectedly closed"))
 					return
 				}
 				if event.Op.Has(fsnotify.Write) { // config reload
 					// wait for the file to finish writing
+					timer := time.NewTimer(100 * time.Millisecond)
 					for {
 						select {
 						case <-watcher.Events:
-						case <-time.After(time.Millisecond * 100):
-							goto NextStep
+							timer.Reset(100 * time.Millisecond)
+						case <-timer.C:
+							goto reload
 						}
 					}
-				NextStep:
-					log.Println(color.HiMagentaString("Config Reload : File change detected. Reloading..."))
-					if config.LoadLists(true) { // reload success
-						log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
-						cancel()
-						service.CleanupServices()
-						service.Listeners = make([]net.Listener, 0, len(config.Config.Services))
-						ctx, cancel = context.WithCancel(context.Background())
-						service.ExecuteServices(ctx)
-					} else {
-						log.Println(color.HiMagentaString("Config Reload : Failed to reload Lists."))
-					}
 				}
+
 			case err, ok := <-watcher.Errors:
 				if !ok {
+					log.Println(color.HiRedString("Config Reload Error : Watcher error channel unexpectedly closed"))
 					return
 				}
 				log.Println(color.HiRedString("Config Reload Error : ", err))
+				return
+			}
+		reload:
+			log.Println(color.HiMagentaString("Config Reload : File change detected. Reloading..."))
+			if config.LoadLists(true) { // reload success
+				log.Println(color.HiMagentaString("Config Reload : Successfully reloaded Lists."))
+				cancel()
+				service.CleanupServices()
+				service.Listeners = make([]net.Listener, 0, len(config.Config.Services))
+				ctx, cancel = context.WithCancel(context.Background())
+				service.ExecuteServices(ctx)
+			} else {
+				log.Println(color.HiMagentaString("Config Reload : Failed to reload Lists."))
 			}
 		}
 	}()
