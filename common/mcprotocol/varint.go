@@ -24,21 +24,7 @@ func (i VarInt) Value32() int32 {
 
 func (i VarInt) WriteTo(w io.Writer) (n int64, err error) {
 	var vi [MaxVarIntLen]byte
-	num := uint32(i)
-	numWrite := 0
-	for {
-		b := num & 0x7F
-		num >>= 7
-		if num != 0 {
-			b |= 0x80
-		}
-		vi[numWrite] = byte(b)
-		numWrite++
-		if num == 0 {
-			break
-		}
-	}
-
+	numWrite := WriteVarIntTo(vi[:], int32(i))
 	nn, err := w.Write(vi[:numWrite])
 	return int64(nn), err
 }
@@ -73,13 +59,13 @@ func VarIntLen(n int32) int {
 	switch {
 	case n < 0:
 		return 5
-	case n < 128:
+	case n < 1<<(7*1):
 		return 1
-	case n < 16384:
+	case n < 1<<(7*2):
 		return 2
-	case n < 2097152:
+	case n < 1<<(7*3):
 		return 3
-	case n < 268435456:
+	case n < 1<<(7*4):
 		return 4
 	default:
 		return 5
@@ -87,22 +73,21 @@ func VarIntLen(n int32) int {
 }
 
 func ReadVarIntFrom(r io.Reader) (i int32, n int64, err error) {
-	var V uint32
-	var num int64
-	for sec := byte(0x80); sec&0x80 != 0; num++ {
-		if num > MaxVarIntLen {
+	var v uint32
+	br := rw.CreateByteReader(r)
+	for sec := byte(0x80); sec&0x80 != 0; n++ {
+		if n > MaxVarIntLen {
 			return 0, n, ErrVarIntTooBig
 		}
 
-		sec, err = rw.ReadByte(r)
+		sec, err = br.ReadByte()
 		if err != nil {
 			return 0, n, err
 		}
-		n += 1
 
-		V |= uint32(sec&0x7F) << uint32(7*num)
+		v |= uint32(sec&0x7F) << uint32(7*n)
 	}
 
-	i = int32(V)
+	i = int32(v)
 	return
 }

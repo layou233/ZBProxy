@@ -30,6 +30,9 @@ func ReadUint16(buffer *buf.Buffer) (uint16, error) {
 	return binary.BigEndian.Uint16(bytes), nil
 }
 
+// ReadInt reads an 32-bit signed integer from buffer.
+// Note that even though int type in Go may be 64-bit,
+// we only treat it as an int32 in this method.
 func ReadInt(buffer *buf.Buffer) (int, error) {
 	bytes, err := buffer.Peek(4)
 	if err != nil {
@@ -93,12 +96,10 @@ func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 				err = buffer.WriteZero()
 			}
 		case []byte:
-			lenI := int32(len(i))
-			WriteVarIntTo(buffer.Extend(VarIntLen(lenI)), lenI)
+			VarInt(len(i)).WriteToBuffer(buffer)
 			_, err = buffer.Write(i)
 		case string:
-			lenI := int32(len(i))
-			WriteVarIntTo(buffer.Extend(VarIntLen(lenI)), lenI)
+			VarInt(len(i)).WriteToBuffer(buffer)
 			_, err = buffer.WriteString(i)
 		case int8:
 			err = buffer.WriteByte(byte(i))

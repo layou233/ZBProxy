@@ -66,13 +66,12 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if s.Minecraft.EnableHostnameAccess {
 		if !strings.Contains(hostname, s.Minecraft.HostnameAccess) {
 			c.(*net.TCPConn).SetLinger(0)
-			return nil, errors.New("hostname not allowed")
+			return nil, errors.New("hostname is not allowed")
 		}
 	}
 	if nextState == 1 { // status
 		if s.Minecraft.MotdDescription == "" && s.Minecraft.MotdFavicon == "" {
 			// directly proxy MOTD from server
-
 			remote, err := options.Out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 			if err != nil {
 				return nil, err
@@ -84,16 +83,11 @@ func NewConnHandler(s *config.ConfigProxyService,
 				return nil, err
 			}
 
-			_, err = remote.Write([]byte{1, 0}) // Server bound : Status Request
-			if err != nil {
-				return nil, err
-			}
-
 			return remote, nil
 		} else {
 			// Server bound : Status Request
 			// Must read, but not used (and also nothing included in it)
-			buffer.Reset(mcprotocol.MaxVarIntLen)
+			//buffer.Reset(mcprotocol.MaxVarIntLen)
 			err = conn.ReadLimitedPacket(buffer, 1)
 			if err != nil {
 				return nil, err
@@ -113,7 +107,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 				return nil, err
 			}
 
-			// handle for ping request
+			// handle ping request
 			buffer.Reset(mcprotocol.MaxVarIntLen)
 			switch s.Minecraft.PingMode {
 			case pingModeDisconnect:

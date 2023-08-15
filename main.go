@@ -66,9 +66,9 @@ func main() {
 func monitorConfig(watcher *fsnotify.Watcher) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	service.ExecuteServices(ctx)
-	reloadSignal := make(chan os.Signal, 1)
-	signal.Notify(reloadSignal, syscall.SIGHUP)
 	go func() {
+		reloadSignal := make(chan os.Signal, 1)
+		signal.Notify(reloadSignal, syscall.SIGHUP)
 		defer signal.Stop(reloadSignal)
 		for {
 			select {
