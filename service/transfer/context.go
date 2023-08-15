@@ -12,6 +12,7 @@ import (
 type ConnContext struct {
 	ColoredID      string
 	AdditionalInfo []string
+	Err            error
 }
 
 func (c *ConnContext) AttachInfo(info string) {
@@ -28,9 +29,14 @@ func (c *ConnContext) Init() *ConnContext {
 	return c
 }
 
-func (c *ConnContext) String() string {
-	if len(c.AdditionalInfo) == 0 {
-		return ""
+func (c *ConnContext) String() (info string) {
+	if len(c.AdditionalInfo) != 0 {
+		info = fmt.Sprint(c.AdditionalInfo)
 	}
-	return fmt.Sprint(c.AdditionalInfo)
+	if c.Err == nil {
+		info += ": √"
+	} else {
+		info += ": " + c.Err.Error()
+	}
+	return
 }

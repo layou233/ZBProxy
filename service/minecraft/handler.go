@@ -22,9 +22,10 @@ var (
 	// ErrSuccessfullyHandledMOTDRequest means the Minecraft client requested for MOTD
 	// and has been correctly handled by program. This used to skip the data forward
 	// process and directly go to the end of this connection.
-	ErrSuccessfullyHandledMOTDRequest = errors.New("")
-	ErrRejectedLogin                  = ErrSuccessfullyHandledMOTDRequest // don't cry baby
-	ErrBadPlayerName                  = ErrSuccessfullyHandledMOTDRequest
+	ErrSuccessfullyHandledMOTDRequest         = errors.New("handled MOTD")
+	ErrRejectedLoginAccessControl             = errors.New("interrupted by access control")
+	ErrRejectedLoginPlayerNumberLimitExceeded = errors.New("rejected due to player number limit exceeded")
+	ErrBadPlayerName                          = errors.New("rejected due to bad player name")
 )
 
 func badPacketPanicRecover(s *config.ConfigProxyService) {
@@ -190,7 +191,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 
 		c.(*net.TCPConn).SetLinger(10) //nolint:errcheck
 		c.Close()
-		return nil, ErrRejectedLogin
+		return nil, ErrRejectedLoginPlayerNumberLimitExceeded
 	}
 
 	accessibility := "DEFAULT"
@@ -236,14 +237,13 @@ func NewConnHandler(s *config.ConfigProxyService,
 
 		c.(*net.TCPConn).SetLinger(10) //nolint:errcheck
 		c.Close()
-		return nil, ErrRejectedLogin
+		return nil, ErrRejectedLoginAccessControl
 	}
 
 	remote, err := options.Out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 	if err != nil {
-		log.Printf("Service %s : %s Failed to dial to target server: %v", s.Name, ctx.ColoredID, err.Error())
 		conn.Close()
-		return nil, err
+		return nil, common.Cause("failed to dial to target server: ", err)
 	}
 	remoteMC := mcprotocol.StreamConn(remote)
 

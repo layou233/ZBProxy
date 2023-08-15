@@ -5,6 +5,7 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/layou233/ZBProxy/common"
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/minecraft"
 	"github.com/layou233/ZBProxy/service/tls"
@@ -25,27 +26,27 @@ func newConnReceiver(s *config.ConfigProxyService,
 	ctx := new(transfer.ConnContext).Init()
 	log.Println("Service", s.Name, ":", ctx.ColoredID, GreenPlus, conn.RemoteAddr().String())
 	defer log.Println("Service", s.Name, ":", ctx.ColoredID, RedMinus, conn.RemoteAddr().String(), ctx)
-	var err error // avoid scoop problems
 	var remote net.Conn
 
 	if options.IsTLSHandleNeeded {
-		remote, err = tls.NewConnHandler(s, conn, options.Out)
-		if err != nil {
+		remote, ctx.Err = tls.NewConnHandler(s, conn, options.Out)
+		if ctx.Err != nil {
 			conn.Close()
 			return
 		}
 	} else if options.IsMinecraftHandleNeeded {
-		remote, err = minecraft.NewConnHandler(s, ctx, conn, options)
-		if err != nil {
+		remote, ctx.Err = minecraft.NewConnHandler(s, ctx, conn, options)
+		if ctx.Err != nil {
 			conn.Close()
 			return
 		}
 	}
 
 	if remote == nil {
+		var err error
 		remote, err = options.Out.Dial("tcp", net.JoinHostPort(s.TargetAddress, strconv.FormatInt(int64(s.TargetPort), 10)))
 		if err != nil {
-			log.Printf("Service %s: Failed to dial to target server: %v", s.Name, err.Error())
+			ctx.Err = common.Cause("failed to dial to target server: ", err)
 			conn.Close()
 			return
 		}
