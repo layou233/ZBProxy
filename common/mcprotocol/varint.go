@@ -24,22 +24,21 @@ func (i VarInt) Value32() int32 {
 
 func (i VarInt) WriteTo(w io.Writer) (n int64, err error) {
 	var vi [MaxVarIntLen]byte
-	numWrite := WriteVarIntTo(vi[:], int32(i))
+	numWrite := PutVarInt(vi[:], int32(i))
 	nn, err := w.Write(vi[:numWrite])
 	return int64(nn), err
 }
 
 func (i VarInt) WriteToBuffer(buffer *buf.Buffer) {
 	i32 := int32(i)
-	WriteVarIntTo(buffer.Extend(VarIntLen(i32)), i32)
+	PutVarInt(buffer.Extend(VarIntLen(i32)), i32)
 }
 
-// WriteVarIntTo writes an encoded VarInt into bs.
-// Note that it would panic when bs length not enough.
-func WriteVarIntTo(bs []byte, n int32) (i int) {
+// PutVarInt encodes a Minecraft variable-length format int32 into bs and returns the number of bytes written.
+// If the buffer is too small, PutVarInt will panic.
+func PutVarInt(bs []byte, n int32) (numWrite int) {
 	num := uint32(n)
-	numWrite := 0
-	for {
+	for num != 0 {
 		b := num & 0x7F
 		num >>= 7
 		if num != 0 {
@@ -47,12 +46,8 @@ func WriteVarIntTo(bs []byte, n int32) (i int) {
 		}
 		bs[numWrite] = byte(b)
 		numWrite++
-		if num == 0 {
-			break
-		}
 	}
-
-	return numWrite
+	return
 }
 
 func VarIntLen(n int32) int {

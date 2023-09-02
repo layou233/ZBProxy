@@ -81,5 +81,5 @@ func (c Conn) WriteVectorizedPacket(buffer *buf.Buffer, packets ...[]byte) (err 
 
 func AppendPacketLength(buffer *buf.Buffer, l int) {
 	lenInt32 := int32(l)
-	WriteVarIntTo(buffer.ExtendHeader(VarIntLen(lenInt32)), lenInt32)
+	PutVarInt(buffer.ExtendHeader(VarIntLen(lenInt32)), lenInt32)
 }

@@ -6,6 +6,11 @@ import (
 	"github.com/layou233/ZBProxy/common/buf"
 )
 
+const (
+	BooleanTrue  = 0x01
+	BooleanFalse = 0x00
+)
+
 func ReadInt8(buffer *buf.Buffer) (int8, error) {
 	b, err := buffer.ReadByte()
 	if err != nil {
@@ -91,7 +96,7 @@ func WriteToPacket(buffer *buf.Buffer, item ...any) (err error) {
 		switch i := raw.(type) {
 		case bool:
 			if i {
-				err = buffer.WriteByte(0xFF)
+				err = buffer.WriteByte(BooleanTrue)
 			} else {
 				err = buffer.WriteZero()
 			}
@@ -139,7 +144,7 @@ func Scan(buffer *buf.Buffer, item ...any) (err error) {
 		case *bool:
 			var b byte
 			b, err = buffer.ReadByte()
-			*i = b == 0xFF
+			*i = b == BooleanTrue
 		case *string:
 			*i, err = ReadString(buffer)
 		case *int8:
