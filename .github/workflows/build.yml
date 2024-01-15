@@ -106,14 +106,14 @@ jobs:
       run: mv ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }} ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
 
     - name: Upload a Non-Windows Build Artifact
-      uses: actions/upload-artifact@v4.0.0
+      uses: actions/upload-artifact@v4.1.0
       if: ${{ env.GOOS != 'windows' }}
       with:
         name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
         path: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
 
     - name: Upload a Windows Build Artifact
-      uses: actions/upload-artifact@v4.0.0
+      uses: actions/upload-artifact@v4.1.0
       if: ${{ env.GOOS == 'windows' }}
       with:
         name: ZBProxy-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
