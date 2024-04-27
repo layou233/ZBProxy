@@ -1,9 +1,21 @@
 package set
 
+import "strings"
+
 type StringSet map[string]struct{}
 
 func (s StringSet) Has(item string) (ok bool) {
 	_, ok = s[item]
+	return
+}
+
+func (s StringSet) Contains(item string) (ok bool) {
+	for i := range s {
+		if strings.Contains(i, item) {
+			ok = true
+			break
+		}
+	}
 	return
 }
 

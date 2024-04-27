@@ -34,7 +34,7 @@ type minecraft struct {
 	RewrittenHostname     string `json:",omitempty"`
 
 	EnableHostnameAccess bool
-	HostnameAccess       string `json:",omitempty"`
+	HostnameAccess       access `json:",omitempty"`
 
 	OnlineCount onlineCount
 
