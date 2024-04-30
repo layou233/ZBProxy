@@ -64,7 +64,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if err != nil {
 		return nil, err
 	}
-	if s.Minecraft.EnableHostnameAccess {
+	if s.Minecraft.HostnameAccess.Mode != access.DefaultMode {
 		hit := false
 		hostnameClean := strings.TrimSuffix(hostname, "\x00FML\x00")
 		for _, list := range s.Minecraft.HostnameAccess.ListTags {

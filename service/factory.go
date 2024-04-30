@@ -26,7 +26,6 @@ func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 			s.TLSSniffing.RejectIfNonMatch ||
 			len(s.TLSSniffing.SNIAllowListTags) != 0
 		isMinecraftHandleNeeded = s.Minecraft.EnableHostnameRewrite ||
-			s.Minecraft.EnableAnyDest ||
 			s.Minecraft.MotdDescription != "" && s.Minecraft.MotdDescription != config.DefaultMotd ||
 			s.Minecraft.MotdFavicon != ""
 	)

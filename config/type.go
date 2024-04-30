@@ -33,17 +33,12 @@ type minecraft struct {
 	EnableHostnameRewrite bool
 	RewrittenHostname     string `json:",omitempty"`
 
-	EnableHostnameAccess bool
-	HostnameAccess       access `json:",omitempty"`
-
 	OnlineCount onlineCount
 
 	IgnoreFMLSuffix bool `json:",omitempty"`
 
-	NameAccess access `json:",omitempty"`
-
-	EnableAnyDest   bool          `json:",omitempty"`
-	AnyDestSettings configAnyDest `json:",omitempty"`
+	HostnameAccess access `json:",omitempty"`
+	NameAccess     access `json:",omitempty"`
 
 	PingMode        string
 	MotdFavicon     string
@@ -60,10 +55,6 @@ type onlineCount struct {
 type Sample struct {
 	Name string `json:"name"`
 	ID   string `json:"id"`
-}
-
-type configAnyDest struct {
-	WildcardRootDomainName string `json:",omitempty"`
 }
 
 type tlsSniffing struct {
