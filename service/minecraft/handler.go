@@ -65,9 +65,26 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, err
 	}
 	if s.Minecraft.EnableHostnameAccess {
-		if !strings.Contains(hostname, s.Minecraft.HostnameAccess) {
-			c.(*net.TCPConn).SetLinger(0)
-			return nil, errors.New("hostname is not allowed")
+		hit := false
+		hostnameClean := strings.TrimSuffix(hostname, "\x00FML\x00")
+		for _, list := range s.Minecraft.HostnameAccess.ListTags {
+			if hit = common.Must(access.GetTargetList(list)).Has(hostnameClean); hit {
+				break
+			}
+		}
+		switch s.Minecraft.NameAccess.Mode {
+		case access.AllowMode:
+			if !hit {
+				c.(*net.TCPConn).SetLinger(0)
+				c.Close()
+				return nil, ErrRejectedLoginAccessControl
+			}
+		case access.BlockMode:
+			if hit {
+				c.(*net.TCPConn).SetLinger(0)
+				c.Close()
+				return nil, ErrRejectedLoginAccessControl
+			}
 		}
 	}
 	if nextState == 1 { // status
