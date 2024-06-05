@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.16.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/zhangyunhao116/fastrand v0.4.0
-	golang.org/x/sys v0.19.0
+	golang.org/x/sys v0.21.0
 )
 
 require (
