@@ -14,8 +14,6 @@ import (
 	"github.com/layou233/ZBProxy/config"
 	"github.com/layou233/ZBProxy/service/access"
 	"github.com/layou233/ZBProxy/service/transfer"
-
-	"github.com/fatih/color"
 )
 
 var (
@@ -28,20 +26,11 @@ var (
 	ErrBadPlayerName                          = errors.New("rejected due to bad player name")
 )
 
-func badPacketPanicRecover(s *config.ConfigProxyService) {
-	// Non-Minecraft packet which uses `go-mc` packet scan method may cause panic.
-	// So a panic handler is needed.
-	if err := recover(); err != nil {
-		log.Print(color.HiRedString("Service %s : Bad Minecraft packet was received: %v", s.Name, err))
-	}
-}
-
 func NewConnHandler(s *config.ConfigProxyService,
 	ctx *transfer.ConnContext,
 	c net.Conn,
 	options *transfer.Options,
 ) (net.Conn, error) {
-	defer badPacketPanicRecover(s)
 	buffer := buf.NewSize(256)
 	defer buffer.Release()
 	buffer.Reset(mcprotocol.MaxVarIntLen)
@@ -72,7 +61,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 				break
 			}
 		}
-		switch s.Minecraft.NameAccess.Mode {
+		switch s.Minecraft.HostnameAccess.Mode {
 		case access.AllowMode:
 			if !hit {
 				c.(*net.TCPConn).SetLinger(0)
