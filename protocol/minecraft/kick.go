@@ -12,27 +12,42 @@ func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
 		Extra: []mcprotocol.Message{
-			{Bold: true, Color: mcprotocol.Red, Text: "ZB"},
-			{Bold: true, Text: "Proxy"},
+			{Bold: true, Color: mcprotocol.Yellow, Text: "ZedWAre"},
+			{Bold: true, Text: "MC Reverse Proxy"},
 			{Text: " - "},
 			{Bold: true, Color: mcprotocol.Gold, Text: "Connection Rejected\n"},
 
-			{Text: "Your connection request is refused by ZBProxy.\n"},
+			{Text: "ACCESS & CONNECT DENIED by Developer\n"},
 			{Text: "Reason: "},
-			{Color: mcprotocol.LightPurple, Text: "You don't have permission to access this service.\n"},
-			{Text: "Please contact the Administrators for help.\n\n"},
-
+			{Color: mcprotocol.LightPurple, Text: "It is working for the BETA User currently BUT you don't have permission to use it.\n"},
+			{Text: "Please contact the Developer for help.\n\n"},
+			
+			{Text: "DEBUG INFO:\n"},
 			{
 				Color: mcprotocol.Gray,
-				Text: fmt.Sprintf("Timestamp: %d | Player Name: %s | Service: %s\n",
-					time.Now().UnixMilli(), name, s.Name),
+				Text: fmt.Sprintf("Timestamp: %d\n",
+				time.Now().UnixMilli()),
 			},
-			{Text: "GitHub: "},
 			{
-				Color: mcprotocol.Aqua, UnderLined: true,
-				Text: "https://github.com/layou233/ZBProxy",
-				// ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
+				Color: mcprotocol.Gray,
+				text: "Player Name: "
 			},
+			{
+				Text: fmt.Sprintf("%s\n",
+				name
+			},
+			{
+				Color: mcprotocol.Gray,
+				text: "Service: "
+			},
+			{
+				Text: fmt.Sprintf("%s\n",
+				s.Name
+			},
+			{Text: "Developed by "},
+			{
+				Text: "ZedWAre, CloudDaisy, Guttridge, BarceCinear, Ren\u00e9B\u00e5\u0192"
+			}
 		},
 	}
 }
@@ -41,27 +56,11 @@ func generatePlayerNumberLimitExceededMessage(s *config.Outbound, name string) m
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
 		Extra: []mcprotocol.Message{
-			{Bold: true, Color: mcprotocol.Red, Text: "ZB"},
-			{Bold: true, Text: "Proxy"},
-			{Text: " - "},
-			{Bold: true, Color: mcprotocol.Gold, Text: "Connection Rejected\n"},
-
-			{Text: "Your connection request is refused by ZBProxy.\n"},
-			{Text: "Reason: "},
-			{Color: mcprotocol.LightPurple, Text: "Service online player number limitation exceeded.\n"},
-			{Text: "Please contact the Administrators for help.\n\n"},
-
+			{Text: "FULL"},
 			{
-				Color: mcprotocol.Gray,
-				Text: fmt.Sprintf("Timestamp: %d | Player Name: %s | Service: %s\n",
-					time.Now().UnixMilli(), name, s.Name),
-			},
-			{Text: "GitHub: "},
-			{
-				Color: mcprotocol.Aqua, UnderLined: true,
-				Text: "https://github.com/layou233/ZBProxy",
-				// ClickEvent: chat.OpenURL("https://github.com/layou233/ZBProxy"),
-			},
+				Text: fmt.Sprintf("Service: %s\n",
+					s.Name),
+			}
 		},
 	}
 }
