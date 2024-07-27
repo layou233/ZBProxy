@@ -8,6 +8,7 @@ import (
 	"github.com/layou233/zbproxy/v3/config"
 )
 
+// generateKickMessage 创建一个玩家被踢下线的消息
 func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
@@ -43,15 +44,15 @@ func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 	}
 }
 
+// generatePlayerNumberLimitExceededMessage 创建一个玩家人数超过限制的消息
 func generatePlayerNumberLimitExceededMessage(s *config.Outbound, name string) mcprotocol.Message {
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
 		Extra: []mcprotocol.Message{
 			{Text: "FULL"},
 			{
-				Text: fmt.Sprintf("Service: %s\n",
-					s.Name),
-			}
+				Text: fmt.Sprintf("Service: %s\n", s.Name),
+			},
 		},
 	}
 }
