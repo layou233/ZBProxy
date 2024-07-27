@@ -1,3 +1,13 @@
+package minecraft
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/layou233/zbproxy/v3/common/mcprotocol"
+	"github.com/layou233/zbproxy/v3/config"
+)
+
 func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
@@ -29,6 +39,19 @@ func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 			{
 				Text: "ZedWAre, CloudDaisy, Guttridge, BarceCinear, Ren\u00e9B\u00e5\u0192",
 			},
+		},
+	}
+}
+
+func generatePlayerNumberLimitExceededMessage(s *config.Outbound, name string) mcprotocol.Message {
+	return mcprotocol.Message{
+		Color: mcprotocol.White,
+		Extra: []mcprotocol.Message{
+			{Text: "FULL"},
+			{
+				Text: fmt.Sprintf("Service: %s\n",
+					s.Name),
+			}
 		},
 	}
 }
