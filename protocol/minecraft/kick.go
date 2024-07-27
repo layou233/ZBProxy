@@ -30,7 +30,7 @@ func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 			},
 			{
 				Color: mcprotocol.Gray,
-				text: "Player Name: "
+				Text: "Player Name: "
 			},
 			{
 				Text: fmt.Sprintf("%s\n",
@@ -38,7 +38,7 @@ func generateKickMessage(s *config.Outbound, name string) mcprotocol.Message {
 			},
 			{
 				Color: mcprotocol.Gray,
-				text: "Service: "
+				Text: "Service: "
 			},
 			{
 				Text: fmt.Sprintf("%s\n",
