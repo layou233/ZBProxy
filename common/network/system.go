@@ -18,7 +18,7 @@ func NewSystemDialer(options *OutboundSocketOptions) Dialer {
 		Dialer: net.Dialer{
 			Control:   NewDialerControlFromOptions(options),
 			KeepAlive: time.Duration(options.KeepAlivePeriod),
-			LocalAddr: &net.IPNet{IP: net.ParseIP(options.SendThrough)},
+			LocalAddr: &net.TCPAddr{IP: net.ParseIP(options.SendThrough)},
 		},
 	}
 	if options.MultiPathTCP {

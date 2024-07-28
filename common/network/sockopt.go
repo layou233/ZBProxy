@@ -3,6 +3,7 @@ package network
 import "github.com/layou233/zbproxy/v3/common/jsonx"
 
 type InboundSocketOptions struct {
+	SendThrough     string
 	KeepAlivePeriod jsonx.Duration `json:",omitempty"`
 	Mark            int            `json:",omitempty"`
 	TCPCongestion   string         `json:",omitempty"`
@@ -25,6 +26,7 @@ func ConvertLegacyOutboundOptions(inbound *InboundSocketOptions) *OutboundSocket
 		return nil
 	}
 	return &OutboundSocketOptions{
+		SendThrough:     inbound.SendThrough,
 		KeepAlivePeriod: inbound.KeepAlivePeriod,
 		Mark:            inbound.Mark,
 		TCPCongestion:   inbound.TCPCongestion,
