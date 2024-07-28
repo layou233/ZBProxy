@@ -11,6 +11,7 @@ type InboundSocketOptions struct {
 }
 
 type OutboundSocketOptions struct {
+	SendThrough     string         `json:",omitempty"`
 	KeepAlivePeriod jsonx.Duration `json:",omitempty"`
 	Mark            int            `json:",omitempty"`
 	Interface       string         `json:",omitempty"`
