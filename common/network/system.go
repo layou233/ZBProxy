@@ -4,7 +4,6 @@ import (
 	"context"
 	"net"
 	"syscall"
-	"time"
 )
 
 var SystemDialer Dialer = &systemOutbound{}
@@ -16,10 +15,10 @@ func NewSystemDialer(options *OutboundSocketOptions) Dialer {
 
 	out := &systemOutbound{
 		Dialer: net.Dialer{
-			Control:   NewDialerControlFromOptions(options),
-			KeepAlive: time.Duration(options.KeepAlivePeriod),
+			Control: NewDialerControlFromOptions(options),
 		},
 	}
+	SetDialerTCPKeepAlive(&out.Dialer, options.KeepAliveConfig())
 	if options.SendThrough != "" {
 		out.Dialer.LocalAddr = &net.TCPAddr{IP: net.ParseIP(options.SendThrough)}
 	}
