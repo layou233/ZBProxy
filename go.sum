@@ -1,7 +1,7 @@
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
-github.com/phuslu/log v1.0.107 h1:L6lEs2dKVgnXWapoz98YqmobxhtwPAfghUjluiSbPJ4=
-github.com/phuslu/log v1.0.107/go.mod h1:F8osGJADo5qLK/0F88djWwdyoZZ9xDJQL1HYRHFEkS0=
+github.com/phuslu/log v1.0.110 h1:9WQnpL1/CBi3IwZaVadYnI/i0bgobTvit2ayXIgSg4c=
+github.com/phuslu/log v1.0.110/go.mod h1:F8osGJADo5qLK/0F88djWwdyoZZ9xDJQL1HYRHFEkS0=
 github.com/zhangyunhao116/fastrand v0.4.0 h1:86QB6Y+GGgLZRFRDCjMmAS28QULwspK9sgL5d1Bx3H4=
 github.com/zhangyunhao116/fastrand v0.4.0/go.mod h1:vIyo6EyBhjGKpZv6qVlkPl4JVAklpMM4DSKzbAkMguA=
 go4.org/netipx v0.0.0-20231129151722-fdeea329fbba h1:0b9z3AuHCjxk0x/opv64kcgZLBseWJUpBw5I82+2U4M=
