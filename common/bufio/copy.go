@@ -53,7 +53,6 @@ func CopyBuffer(destination io.Writer, source io.Reader, buffer *buf.Buffer) (wr
 		if destinationTCPConn, isDestinationTCP := destination.(*net.TCPConn); isDestinationTCP {
 			switch typedSource := source.(type) {
 			case *net.TCPConn, *net.UnixConn, *os.File:
-				println("real copy!!!")
 				written, err = io.Copy(destinationTCPConn, typedSource)
 				switch common.Unwrap(err) {
 				case io.EOF, net.ErrClosed:
