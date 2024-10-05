@@ -21,9 +21,6 @@ func NewSystemDialer(options *OutboundSocketOptions) Dialer {
 			LocalAddr: &net.TCPAddr{IP: net.ParseIP(options.SendThrough)},
 		},
 	}
-	if options.SendThrough != "" {
-		out.Dialer.LocalAddr = &net.TCPAddr{IP: net.ParseIP(options.SendThrough)}
-	}
 	if options.MultiPathTCP {
 		SetDialerMultiPathTCP(&out.Dialer, true)
 	}

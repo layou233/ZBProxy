@@ -6,7 +6,6 @@ type InboundSocketOptions struct {
 	SendThrough     string
 	KeepAlivePeriod jsonx.Duration `json:",omitempty"`
 	Mark            int            `json:",omitempty"`
-	SendThrough     string         `json:",omitempty"`
 	TCPCongestion   string         `json:",omitempty"`
 	TCPFastOpen     bool           `json:",omitempty"`
 	MultiPathTCP    bool           `json:",omitempty"`
@@ -17,7 +16,6 @@ type OutboundSocketOptions struct {
 	KeepAlivePeriod jsonx.Duration `json:",omitempty"`
 	Mark            int            `json:",omitempty"`
 	Interface       string         `json:",omitempty"`
-	SendThrough     string         `json:",omitempty"`
 	TCPCongestion   string         `json:",omitempty"`
 	TCPFastOpen     bool           `json:",omitempty"`
 	MultiPathTCP    bool           `json:",omitempty"`
@@ -31,7 +29,6 @@ func ConvertLegacyOutboundOptions(inbound *InboundSocketOptions) *OutboundSocket
 		SendThrough:     inbound.SendThrough,
 		KeepAlivePeriod: inbound.KeepAlivePeriod,
 		Mark:            inbound.Mark,
-		SendThrough:     inbound.SendThrough,
 		TCPCongestion:   inbound.TCPCongestion,
 		TCPFastOpen:     inbound.TCPFastOpen,
 		MultiPathTCP:    inbound.MultiPathTCP,
