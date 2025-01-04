@@ -67,7 +67,7 @@ ZBProxy supports **Zero Copy** technology on Linux, which can *reduce memory usa
 If you are running ZBProxy on a Linux-based system, you can go to **[ZBProxy Document](https://launium.com/doc/ZBProxy)** to view **tips for optimizing network settings**.
 
 ## Sponsor
-[![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)  
 JetBrains for open source support development license.
 
 ## License

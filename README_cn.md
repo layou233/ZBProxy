@@ -53,7 +53,7 @@ stream {
 https://launium.com/doc/ZBProxy
 
 ## 赞助商
-[![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=ZBProxy)  
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)  
 JetBrains for open source support development license.
 
 ## 许可证
