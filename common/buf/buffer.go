@@ -205,6 +205,9 @@ func (b *Buffer) Read(data []byte) (n int, err error) {
 }
 
 func (b *Buffer) Peek(n int) (bytes []byte, err error) {
+	if n < 0 {
+		return nil, ErrNegativeRead
+	}
 	if b.start+n > b.end {
 		return nil, io.ErrShortBuffer
 	}

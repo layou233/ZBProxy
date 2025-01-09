@@ -2,6 +2,7 @@ package bufio
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net"
 
@@ -57,6 +58,9 @@ func (c *CachedConn) Read(p []byte) (n int, err error) {
 }
 
 func (c *CachedConn) Peek(n int) ([]byte, error) {
+	if n < 0 {
+		return nil, fmt.Errorf("peek %d bytes: %w", n, buf.ErrNegativeRead)
+	}
 	if c.cache == nil {
 		// see above
 		c.cache = buf.NewSize(4096)
