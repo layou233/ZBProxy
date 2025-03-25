@@ -112,7 +112,7 @@ func (i *Instance) Start() error {
 		return common.Cause("initialize router: ", err)
 	}
 	for _, outbound := range outboundMap {
-		err = outbound.PostInitialize(i.router)
+		err = outbound.PostInitialize(i.router, i.router)
 		if err != nil {
 			return common.Cause("post initialize outbound ["+outbound.Name()+"]: ", err)
 		}
@@ -143,7 +143,11 @@ func (i *Instance) UpdateConfig() {
 	newOutboundMap := make(map[string]adapter.Outbound, len(i.config.Outbounds))
 	for _, outboundConfig := range i.config.Outbounds {
 		if oldOutbound, ok := i.outboundMap[outboundConfig.Name]; ok {
-			err := oldOutbound.Reload(outboundConfig)
+			err := oldOutbound.Reload(adapter.OutboundReloadOptions{
+				Router: i.router,
+				Config: outboundConfig,
+				Lists:  i.config.Lists,
+			})
 			if err != nil {
 				i.logger.Error().Str("outbound", outboundConfig.Name).Err(err).Msg("Error when updating outbounds")
 				return

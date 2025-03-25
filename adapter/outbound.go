@@ -7,13 +7,12 @@ import (
 
 	"github.com/layou233/zbproxy/v3/common/bufio"
 	"github.com/layou233/zbproxy/v3/common/network"
-	"github.com/layou233/zbproxy/v3/config"
 )
 
 type Outbound interface {
 	Name() string
-	PostInitialize(router Router) error
-	Reload(newConfig *config.Outbound) error
+	PostInitialize(router Router, provider RouteResourceProvider) error
+	Reload(options OutboundReloadOptions) error
 	DialContext(ctx context.Context, network string, address string) (net.Conn, error)
 }
 

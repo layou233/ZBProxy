@@ -6,7 +6,6 @@ import (
 
 	"github.com/layou233/zbproxy/v3/adapter"
 	"github.com/layou233/zbproxy/v3/common/bufio"
-	"github.com/layou233/zbproxy/v3/config"
 )
 
 type rejectOutbound struct{}
@@ -20,11 +19,11 @@ func (r rejectOutbound) Name() string {
 	return "REJECT"
 }
 
-func (r rejectOutbound) PostInitialize(adapter.Router) error {
+func (r rejectOutbound) PostInitialize(adapter.Router, adapter.RouteResourceProvider) error {
 	return nil
 }
 
-func (r rejectOutbound) Reload(*config.Outbound) error {
+func (r rejectOutbound) Reload(adapter.OutboundReloadOptions) error {
 	return nil
 }
 
@@ -47,11 +46,11 @@ func (r resetOutbound) Name() string {
 	return "RESET"
 }
 
-func (r resetOutbound) PostInitialize(adapter.Router) error {
+func (r resetOutbound) PostInitialize(adapter.Router, adapter.RouteResourceProvider) error {
 	return nil
 }
 
-func (r resetOutbound) Reload(*config.Outbound) error {
+func (r resetOutbound) Reload(adapter.OutboundReloadOptions) error {
 	return nil
 }
 

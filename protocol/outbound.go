@@ -53,13 +53,13 @@ func (o *Plain) Name() string {
 	return ""
 }
 
-func (o *Plain) PostInitialize(router adapter.Router) error {
+func (o *Plain) PostInitialize(router adapter.Router, provider adapter.RouteResourceProvider) error {
 	var err error
 	if o.config.Dialer != "" {
 		if o.config.SocketOptions != nil {
 			return errors.New("socket options are not available when dialer is specified")
 		}
-		o.dialer, err = router.FindOutboundByName(o.config.Dialer)
+		o.dialer, err = provider.FindOutboundByName(o.config.Dialer)
 		if err != nil {
 			return err
 		}
@@ -86,9 +86,9 @@ func (o *Plain) PostInitialize(router adapter.Router) error {
 	return nil
 }
 
-func (o *Plain) Reload(newConfig *config.Outbound) error {
-	o.config = newConfig
-	return o.PostInitialize(o.router)
+func (o *Plain) Reload(options adapter.OutboundReloadOptions) error {
+	o.config = options.Config
+	return o.PostInitialize(o.router, &options)
 }
 
 func (o *Plain) DialContext(ctx context.Context, network string, address string) (net.Conn, error) {

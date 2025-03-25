@@ -65,16 +65,16 @@ func (o *Outbound) Name() string {
 	return ""
 }
 
-func (o *Outbound) PostInitialize(router adapter.Router) error {
+func (o *Outbound) PostInitialize(router adapter.Router, provider adapter.RouteResourceProvider) error {
 	var err error
 	if o.config.Minecraft.HostnameAccess.Mode != access.DefaultMode {
-		o.hostnameAccessLists, err = router.FindListsByTag(o.config.Minecraft.HostnameAccess.ListTags)
+		o.hostnameAccessLists, err = provider.FindListsByTag(o.config.Minecraft.HostnameAccess.ListTags)
 		if err != nil {
 			return common.Cause("load access control lists: ", err)
 		}
 	}
 	if o.config.Minecraft.NameAccess.Mode != access.DefaultMode {
-		o.nameAccessLists, err = router.FindListsByTag(o.config.Minecraft.NameAccess.ListTags)
+		o.nameAccessLists, err = provider.FindListsByTag(o.config.Minecraft.NameAccess.ListTags)
 		if err != nil {
 			return common.Cause("load access control lists: ", err)
 		}
@@ -148,7 +148,7 @@ func (o *Outbound) PostInitialize(router adapter.Router) error {
 		if o.config.SocketOptions != nil {
 			return errors.New("socket options are not available when dialer is specified")
 		}
-		o.dialer, err = router.FindOutboundByName(o.config.Dialer)
+		o.dialer, err = provider.FindOutboundByName(o.config.Dialer)
 		if err != nil {
 			return err
 		}
@@ -175,11 +175,11 @@ func (o *Outbound) PostInitialize(router adapter.Router) error {
 	return nil
 }
 
-func (o *Outbound) Reload(newConfig *config.Outbound) error {
-	o.config = newConfig
+func (o *Outbound) Reload(options adapter.OutboundReloadOptions) error {
+	o.config = options.Config
 	o.hostnameAccessLists = nil
 	o.nameAccessLists = nil
-	return o.PostInitialize(o.router)
+	return o.PostInitialize(o.router, &options)
 }
 
 func (o *Outbound) connectServer(ctx context.Context, metadata *adapter.Metadata) (net.Conn, error) {
@@ -311,8 +311,8 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			case pingModeDisconnect:
 				// do nothing and disconnect
 			case pingMode0ms:
-				buffer.WriteByte(1) // Client bound : Ping Response
-				buffer.Extend(8)    // size of int64 timestamp
+				buffer.WriteByte(1)  // Client bound : Ping Response
+				buffer.WriteZeroN(8) // size of int64 timestamp
 				err = clientMC.WritePacket(buffer)
 				buffer.Release()
 				if err != nil {

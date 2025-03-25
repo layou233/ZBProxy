@@ -129,7 +129,7 @@ func (s *Service) Start(ctx context.Context) error {
 		if err != nil {
 			return common.Cause("initialize legacy Minecraft outbound: ", err)
 		}
-		err = s.legacyOutbound.PostInitialize(s.router)
+		err = s.legacyOutbound.PostInitialize(s.router, s.router)
 		if err != nil {
 			return common.Cause("post initialize legacy Minecraft outbound: ", err)
 		}

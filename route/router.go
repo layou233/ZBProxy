@@ -63,7 +63,7 @@ func (r *Router) Initialize(ctx context.Context, logger *log.Logger, options Rou
 		r.defaultOutbound, _ = protocol.NewOutbound(r.logger, &config.Outbound{
 			Name: "default",
 		})
-		r.defaultOutbound.PostInitialize(r) // this is dangerous since the router is not fully initialized yet
+		r.defaultOutbound.PostInitialize(r, r) // this is dangerous since the router is not fully initialized yet
 	}
 	r.ctx = ctx
 	r.logger = logger

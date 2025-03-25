@@ -7,7 +7,11 @@ import (
 )
 
 type Router interface {
+	RouteResourceProvider
+	HandleConnection(conn net.Conn, metadata *Metadata)
+}
+
+type RouteResourceProvider interface {
 	FindOutboundByName(name string) (Outbound, error)
 	FindListsByTag(tags []string) ([]set.StringSet, error)
-	HandleConnection(conn net.Conn, metadata *Metadata)
 }
