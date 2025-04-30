@@ -32,9 +32,7 @@ const (
 	TransportProtocolDatagram          = 0x2
 )
 
-var (
-	ErrNotProxyProtocol = errors.New("not PROXY protocol")
-)
+var ErrNotProxyProtocol = errors.New("not PROXY protocol")
 
 type Header struct {
 	Version           uint8

@@ -12,9 +12,7 @@ import (
 	"github.com/layou233/zbproxy/v3/common/mcprotocol"
 )
 
-var (
-	ErrBadPacket = errors.New("bad Minecraft handshake packet")
-)
+var ErrBadPacket = errors.New("bad Minecraft handshake packet")
 
 func SniffClientHandshake(conn bufio.PeekConn, metadata *adapter.Metadata) error {
 	if metadata.Minecraft == nil {

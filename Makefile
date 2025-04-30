@@ -134,7 +134,7 @@ fmt:
 
 fmt_install:
 	go install -v mvdan.cc/gofumpt@latest
-	go install -v github.com/daixiang0/gci@v0.4.0
+	go install -v github.com/daixiang0/gci@latest
 
 lint:
 	golangci-lint run ./...
