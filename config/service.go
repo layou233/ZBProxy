@@ -17,8 +17,9 @@ type Service struct {
 }
 
 type access struct {
-	Mode     string   // 'accept' or 'deny' or empty
-	ListTags []string `json:",omitempty"`
+	Mode      string   // 'accept' or 'deny' or empty
+	ListTags  []string `json:",omitempty"`
+	LowerCase bool     `json:",omitempty"`
 }
 
 type MinecraftService struct {

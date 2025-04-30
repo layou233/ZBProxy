@@ -224,7 +224,10 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 	}
 	if o.config.Minecraft.HostnameAccess.Mode != access.DefaultMode {
 		hostnameClean := metadata.Minecraft.CleanOriginDestination()
-		if !access.Check(o.hostnameAccessLists, o.config.Minecraft.HostnameAccess.Mode, metadata.Minecraft.CleanOriginDestination()) {
+		if o.config.Minecraft.HostnameAccess.LowerCase {
+			hostnameClean = strings.ToLower(hostnameClean)
+		}
+		if !access.Check(o.hostnameAccessLists, o.config.Minecraft.HostnameAccess.Mode, hostnameClean) {
 			conn.Conn.(*net.TCPConn).SetLinger(0)
 			conn.Close()
 			return common.Cause("hostname "+o.config.Minecraft.HostnameAccess.Mode+
@@ -338,7 +341,11 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 		buffer := buf.New()
 		buffer.Reset(mcprotocol.MaxVarIntLen)
 		if o.config.Minecraft.NameAccess.Mode != access.DefaultMode {
-			if !access.Check(o.nameAccessLists, o.config.Minecraft.NameAccess.Mode, metadata.Minecraft.PlayerName) {
+			name := metadata.Minecraft.PlayerName
+			if o.config.Minecraft.NameAccess.LowerCase {
+				name = strings.ToLower(metadata.Minecraft.PlayerName)
+			}
+			if !access.Check(o.nameAccessLists, o.config.Minecraft.NameAccess.Mode, name) {
 				msg, err := generateKickMessage(o.config, metadata.Minecraft.PlayerName).MarshalJSON()
 				if err != nil { // almost impossible
 					buffer.Release()
