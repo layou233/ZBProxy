@@ -2,6 +2,7 @@ package domain
 
 import (
 	"sort"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -13,6 +14,7 @@ func NewMatcher(domains []string, domainSuffix []string) *Matcher {
 	domainList := make([]string, 0, len(domains)+2*len(domainSuffix))
 	seen := make(map[string]bool, len(domainList))
 	for _, domain := range domainSuffix {
+		domain = strings.ToLower(domain)
 		if seen[domain] {
 			continue
 		}
@@ -24,6 +26,7 @@ func NewMatcher(domains []string, domainSuffix []string) *Matcher {
 		}
 	}
 	for _, domain := range domains {
+		domain = strings.ToLower(domain)
 		if seen[domain] {
 			continue
 		}
@@ -35,7 +38,7 @@ func NewMatcher(domains []string, domainSuffix []string) *Matcher {
 }
 
 func (m *Matcher) Match(domain string) bool {
-	return m.set.Has(reverseDomain(domain))
+	return m.set.Has(reverseDomain(strings.ToLower(domain)))
 }
 
 func reverseDomain(domain string) string {
