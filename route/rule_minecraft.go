@@ -88,7 +88,33 @@ func (r *RuleMinecraftStatus) Config() *config.Rule {
 
 func (r *RuleMinecraftStatus) Match(metadata *adapter.Metadata) (match bool) {
 	if metadata.Minecraft != nil {
-		match = metadata.Minecraft.NextState == mcprotocol.NextStateStatus
+		match = metadata.Minecraft.NextState == mcprotocol.IntentStatus
+	}
+	if r.config.Invert {
+		match = !match
+	}
+	return
+}
+
+type RuleMinecraftTransfer struct {
+	config *config.Rule
+}
+
+var _ Rule = (*RuleMinecraftTransfer)(nil)
+
+func NewMinecraftTransferRule(newConfig *config.Rule) (Rule, error) {
+	return &RuleMinecraftTransfer{
+		config: newConfig,
+	}, nil
+}
+
+func (r *RuleMinecraftTransfer) Config() *config.Rule {
+	return r.config
+}
+
+func (r *RuleMinecraftTransfer) Match(metadata *adapter.Metadata) (match bool) {
+	if metadata.Minecraft != nil {
+		match = metadata.Minecraft.NextState == mcprotocol.IntentTransfer
 	}
 	if r.config.Invert {
 		match = !match

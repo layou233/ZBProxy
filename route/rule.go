@@ -47,6 +47,8 @@ func NewRule(logger *log.Logger, config *config.Rule, listMap map[string]set.Str
 		return NewMinecraftPlayerNameRule(config, listMap)
 	case "MinecraftStatus":
 		return NewMinecraftStatusRule(config)
+	case "MinecraftTransfer":
+		return NewMinecraftTransferRule(config)
 	}
 	if len(ruleRegistry) > 0 && strings.HasPrefix(config.Type, typeCustomPrefix) {
 		typeName := strings.TrimPrefix(config.Type, typeCustomPrefix)

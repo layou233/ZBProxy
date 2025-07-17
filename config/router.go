@@ -26,6 +26,7 @@ type RuleRewrite struct {
 type ruleRewriteMinecraft struct {
 	Hostname string `json:",omitempty"`
 	Port     uint16 `json:",omitempty"`
+	Intent   int8   `json:",omitempty"`
 }
 
 type RuleDomain struct {

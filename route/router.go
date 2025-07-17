@@ -106,6 +106,9 @@ func (r *Router) HandleConnection(conn net.Conn, metadata *adapter.Metadata) {
 					if ruleConfig.Rewrite.Minecraft.Port > 0 {
 						metadata.Minecraft.RewrittenPort = ruleConfig.Rewrite.Minecraft.Port
 					}
+					if ruleConfig.Rewrite.Minecraft.Intent > 0 {
+						metadata.Minecraft.NextState = ruleConfig.Rewrite.Minecraft.Intent
+					}
 				}
 			}
 			// handle outbound

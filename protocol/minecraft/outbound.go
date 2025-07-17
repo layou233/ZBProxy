@@ -238,7 +238,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 		conn.Rewind(metadata.Minecraft.SniffPosition)
 	}
 	switch metadata.Minecraft.NextState {
-	case mcprotocol.NextStateStatus:
+	case mcprotocol.IntentStatus:
 		// skip Status Request packet
 		_, err := conn.Peek(2)
 		if err != nil {
@@ -282,7 +282,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			mcprotocol.VarInt(metadata.Minecraft.ProtocolVersion).WriteToBuffer(buffer)
 			mcprotocol.WriteString(buffer, hostname)
 			binary.BigEndian.PutUint16(buffer.Extend(2), port)
-			buffer.WriteByte(mcprotocol.NextStateStatus)
+			buffer.WriteByte(mcprotocol.IntentStatus)
 			mcprotocol.AppendPacketLength(buffer, buffer.Len())
 			// construct status packet
 			buffer.WriteByte(1)
@@ -337,7 +337,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			return nil
 		}
 
-	case mcprotocol.NextStateLogin:
+	case mcprotocol.IntentLogin:
 		buffer := buf.New()
 		buffer.Reset(mcprotocol.MaxVarIntLen)
 		if o.config.Minecraft.NameAccess.Mode != access.DefaultMode {
@@ -412,7 +412,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 		mcprotocol.VarInt(metadata.Minecraft.ProtocolVersion).WriteToBuffer(buffer)
 		mcprotocol.WriteString(buffer, hostname)
 		binary.BigEndian.PutUint16(buffer.Extend(2), port)
-		buffer.WriteByte(mcprotocol.NextStateLogin)
+		buffer.WriteByte(mcprotocol.IntentLogin)
 		mcprotocol.AppendPacketLength(buffer, buffer.Len())
 		// write handshake and login packet
 		cache := conn.Cache()
@@ -431,7 +431,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 		o.onlineCount.Add(-1)
 		return err
 
-	case mcprotocol.NextStateTransfer:
+	case mcprotocol.IntentTransfer:
 		// TODO: Minecraft transfer support
 		conn.Conn.(*net.TCPConn).SetLinger(0)
 		return conn.Close()

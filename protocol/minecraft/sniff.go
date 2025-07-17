@@ -71,21 +71,21 @@ func SniffClientHandshake(conn bufio.PeekConn, metadata *adapter.Metadata) error
 		return ErrBadPacket
 	}
 
-	nextState, err := buffer.ReadByte()
+	intent, err := buffer.ReadByte()
 	if err != nil {
 		return common.Cause("read next state: ", err)
 	}
-	switch nextState {
-	case mcprotocol.NextStateLogin,
-		mcprotocol.NextStateStatus,
-		mcprotocol.NextStateTransfer:
+	switch intent {
+	case mcprotocol.IntentLogin,
+		mcprotocol.IntentStatus,
+		mcprotocol.IntentTransfer:
 	default:
 		return ErrBadPacket
 	}
-	metadata.Minecraft.NextState = int8(nextState)
+	metadata.Minecraft.NextState = int8(intent)
 
 	metadata.Minecraft.SniffPosition = conn.CurrentPosition()
-	if nextState == mcprotocol.NextStateStatus {
+	if intent == mcprotocol.IntentStatus {
 		// status packet
 		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 		_, err = conn.Peek(2)
