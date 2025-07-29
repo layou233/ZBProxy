@@ -1,6 +1,10 @@
 package config
 
-import "github.com/layou233/zbproxy/v3/common/jsonx"
+import (
+	"encoding/json"
+
+	"github.com/layou233/zbproxy/v3/common/jsonx"
+)
 
 type Router struct {
 	DefaultOutbound string  `json:",omitempty"`
@@ -9,7 +13,7 @@ type Router struct {
 
 type Rule struct {
 	Type      string
-	Parameter jsonx.RawJSON `json:",omitempty"`
+	Parameter json.RawMessage `json:",omitempty"`
 	//SubRules []Rule `json:",omitempty"`
 	Rewrite  RuleRewrite            `json:",omitempty"`
 	Sniff    jsonx.Listable[string] `json:",omitempty"`
