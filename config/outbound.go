@@ -10,5 +10,5 @@ type Outbound struct {
 	Minecraft            *MinecraftService              `json:",omitempty"`
 	SocketOptions        *network.OutboundSocketOptions `json:",omitempty"`
 	ProxyProtocolVersion int8                           `json:",omitempty"`
-	ProxyOptions         outbound                       `json:",omitempty"`
+	ProxyOptions         proxyOptions                   `json:",omitempty"`
 }

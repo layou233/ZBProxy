@@ -13,7 +13,7 @@ type Service struct {
 	Minecraft           *MinecraftService             `json:",omitempty"`
 	TLSSniffing         *tlsSniffing                  `json:",omitempty"`
 	SocketOptions       *network.InboundSocketOptions `json:",omitempty"`
-	Outbound            outbound                      `json:",omitempty"`
+	Outbound            proxyOptions                  `json:",omitempty"`
 }
 
 type access struct {
@@ -52,8 +52,8 @@ type tlsSniffing struct {
 	SNIAllowListTags []string `json:",omitempty"`
 }
 
-type outbound struct {
-	Type    string
+type proxyOptions struct {
+	Type    string `json:",omitempty"`
 	Network string `json:",omitempty"`
 	Address string `json:",omitempty"`
 }

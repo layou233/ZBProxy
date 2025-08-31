@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/netip"
 	"os"
+	"sync"
 
 	"github.com/layou233/zbproxy/v3/adapter"
 	"github.com/layou233/zbproxy/v3/common"
@@ -34,6 +35,7 @@ func NewOutbound(logger *log.Logger, newConfig *config.Outbound) (adapter.Outbou
 }
 
 type Plain struct {
+	access sync.RWMutex
 	logger *log.Logger
 	config *config.Outbound
 	router adapter.Router
@@ -46,11 +48,13 @@ var (
 	_ network.Dialer           = (*Plain)(nil)
 )
 
-func (o *Plain) Name() string {
+func (o *Plain) Name() (name string) {
+	o.access.RLock()
 	if o.config != nil {
-		return o.config.Name
+		name = o.config.Name
 	}
-	return ""
+	o.access.RUnlock()
+	return
 }
 
 func (o *Plain) PostInitialize(router adapter.Router, provider adapter.RouteResourceProvider) error {
@@ -87,15 +91,21 @@ func (o *Plain) PostInitialize(router adapter.Router, provider adapter.RouteReso
 }
 
 func (o *Plain) Reload(options adapter.OutboundReloadOptions) error {
+	o.access.Lock()
+	defer o.access.Unlock()
 	o.config = options.Config
 	return o.PostInitialize(o.router, &options)
 }
 
 func (o *Plain) DialContext(ctx context.Context, network string, address string) (net.Conn, error) {
+	o.access.RLock()
+	defer o.access.RUnlock()
 	return o.dialer.DialContext(ctx, network, address)
 }
 
 func (o *Plain) DialContextWithMetadata(ctx context.Context, network string, address string, metadata *adapter.Metadata) (net.Conn, error) {
+	o.access.RLock()
+	defer o.access.RUnlock()
 	conn, err := adapter.DialContextWithMetadata(o.dialer, ctx, network, address, metadata)
 	if err != nil {
 		return nil, err

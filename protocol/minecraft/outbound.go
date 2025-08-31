@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/layou233/zbproxy/v3/adapter"
@@ -32,6 +33,7 @@ import (
 var minecraftSRV = &adapter.SRVMetadata{ServiceName: "minecraft"}
 
 type Outbound struct {
+	access sync.RWMutex
 	logger *log.Logger
 	config *config.Outbound
 	router adapter.Router
@@ -58,11 +60,13 @@ func NewOutbound(logger *log.Logger, newConfig *config.Outbound) (*Outbound, err
 	return outbound, nil
 }
 
-func (o *Outbound) Name() string {
+func (o *Outbound) Name() (name string) {
+	o.access.RLock()
 	if o.config != nil {
-		return o.config.Name
+		name = o.config.Name
 	}
-	return ""
+	o.access.RUnlock()
+	return
 }
 
 func (o *Outbound) PostInitialize(router adapter.Router, provider adapter.RouteResourceProvider) error {
@@ -176,6 +180,8 @@ func (o *Outbound) PostInitialize(router adapter.Router, provider adapter.RouteR
 }
 
 func (o *Outbound) Reload(options adapter.OutboundReloadOptions) error {
+	o.access.Lock()
+	defer o.access.Unlock()
 	o.config = options.Config
 	o.hostnameAccessLists = nil
 	o.nameAccessLists = nil
@@ -222,16 +228,19 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 	if metadata.Minecraft == nil {
 		return errors.New("require Minecraft metadata")
 	}
+	o.access.RLock()
+
 	if o.config.Minecraft.HostnameAccess.Mode != access.DefaultMode {
 		hostnameClean := metadata.Minecraft.CleanOriginDestination()
 		if o.config.Minecraft.HostnameAccess.LowerCase {
 			hostnameClean = strings.ToLower(hostnameClean)
 		}
 		if !access.Check(o.hostnameAccessLists, o.config.Minecraft.HostnameAccess.Mode, hostnameClean) {
-			conn.Conn.(*net.TCPConn).SetLinger(0)
-			conn.Close()
-			return common.Cause("hostname "+o.config.Minecraft.HostnameAccess.Mode+
+			err := common.Cause("hostname "+o.config.Minecraft.HostnameAccess.Mode+
 				" mode, request="+url.QueryEscape(hostnameClean)+": ", access.ErrRejected)
+			o.access.RUnlock()
+			conn.Conn.(*net.TCPConn).SetLinger(0)
+			return err
 		}
 	}
 	if metadata.Minecraft.SniffPosition >= 0 {
@@ -242,6 +251,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 		// skip Status Request packet
 		_, err := conn.Peek(2)
 		if err != nil {
+			o.access.RUnlock()
 			return common.Cause("skip status request: ", err)
 		}
 		if o.config.Minecraft.MotdFavicon == "" && o.config.Minecraft.MotdDescription == "" {
@@ -249,6 +259,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			var remoteConn net.Conn
 			remoteConn, err = o.connectServer(ctx, metadata)
 			if err != nil {
+				o.access.RUnlock()
 				return common.Cause("request remote MOTD: ", err)
 			}
 			//remoteConn.(*net.TCPConn).SetLinger(0) // for some reason
@@ -291,8 +302,10 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			_, err = remoteConn.Write(buffer.Bytes())
 			buffer.Release()
 			if err != nil {
+				o.access.RUnlock()
 				return common.Cause("request remote MOTD: ", err)
 			}
+			o.access.RUnlock()
 			return bufio.CopyConn(remoteConn, conn)
 		} else {
 			motd := generateMOTD(metadata.Minecraft.ProtocolVersion, o.config, &o.onlineCount)
@@ -307,6 +320,8 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			}
 			err = clientMC.WriteVectorizedPacket(buffer, motd)
 			if err != nil {
+				o.access.RUnlock()
+				buffer.Release()
 				return common.Cause("respond MOTD: ", err)
 			}
 
@@ -319,21 +334,25 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 				err = clientMC.WritePacket(buffer)
 				buffer.Release()
 				if err != nil {
+					o.access.RUnlock()
 					return common.Cause("respond 0ms ping: ", err)
 				}
 			default:
 				err = clientMC.ReadLimitedPacket(buffer, 9)
 				if err != nil {
+					o.access.RUnlock()
 					buffer.Release()
 					return common.Cause("read ping request: ", err)
 				}
 				err = clientMC.WritePacket(buffer)
 				buffer.Release()
 				if err != nil {
+					o.access.RUnlock()
 					return common.Cause("respond ping request: ", err)
 				}
 			}
 			o.logger.Info().Str("id", metadata.ConnectionID).Str("outbound", o.config.Name).Msg("Responded MOTD")
+			o.access.RUnlock()
 			return nil
 		}
 
@@ -348,6 +367,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			if !access.Check(o.nameAccessLists, o.config.Minecraft.NameAccess.Mode, name) {
 				msg, err := generateKickMessage(o.config, metadata.Minecraft.PlayerName).MarshalJSON()
 				if err != nil { // almost impossible
+					o.access.RUnlock()
 					buffer.Release()
 					return common.Cause("generate kick message: ", err)
 				}
@@ -355,11 +375,13 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 				mcprotocol.VarInt(len(msg)).WriteToBuffer(buffer)
 				err = mcprotocol.Conn{Writer: common.UnwrapWriter(conn)}.WriteVectorizedPacket(buffer, msg)
 				if err != nil {
+					o.access.RUnlock()
 					buffer.Release()
 					return common.Cause("send kick packet: ", err)
 				}
 				o.logger.Warn().Str("id", metadata.ConnectionID).Str("outbound", o.config.Name).
 					Str("player", metadata.Minecraft.PlayerName).Msg("Kicked by name access control")
+				o.access.RUnlock()
 				conn.Conn.(*net.TCPConn).SetLinger(10)
 				buffer.Release()
 				return nil
@@ -369,6 +391,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			o.config.Minecraft.OnlineCount.Max <= o.onlineCount.Load() {
 			msg, err := generatePlayerNumberLimitExceededMessage(o.config, metadata.Minecraft.PlayerName).MarshalJSON()
 			if err != nil {
+				o.access.RUnlock()
 				buffer.Release()
 				return common.Cause("generate player number limit exceeded packet: ", err)
 			}
@@ -376,11 +399,13 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 			mcprotocol.VarInt(len(msg)).WriteToBuffer(buffer)
 			err = mcprotocol.Conn{Writer: common.UnwrapWriter(conn)}.WriteVectorizedPacket(buffer, msg)
 			if err != nil {
+				o.access.RUnlock()
 				buffer.Release()
 				return common.Cause("send player number limit exceeded packet: ", err)
 			}
 			o.logger.Warn().Str("id", metadata.ConnectionID).Str("outbound", o.config.Name).
 				Str("player", metadata.Minecraft.PlayerName).Msg("Kicked by player number limiter")
+			o.access.RUnlock()
 			conn.Conn.(*net.TCPConn).SetLinger(10)
 			buffer.Release()
 			return nil
@@ -388,6 +413,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 
 		serverConn, err := o.connectServer(ctx, metadata)
 		if err != nil {
+			o.access.RUnlock()
 			buffer.Release()
 			return common.Cause("connect server: ", err)
 		}
@@ -420,12 +446,14 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 		_, err = vector.WriteTo(serverConn)
 		buffer.Release()
 		if err != nil {
+			o.access.RUnlock()
 			serverConn.Close()
 			return common.Cause("server handshake: ", err)
 		}
 		cache.Advance(cache.Len()) // all written
 		o.logger.Info().Str("id", metadata.ConnectionID).Str("outbound", o.config.Name).
 			Str("player", metadata.Minecraft.PlayerName).Msg("Created Minecraft connection")
+		o.access.RUnlock()
 		o.onlineCount.Add(1)
 		err = bufio.CopyConn(serverConn, conn)
 		o.onlineCount.Add(-1)
@@ -433,11 +461,13 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 
 	case mcprotocol.IntentTransfer:
 		// TODO: Minecraft transfer support
+		o.access.RUnlock()
 		conn.Conn.(*net.TCPConn).SetLinger(0)
 		return conn.Close()
 
 	default:
-		return errors.New("unknown next state")
+		o.access.RUnlock()
+		return errors.New("unknown intent")
 	}
 }
 
