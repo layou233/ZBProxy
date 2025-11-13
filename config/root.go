@@ -147,11 +147,11 @@ func LoadConfigFromFile(ctx context.Context, filePath string, watch bool, logger
 				Router: Router{
 					Rules: []*Rule{
 						{
-							Type:  "always",
+							Type:  RuleTypeAlways,
 							Sniff: jsonx.Listable[string]{"minecraft"},
 						},
 						{
-							Type:      "ServiceName",
+							Type:      RuleTypeServiceName,
 							Parameter: json.RawMessage("\"Hypixel-in\""),
 							Rewrite: RuleRewrite{
 								Minecraft: &ruleRewriteMinecraft{
