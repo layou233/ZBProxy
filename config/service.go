@@ -23,7 +23,7 @@ type access struct {
 }
 
 type MinecraftService struct {
-	EnableHostnameRewrite bool
+	EnableHostnameRewrite bool   `json:",omitempty"`
 	RewrittenHostname     string `json:",omitempty"`
 
 	OnlineCount onlineCount
