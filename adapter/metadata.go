@@ -49,6 +49,10 @@ type MinecraftMetadata struct {
 	SniffPosition        int
 }
 
+func (m *MinecraftMetadata) Valid() bool {
+	return 0 < m.NextState
+}
+
 func (m *MinecraftMetadata) IsFML() bool {
 	return strings.IndexByte(m.OriginDestination, 0) != -1
 }

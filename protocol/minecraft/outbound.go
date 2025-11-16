@@ -228,6 +228,9 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 	if metadata.Minecraft == nil {
 		return errors.New("require Minecraft metadata")
 	}
+	if !metadata.Minecraft.Valid() {
+		return errors.New("invalid Minecraft protocol")
+	}
 	o.access.RLock()
 
 	if o.config.Minecraft.HostnameAccess.Mode != access.DefaultMode {
@@ -467,7 +470,7 @@ func (o *Outbound) InjectConnection(ctx context.Context, conn *bufio.CachedConn,
 
 	default:
 		o.access.RUnlock()
-		return errors.New("unknown intent")
+		return fmt.Errorf("unknown intent: %d", metadata.Minecraft.NextState)
 	}
 }
 
