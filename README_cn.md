@@ -52,9 +52,9 @@ stream {
 完整的文档已迁移至
 https://launium.com/doc/ZBProxy
 
-## 赞助商
-[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)  
-JetBrains for open source support development license.
+## 鸣谢
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource)  
+使用 JetBrains IDE 开发。
 
 ## 许可证
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_large)

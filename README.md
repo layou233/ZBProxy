@@ -66,9 +66,9 @@ Generally speaking, Linux-based operating environments have more room for optimi
 ZBProxy supports **Zero Copy** technology on Linux, which can *reduce memory usage **by one time**, save **a lot of** CPU processing, and reduce **network latency***. When users set `Flow` to `auto` or `linux-zerocopy` on their `Service` configuration, this technology will be automatically adopted in due course.  
 If you are running ZBProxy on a Linux-based system, you can go to **[ZBProxy Document](https://launium.com/doc/ZBProxy)** to view **tips for optimizing network settings**.
 
-## Sponsor
-[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)  
-JetBrains for open source support development license.
+## Thanks
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource)  
+Developed using JetBrains IDEs.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flayou233%2FZBProxy.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Flayou233%2FZBProxy?ref=badge_large)
