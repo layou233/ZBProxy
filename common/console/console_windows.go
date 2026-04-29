@@ -8,8 +8,8 @@ import (
 	"unsafe"
 )
 
-var SetConsoleTileW = syscall.NewLazyDLL("kernel32.dll").NewProc("SetConsoleTitleW")
+var SetConsoleTitleW = syscall.MustLoadDLL("kernel32.dll").MustFindProc("SetConsoleTitleW")
 
 func SetTitle(title string) {
-	SetConsoleTileW.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(title)))) //nolint:errcheck,staticcheck
+	SetConsoleTitleW.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(title)))) //nolint:errcheck,staticcheck
 }

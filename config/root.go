@@ -159,9 +159,10 @@ func LoadConfigFromFile(ctx context.Context, filePath string, watch bool, logger
 									Port:     25565,
 								},
 							},
+							Outbound: "Hypixel-out",
 						},
 					},
-					DefaultOutbound: "Hypixel-out",
+					DefaultOutbound: "RESET",
 				},
 				Outbounds: []*Outbound{
 					{

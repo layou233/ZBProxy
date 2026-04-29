@@ -23,7 +23,7 @@ func CopyConn(remote net.Conn, local net.Conn) error {
 	remote.Close()
 	<-done
 	if errLocal != nil || errRemote != nil {
-		return fmt.Errorf("relay connnections: download: %w | upload: %w", errRemote, errLocal)
+		return fmt.Errorf("relay connections: download: %w | upload: %w", errRemote, errLocal)
 	}
 	return nil
 }
